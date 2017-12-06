@@ -110,6 +110,9 @@ public:
 
 	inline float GetDeltaTime() const			{ return updateTimestep; }
 
+	//inline void SetGlobalSpace(Subspace* ss)	{ globalSpace = ss; }
+	//inline Subspace* GetGlobalSpace() const		{ return globalSpace; }
+
 	void PrintPerformanceTimers(const Vector4& color)
 	{
 		perfUpdate.PrintOutputToStatusEntry(color,		"    Integration :");
@@ -139,6 +142,7 @@ protected:
 	Vector3		gravity;
 	float		dampingFactor;
 
+	//Subspace*	globalSpace;
 
 	std::vector<CollisionPair>  broadphaseColPairs;
 

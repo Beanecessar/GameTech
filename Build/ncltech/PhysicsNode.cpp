@@ -11,7 +11,8 @@ void PhysicsNode::IntegrateForVelocity(float dt)
 
 	linVelocity = linVelocity * PhysicsEngine::Instance()->GetDampingFactor();
 
-	angVelocity += invInertia * torque * dt;
+	angVelocity += invInertia * torque * dt;
+
 	angVelocity = angVelocity * PhysicsEngine::Instance() -> GetDampingFactor();
 }
 
@@ -24,8 +25,12 @@ void PhysicsNode::IntegrateForPosition(float dt)
 {
 	position += linVelocity * dt;
 
-	orientation = orientation + Quaternion(angVelocity * dt * 0.5f, 0.0f) * orientation;
+	orientation = orientation + Quaternion(angVelocity * dt * 0.5f, 0.0f) * orientation;
+
 	orientation.Normalise();
+
+	//subspace->UpdateNode(this);
+
 	//Finally: Notify any listener's that this PhysicsNode has a new world transform.
 	// - This is used by GameObject to set the worldTransform of any RenderNode's. 
 	//   Please don't delete this!!!!!
