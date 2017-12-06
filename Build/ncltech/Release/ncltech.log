@@ -1,0 +1,12 @@
+﻿  CollisionDetectionSAT.cpp
+  CommonUtils.cpp
+  CuboidCollisionShape.cpp
+  Manifold.cpp
+  Octree.cpp
+  PhysicsEngine.cpp
+  PhysicsNode.cpp
+  SceneManager.cpp
+  SphereCollisionShape.cpp
+  正在生成代码...
+d:\cppproject\gametech\build\ncltech\octree.cpp(67): error C4716: “Octree::AddNode”: 必须返回一个值
+d:\cppproject\gametech\build\ncltech\octree.cpp(62): error C4716: “Octree::AddNode”: 必须返回一个值
