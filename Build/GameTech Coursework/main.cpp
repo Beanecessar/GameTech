@@ -49,7 +49,7 @@ void Initialize()
 
 	//Initialise the PhysicsEngine
 	PhysicsEngine::Instance();
-	//PhysicsEngine::Instance()->SetGlobalSpace(new Subspace(1024.f, 5));
+	PhysicsEngine::Instance()->SetGlobalSpace(new Subspace(1024.f, 5));
 
 	//Enqueue All Scenes
 	SceneManager::Instance()->EnqueueScene(new TestScene("GameTech #1 - Framework Sandbox!"));

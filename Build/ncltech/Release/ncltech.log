@@ -1,12 +1,4 @@
 ﻿  CollisionDetectionSAT.cpp
-  CommonUtils.cpp
-  CuboidCollisionShape.cpp
-  Manifold.cpp
-  Octree.cpp
-  PhysicsEngine.cpp
-  PhysicsNode.cpp
-  SceneManager.cpp
-  SphereCollisionShape.cpp
-  正在生成代码...
-d:\cppproject\gametech\build\ncltech\octree.cpp(67): error C4716: “Octree::AddNode”: 必须返回一个值
-d:\cppproject\gametech\build\ncltech\octree.cpp(62): error C4716: “Octree::AddNode”: 必须返回一个值
+d:\gametech\build\ncltech\Subspace.h(22): warning C4244: '=': conversion from 'const float' to 'unsigned int', possible loss of data
+d:\gametech\build\ncltech\Subspace.h(27): warning C4244: 'return': conversion from 'unsigned int' to 'const float', possible loss of data
+  ncltech.vcxproj -> D:\GameTech\Build\Release\ncltech.lib

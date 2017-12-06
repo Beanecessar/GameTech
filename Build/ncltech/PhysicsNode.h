@@ -33,11 +33,11 @@ Description:
 #include <nclgl\Quaternion.h>
 #include <nclgl\Matrix3.h>
 #include "CollisionShape.h"
-#include "PhysicsEngine.h"
 #include <functional>
-//#include "Subspace.h"
+#include "Subspace.h"
 
 class PhysicsNode;
+class Subspace;
 
 //Callback function called whenever a collision is detected between two objects
 //Params:
@@ -74,7 +74,7 @@ public:
 		, friction(0.5f)
 		, elasticity(0.9f)
 	{
-		//PhysicsEngine::Instance()->GetGlobalSpace()->AddNode(this);
+		subspace = nullptr;
 	}
 
 	virtual ~PhysicsNode()
@@ -93,7 +93,7 @@ public:
 
 	//<--------- GETTERS ------------->
 	inline GameObject*			GetParent()					const { return parent; }
-	//inline Subspace*			GetSubspace()				const { return subspace; }
+	inline Subspace*			GetSubspace()				const { return subspace; }
 
 	inline float				GetElasticity()				const { return elasticity; }
 	inline float				GetFriction()				const { return friction; }
@@ -118,7 +118,7 @@ public:
 
 	//<--------- SETTERS ------------->
 	inline void SetParent(GameObject* obj)							{ parent = obj; }
-	//inline void SetSubspace(Subspace* ss)							{ subspace = ss; }
+	inline void SetSubspace(Subspace* ss)							{ subspace = ss; }
 
 	inline void SetElasticity(float elasticityCoeff)				{ elasticity = elasticityCoeff; }
 	inline void SetFriction(float frictionCoeff)					{ friction = frictionCoeff; }
@@ -167,7 +167,7 @@ public:
 protected:
 	//Useful parameters
 	GameObject*				parent;
-	//Subspace*				subspace;
+	Subspace*				subspace;
 	Matrix4					worldTransform;
 	PhysicsUpdateCallback	onUpdateCallback;
 

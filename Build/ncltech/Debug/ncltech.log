@@ -1,1 +1,41 @@
-﻿  ncltech.vcxproj -> D:\CPPproject\GameTech\Build\Debug\ncltech.lib
+﻿  Subspace.cpp
+d:\gametech\build\ncltech\subspace.h(22): warning C4244: '=': conversion from 'const float' to 'unsigned int', possible loss of data
+d:\gametech\build\ncltech\subspace.h(27): warning C4244: 'return': conversion from 'unsigned int' to 'const float', possible loss of data
+d:\gametech\build\ncltech\subspace.cpp(4): warning C4244: '=': conversion from 'const float' to 'unsigned int', possible loss of data
+d:\gametech\build\ncltech\subspace.cpp(37): warning C4244: '=': conversion from 'const float' to 'unsigned int', possible loss of data
+d:\gametech\build\ncltech\subspace.cpp(40): warning C4244: '=': conversion from 'const unsigned int' to 'float', possible loss of data
+  SphereCollisionShape.cpp
+d:\gametech\build\ncltech\subspace.h(22): warning C4244: '=': conversion from 'const float' to 'unsigned int', possible loss of data
+d:\gametech\build\ncltech\subspace.h(27): warning C4244: 'return': conversion from 'unsigned int' to 'const float', possible loss of data
+  ScreenPicker.cpp
+  SceneManager.cpp
+d:\gametech\build\ncltech\subspace.h(22): warning C4244: '=': conversion from 'const float' to 'unsigned int', possible loss of data
+d:\gametech\build\ncltech\subspace.h(27): warning C4244: 'return': conversion from 'unsigned int' to 'const float', possible loss of data
+  PhysicsNode.cpp
+d:\gametech\build\ncltech\subspace.h(22): warning C4244: '=': conversion from 'const float' to 'unsigned int', possible loss of data
+d:\gametech\build\ncltech\subspace.h(27): warning C4244: 'return': conversion from 'unsigned int' to 'const float', possible loss of data
+  PhysicsEngine.cpp
+d:\gametech\build\ncltech\subspace.h(22): warning C4244: '=': conversion from 'const float' to 'unsigned int', possible loss of data
+d:\gametech\build\ncltech\subspace.h(27): warning C4244: 'return': conversion from 'unsigned int' to 'const float', possible loss of data
+d:\gametech\build\ncltech\physicsengine.cpp(170): warning C4101: 'pnodeB': unreferenced local variable
+d:\gametech\build\ncltech\physicsengine.cpp(170): warning C4101: 'pnodeA': unreferenced local variable
+  NetworkBase.cpp
+  Manifold.cpp
+d:\gametech\build\ncltech\subspace.h(22): warning C4244: '=': conversion from 'const float' to 'unsigned int', possible loss of data
+d:\gametech\build\ncltech\subspace.h(27): warning C4244: 'return': conversion from 'unsigned int' to 'const float', possible loss of data
+  Hull.cpp
+  GraphicsPipeline.cpp
+  GeometryUtils.cpp
+  CuboidCollisionShape.cpp
+d:\gametech\build\ncltech\subspace.h(22): warning C4244: '=': conversion from 'const float' to 'unsigned int', possible loss of data
+d:\gametech\build\ncltech\subspace.h(27): warning C4244: 'return': conversion from 'unsigned int' to 'const float', possible loss of data
+  CommonUtils.cpp
+d:\gametech\build\ncltech\subspace.h(22): warning C4244: '=': conversion from 'const float' to 'unsigned int', possible loss of data
+d:\gametech\build\ncltech\subspace.h(27): warning C4244: 'return': conversion from 'unsigned int' to 'const float', possible loss of data
+  CommonMeshes.cpp
+  CollisionDetectionSAT.cpp
+d:\gametech\build\ncltech\subspace.h(22): warning C4244: '=': conversion from 'const float' to 'unsigned int', possible loss of data
+d:\gametech\build\ncltech\subspace.h(27): warning C4244: 'return': conversion from 'unsigned int' to 'const float', possible loss of data
+  Generating Code...
+d:\gametech\build\ncltech\subspace.cpp(264): warning C4717: 'Subspace::GetCollisionPairs': recursive on all control paths, function will cause runtime stack overflow
+  ncltech.vcxproj -> D:\GameTech\Build\Debug\ncltech.lib

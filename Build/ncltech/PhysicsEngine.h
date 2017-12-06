@@ -36,13 +36,13 @@ Description:
 
 #pragma once
 #include "PhysicsNode.h"
+#include "CollisionPair.h"
 #include "Constraint.h"
 #include "Manifold.h"
 #include <nclgl\TSingleton.h>
 #include <nclgl\PerfTimer.h>
 #include <vector>
 #include <mutex>
-
 
 //Number of jacobi iterations to apply in order to
 // assure the constraints are solved. (Last tutorial)
@@ -61,12 +61,6 @@ Description:
 #define DEBUGDRAW_FLAGS_MANIFOLD				0x2
 #define DEBUGDRAW_FLAGS_COLLISIONVOLUMES		0x4
 #define DEBUGDRAW_FLAGS_COLLISIONNORMALS		0x8
-
-struct CollisionPair	//Forms the output of the broadphase collision detection
-{
-	PhysicsNode* pObjectA;
-	PhysicsNode* pObjectB;
-};
 
 class PhysicsEngine : public TSingleton<PhysicsEngine>
 {
@@ -110,8 +104,8 @@ public:
 
 	inline float GetDeltaTime() const			{ return updateTimestep; }
 
-	//inline void SetGlobalSpace(Subspace* ss)	{ globalSpace = ss; }
-	//inline Subspace* GetGlobalSpace() const		{ return globalSpace; }
+	inline void SetGlobalSpace(Subspace* const ss)	{ globalSpace = ss; }
+	Subspace* GetGlobalSpace() const		{ return globalSpace; }
 
 	void PrintPerformanceTimers(const Vector4& color)
 	{
@@ -142,14 +136,14 @@ protected:
 	Vector3		gravity;
 	float		dampingFactor;
 
-	//Subspace*	globalSpace;
+	Subspace*	globalSpace;
 
 	std::vector<CollisionPair>  broadphaseColPairs;
 
 	std::vector<PhysicsNode*>	physicsNodes;
 
 	std::vector<Constraint*>	constraints;		// Misc constraints applying to one or more physics objects e.g our DistanceConstraint
-	std::vector<Manifold*>		manifolds;			// Contact constraints between pairs of objects
+	std::vector<Manifold*>	manifolds;			// Contact constraints between pairs of objects
 
 	PerfTimer perfUpdate;
 	PerfTimer perfBroadphase;
