@@ -106,7 +106,11 @@ public:
 			game_object->OnAttachedToScene();
 
 			if (game_object->renderNode) GraphicsPipeline::Instance()->AddRenderNode(game_object->renderNode);
-			if (game_object->physicsNode) PhysicsEngine::Instance()->AddPhysicsObject(game_object->physicsNode);
+			if (game_object->physicsNode) {
+				PhysicsEngine::Instance()->AddPhysicsObject(game_object->physicsNode);
+				if(game_object->physicsNode->GetCollisionShape())
+					PhysicsEngine::Instance()->GetGlobalSpace()->AddNode(game_object->physicsNode);
+			}
 		}
 	}
 
@@ -118,7 +122,11 @@ public:
 		if (game_object && game_object->scene == this)
 		{
 			if (game_object->renderNode) GraphicsPipeline::Instance()->RemoveRenderNode(game_object->renderNode);
-			if (game_object->physicsNode) PhysicsEngine::Instance()->RemovePhysicsObject(game_object->physicsNode);
+			if (game_object->physicsNode) {
+				PhysicsEngine::Instance()->GetGlobalSpace()->RemoveNode(game_object->physicsNode);
+				if (game_object->physicsNode->GetCollisionShape())
+					PhysicsEngine::Instance()->RemovePhysicsObject(game_object->physicsNode);
+			}
 
 			m_vpObjects.erase(std::remove(m_vpObjects.begin(), m_vpObjects.end(), game_object), m_vpObjects.end());
 			game_object->OnDetachedFromScene();

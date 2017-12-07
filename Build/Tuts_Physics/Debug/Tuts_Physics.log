@@ -1,1 +1,3 @@
-﻿
+﻿  main.cpp
+d:\gametech\build\ncltech\subspace.h(25): warning C4244: '=': conversion from 'const float' to 'unsigned int', possible loss of data
+d:\gametech\build\ncltech\subspace.h(30): warning C4244: 'return': conversion from 'unsigned int' to 'const float', possible loss of data

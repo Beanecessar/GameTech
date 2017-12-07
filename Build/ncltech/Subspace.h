@@ -7,7 +7,7 @@
 class Subspace
 {
 public:
-	Subspace(const float& size, const unsigned& maxdepth);
+	Subspace(const Vector3& centre, const float& size, const unsigned& maxdepth);
 	Subspace(const float&size, const Vector3& centre, const unsigned depth, Subspace* const parent, const float& maxDepth, Subspace* const root);
 	~Subspace();
 
@@ -15,6 +15,7 @@ public:
 
 	void AddNode		(PhysicsNode* const data);
 	void RemoveNode		(PhysicsNode* const data);
+	void Clear();
 
 	void UpdateNode		(PhysicsNode* const data);
 
@@ -37,6 +38,7 @@ protected:
 	bool IsObjectOutOfSpace(PhysicsNode* const data);							//include the case that object is on the bound
 
 	void AddNode(PhysicsNode* const data, Subspace* const ptr);
+	void Clear(Subspace* ptr);
 
 	void GetCollisionPairs(std::vector<CollisionPair>& collisionpairs,Subspace* const ptr, const std::vector<PhysicsNode*>& parentNodes);
 

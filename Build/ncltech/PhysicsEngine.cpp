@@ -20,8 +20,9 @@ PhysicsEngine::PhysicsEngine()
 {
 	//Variables set here will /not/ be reset with each scene
 	isPaused = false;
+	isPaused = false;
 	debugDrawFlags = DEBUGDRAW_FLAGS_MANIFOLD | DEBUGDRAW_FLAGS_CONSTRAINT | DEBUGDRAW_FLAGS_SUBSPACE;
-	globalSpace = new Subspace(32.f, 3);
+	globalSpace = new Subspace(Vector3(-0.5, 1, -0.5), 32.f, 5);
 	SetDefaults();
 }
 
@@ -72,6 +73,7 @@ void PhysicsEngine::RemoveAllPhysicsObjects()
 		delete obj;
 	}
 	physicsNodes.clear();
+	PhysicsEngine::Instance()->GetGlobalSpace()->Clear();
 }
 
 
@@ -176,7 +178,8 @@ void PhysicsEngine::BroadPhaseCollisions()
 
 	if (PhysicsEngine::Instance()->isBroadphase)
 	{
-		PhysicsEngine::Instance()->GetGlobalSpace()->GetCollisionPairs(broadphaseColPairs);
+		PhysicsEngine::Instance()->GetGlobalSpace()->GetCollisionPairs(broadphaseColPairs); 
+		//NCLDebug::Log("collision pairs with broadphase: %d", broadphaseColPairs.size());
 	} 
 	else
 	{
@@ -206,9 +209,9 @@ void PhysicsEngine::BroadPhaseCollisions()
 						cp.pObjectB = pnodeB;
 						broadphaseColPairs.push_back(cp);
 					}
-
 				}
 			}
+			//NCLDebug::Log("collision pairs without broadphase: %d", broadphaseColPairs.size());
 		}
 	}
 }

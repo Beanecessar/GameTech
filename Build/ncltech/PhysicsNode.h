@@ -123,7 +123,7 @@ public:
 	inline void SetElasticity(float elasticityCoeff)				{ elasticity = elasticityCoeff; }
 	inline void SetFriction(float frictionCoeff)					{ friction = frictionCoeff; }
 
-	inline void SetPosition(const Vector3& v)						{ position = v; FireOnUpdateCallback(); }
+	void SetPosition(const Vector3& v); 
 	inline void SetLinearVelocity(const Vector3& v)					{ linVelocity = v; }
 	inline void SetForce(const Vector3& v)							{ force = v; }
 	inline void SetInverseMass(const float& v)						{ invMass = v; }

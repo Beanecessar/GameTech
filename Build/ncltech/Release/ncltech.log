@@ -1,4 +1,4 @@
 ﻿  PhysicsEngine.cpp
-d:\cppproject\gametech\build\ncltech\Subspace.h(24): warning C4244: “=”: 从“const float”转换到“unsigned int”，可能丢失数据
-d:\cppproject\gametech\build\ncltech\Subspace.h(29): warning C4244: “return”: 从“unsigned int”转换到“const float”，可能丢失数据
-  ncltech.vcxproj -> D:\CPPproject\GameTech\Build\Release\ncltech.lib
+d:\gametech\build\ncltech\Subspace.h(25): warning C4244: '=': conversion from 'const float' to 'unsigned int', possible loss of data
+d:\gametech\build\ncltech\Subspace.h(30): warning C4244: 'return': conversion from 'unsigned int' to 'const float', possible loss of data
+  ncltech.vcxproj -> D:\GameTech\Build\Release\ncltech.lib

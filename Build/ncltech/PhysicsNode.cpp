@@ -31,11 +31,16 @@ void PhysicsNode::IntegrateForPosition(float dt)
 
 	if (subspace)
 		subspace->UpdateNode(this);
-	else
-		PhysicsEngine::Instance()->GetGlobalSpace()->AddNode(this);
 
 	//Finally: Notify any listener's that this PhysicsNode has a new world transform.
 	// - This is used by GameObject to set the worldTransform of any RenderNode's. 
 	//   Please don't delete this!!!!!
+	FireOnUpdateCallback();
+}
+
+void PhysicsNode::SetPosition(const Vector3& v) {
+	position = v;
+	if(subspace)
+		subspace->UpdateNode(this);
 	FireOnUpdateCallback();
 }

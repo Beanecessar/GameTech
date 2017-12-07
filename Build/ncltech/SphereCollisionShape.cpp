@@ -4,6 +4,7 @@
 #include <nclgl\Matrix3.h>
 #include <nclgl\Vector3.h>
 
+//static Vector3 debug_dir,debug_p1,debug_p2;
 
 SphereCollisionShape::SphereCollisionShape()
 {
@@ -47,6 +48,10 @@ void SphereCollisionShape::GetCollisionAxes(const PhysicsNode* otherObject, std:
 	Vector3 p2 = otherObject->GetCollisionShape()->GetClosestPoint(p1);
 
 	out_axes.push_back((p1 - p2).Normalise());
+
+	//debug_dir = dir;
+	//debug_p1 = p1;
+	//debug_p2 = p2;
 }
 
 Vector3 SphereCollisionShape::GetClosestPoint(const Vector3& point) const

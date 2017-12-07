@@ -64,7 +64,7 @@ void PrintStatusEntries()
 	//Print Engine Options
 	NCLDebug::AddStatusEntry(status_colour_header, "NCLTech Settings");
 	NCLDebug::AddStatusEntry(status_colour, "     Physics Engine: %s (Press P to toggle)", PhysicsEngine::Instance()->IsPaused() ? "Paused  " : "Enabled ");
-	NCLDebug::AddStatusEntry(status_colour, "     Broadphase Detection: %s (Press B to toggle)", PhysicsEngine::Instance()->IsBroadphase() ? "Paused  " : "Enabled ");
+	NCLDebug::AddStatusEntry(status_colour, "     Broadphase Detection: %s (Press B to toggle)", PhysicsEngine::Instance()->IsBroadphase() ? "Enabled " : "Disabled ");
 	NCLDebug::AddStatusEntry(status_colour, "     Monitor V-Sync: %s (Press V to toggle)", GraphicsPipeline::Instance()->GetVsyncEnabled() ? "Enabled " : "Disabled");
 	NCLDebug::AddStatusEntry(status_colour, "");
 
@@ -77,6 +77,12 @@ void PrintStatusEntries()
 	uint drawFlags = PhysicsEngine::Instance()->GetDebugDrawFlags();
 	NCLDebug::AddStatusEntry(status_colour, "--- Debug Draw ---");
 	NCLDebug::AddStatusEntry(status_colour, "Subspace Frame       : %s (Press U to toggle)", (drawFlags & DEBUGDRAW_FLAGS_SUBSPACE) ? "Enabled " : "Disabled");
+	NCLDebug::AddStatusEntry(status_colour, "");
+
+	//Print Performance
+	timer_total.PrintOutputToStatusEntry(status_colour, "Frame Total     :");
+	timer_physics.PrintOutputToStatusEntry(status_colour, "Physics Total   :");
+	PhysicsEngine::Instance()->PrintPerformanceTimers(status_colour);
 	NCLDebug::AddStatusEntry(status_colour, "");
 
 	//Print Current Scene Name
@@ -132,7 +138,6 @@ void HandleKeyboardInputs()
 	uint drawFlags = PhysicsEngine::Instance()->GetDebugDrawFlags();
 	if (Window::GetKeyboard()->KeyTriggered(KEYBOARD_U))
 		drawFlags ^= DEBUGDRAW_FLAGS_SUBSPACE;
-
 	PhysicsEngine::Instance()->SetDebugDrawFlags(drawFlags);
 
 	//Launch a sphere to current scene.

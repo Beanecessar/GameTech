@@ -33,10 +33,10 @@ Subspace::Subspace(const float&size, const Vector3& centre, const unsigned depth
 	}
 }
 
-Subspace::Subspace(const float& size, const unsigned& maxdepth) {
+Subspace::Subspace(const Vector3& centre, const float& size, const unsigned& maxdepth) {
 	root = this;
 	this->size = size;
-	centre = Vector3(0, 0, 0);
+	this->centre = centre;
 	parent = nullptr;
 	maxDepth = maxdepth;
 
@@ -162,11 +162,6 @@ void Subspace::DrawDebugFrame(Subspace* const ptr) {
 	}
 }
 
-void Subspace::AddNode(PhysicsNode* const data) {
-	AddNode(data, root);
-}
-
-
 bool Subspace::IsObjectSpaceCollision(PhysicsNode* const data, Subspace* const ptr) {
 	if (!data->GetCollisionShape())
 	{
@@ -209,26 +204,30 @@ bool Subspace::IsObjectOutOfSpace(PhysicsNode* const data) {
 
 	//x axis
 	data->GetCollisionShape()->GetMinMaxVertexOnAxis(Vector3(1, 0, 0), v_min, v_max);
-	if (v_min.x < data->GetSubspace()->centre.x - size && v_max.x > data->GetSubspace()->centre.x + size)
+	if (v_min.x < data->GetSubspace()->centre.x - size || v_max.x > data->GetSubspace()->centre.x + size)
 	{
 		return true;
 	}
 
 	//y axis
 	data->GetCollisionShape()->GetMinMaxVertexOnAxis(Vector3(0, 1, 0), v_min, v_max);
-	if (v_min.y < data->GetSubspace()->centre.y - size && v_max.y > data->GetSubspace()->centre.y + size)
+	if (v_min.y < data->GetSubspace()->centre.y - size || v_max.y > data->GetSubspace()->centre.y + size)
 	{
 		return true;
 	}
 
 	//z axis
 	data->GetCollisionShape()->GetMinMaxVertexOnAxis(Vector3(0, 0, 1), v_min, v_max);
-	if (v_min.z < data->GetSubspace()->centre.z - size && v_max.z > data->GetSubspace()->centre.z + size)
+	if (v_min.z < data->GetSubspace()->centre.z - size || v_max.z > data->GetSubspace()->centre.z + size)
 	{
 		return true;
 	}
 
 	return false;
+}
+
+void Subspace::AddNode(PhysicsNode* const data) {
+	AddNode(data, root);
 }
 
 
@@ -302,7 +301,7 @@ void Subspace::AddNode(PhysicsNode* const data, Subspace* const ptr) {
 }
 
 void Subspace::RemoveNode(PhysicsNode* const data) {
-	if (!data->GetSubspace()->nodes.empty())
+	if (data->GetSubspace()->nodes.empty())
 	{
 		return;
 	}
@@ -311,38 +310,60 @@ void Subspace::RemoveNode(PhysicsNode* const data) {
 	{
 		if (*i == data) {
 			data->GetSubspace()->nodes.erase(i);
+			return;
 		}
+	}
+	return;
+}
+
+void Subspace::Clear() {
+	Clear(root);
+}
+
+void Subspace::Clear(Subspace* ptr) {
+	ptr->nodes.clear();
+
+	if (ptr->depth < ptr->maxDepth)
+	{
+		Clear(ptr->flu);
+		Clear(ptr->fld);
+		Clear(ptr->fru);
+		Clear(ptr->frd);
+		Clear(ptr->blu);
+		Clear(ptr->bld);
+		Clear(ptr->bru);
+		Clear(ptr->brd);
 	}
 }
 
-void Subspace::UpdateNode(PhysicsNode* const data) {
-	if (!IsObjectOutOfSpace(data)) {
-		return;
-	}
 
-	RemoveNode(data);
-	AddNode(data, root);
+void Subspace::UpdateNode(PhysicsNode* const data) {
+	if (IsObjectOutOfSpace(data) || (data->GetSubspace()->depth < data->GetSubspace()->maxDepth && !IsObjectSpaceCollision(data, data->GetSubspace())))
+	{
+		RemoveNode(data);
+		AddNode(data, root);
+	}
 }
 
 void Subspace::GetCollisionPairs(std::vector<CollisionPair>& collisionpairs) {
 	std::vector<PhysicsNode*> emptyVector;
+	emptyVector.clear();
 	GetCollisionPairs(collisionpairs, root, emptyVector);
 }
 
 void Subspace::GetCollisionPairs(std::vector<CollisionPair>& collisionpairs, Subspace* const ptr, const std::vector<PhysicsNode*>& parentNodes) {
-	std::vector<PhysicsNode*> possibleCollisionNodes = parentNodes;
+	std::vector<PhysicsNode*> parentnodes = parentNodes;
 
-	possibleCollisionNodes.insert(possibleCollisionNodes.end(), ptr->nodes.begin(), ptr->nodes.end());
 
-	if (possibleCollisionNodes.size() > 0)
+	if (ptr->nodes.size() > 0)
 	{
 		PhysicsNode *pnodeA, *pnodeB;
-		for (size_t i = 0; i < possibleCollisionNodes.size() - 1; ++i)
+		for (size_t i = 0; i < ptr->nodes.size() - 1; ++i)
 		{
-			for (size_t j = i + 1; j < possibleCollisionNodes.size(); ++j)
+			for (size_t j = i + 1; j < ptr->nodes.size(); ++j)
 			{
-				pnodeA = possibleCollisionNodes[i];
-				pnodeB = possibleCollisionNodes[j];
+				pnodeA = ptr->nodes[i];
+				pnodeB = ptr->nodes[j];
 
 				//Check they both atleast have collision shapes
 				if (pnodeA->GetCollisionShape() != NULL
@@ -356,17 +377,44 @@ void Subspace::GetCollisionPairs(std::vector<CollisionPair>& collisionpairs, Sub
 
 			}
 		}
+
+		if (parentNodes.size() > 0)
+		{
+			PhysicsNode *pnodeA, *pnodeB;
+			for (size_t i = 0; i < parentNodes.size(); ++i)
+			{
+				for (size_t j = 0; j < ptr->nodes.size(); ++j)
+				{
+					pnodeA = parentNodes[i];
+					pnodeB = ptr->nodes[j];
+
+					//Check they both atleast have collision shapes
+					if (pnodeA->GetCollisionShape() != NULL
+						&& pnodeB->GetCollisionShape() != NULL)
+					{
+						CollisionPair cp;
+						cp.pObjectA = pnodeA;
+						cp.pObjectB = pnodeB;
+						collisionpairs.push_back(cp);
+					}
+
+				}
+			}
+		}
+
+		parentnodes.insert(parentnodes.end(), ptr->nodes.begin(), ptr->nodes.end());
 	}
 	
+
 	if (ptr->depth < ptr->maxDepth)
 	{
-		GetCollisionPairs(collisionpairs, ptr->flu, possibleCollisionNodes);
-		GetCollisionPairs(collisionpairs, ptr->fld, possibleCollisionNodes);
-		GetCollisionPairs(collisionpairs, ptr->fru, possibleCollisionNodes);
-		GetCollisionPairs(collisionpairs, ptr->frd, possibleCollisionNodes);
-		GetCollisionPairs(collisionpairs, ptr->blu, possibleCollisionNodes);
-		GetCollisionPairs(collisionpairs, ptr->bld, possibleCollisionNodes);
-		GetCollisionPairs(collisionpairs, ptr->bru, possibleCollisionNodes);
-		GetCollisionPairs(collisionpairs, ptr->brd, possibleCollisionNodes);
+		GetCollisionPairs(collisionpairs, ptr->flu, parentnodes);
+		GetCollisionPairs(collisionpairs, ptr->fld, parentnodes);
+		GetCollisionPairs(collisionpairs, ptr->fru, parentnodes);
+		GetCollisionPairs(collisionpairs, ptr->frd, parentnodes);
+		GetCollisionPairs(collisionpairs, ptr->blu, parentnodes);
+		GetCollisionPairs(collisionpairs, ptr->bld, parentnodes);
+		GetCollisionPairs(collisionpairs, ptr->bru, parentnodes);
+		GetCollisionPairs(collisionpairs, ptr->brd, parentnodes);
 	}
 }
