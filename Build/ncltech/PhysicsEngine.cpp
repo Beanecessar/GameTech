@@ -20,8 +20,8 @@ PhysicsEngine::PhysicsEngine()
 {
 	//Variables set here will /not/ be reset with each scene
 	isPaused = false;
-	debugDrawFlags = DEBUGDRAW_FLAGS_MANIFOLD | DEBUGDRAW_FLAGS_CONSTRAINT;
-
+	debugDrawFlags = DEBUGDRAW_FLAGS_MANIFOLD | DEBUGDRAW_FLAGS_CONSTRAINT | DEBUGDRAW_FLAGS_SUBSPACE;
+	globalSpace = new Subspace(32.f, 3);
 	SetDefaults();
 }
 
@@ -165,41 +165,52 @@ void PhysicsEngine::UpdatePhysics()
 
 void PhysicsEngine::BroadPhaseCollisions()
 {
+	if (debugDrawFlags & DEBUGDRAW_FLAGS_SUBSPACE)
+	{
+		PhysicsEngine::Instance()->GetGlobalSpace()->DrawDebugFrame();
+	}
+
 	broadphaseColPairs.clear();
 
 	PhysicsNode *pnodeA, *pnodeB;
-	//	The broadphase needs to build a list of all potentially colliding objects in the world,
-	//	which then get accurately assesed in narrowphase. If this is too coarse then the system slows down with
-	//	the complexity of narrowphase collision checking, if this is too fine then collisions may be missed.
+
+	if (PhysicsEngine::Instance()->isBroadphase)
+	{
+		PhysicsEngine::Instance()->GetGlobalSpace()->GetCollisionPairs(broadphaseColPairs);
+	} 
+	else
+	{
+		//	The broadphase needs to build a list of all potentially colliding objects in the world,
+		//	which then get accurately assesed in narrowphase. If this is too coarse then the system slows down with
+		//	the complexity of narrowphase collision checking, if this is too fine then collisions may be missed.
 
 
-	//	Brute force approach.
-	//  - For every object A, assume it could collide with every other object.. 
-	//    even if they are on the opposite sides of the world.
-	//if (physicsNodes.size() > 0)
-	//{
-	//	for (size_t i = 0; i < physicsNodes.size() - 1; ++i)
-	//	{
-	//		for (size_t j = i + 1; j < physicsNodes.size(); ++j)
-	//		{
-	//			pnodeA = physicsNodes[i];
-	//			pnodeB = physicsNodes[j];
+		//	Brute force approach.
+		//  - For every object A, assume it could collide with every other object.. 
+		//    even if they are on the opposite sides of the world.
+		if (physicsNodes.size() > 0)
+		{
+			for (size_t i = 0; i < physicsNodes.size() - 1; ++i)
+			{
+				for (size_t j = i + 1; j < physicsNodes.size(); ++j)
+				{
+					pnodeA = physicsNodes[i];
+					pnodeB = physicsNodes[j];
 
-	//			//Check they both atleast have collision shapes
-	//			if (pnodeA->GetCollisionShape() != NULL
-	//				&& pnodeB->GetCollisionShape() != NULL)
-	//			{
-	//				CollisionPair cp;
-	//				cp.pObjectA = pnodeA;
-	//				cp.pObjectB = pnodeB;
-	//				broadphaseColPairs.push_back(cp);
-	//			}
+					//Check they both atleast have collision shapes
+					if (pnodeA->GetCollisionShape() != NULL
+						&& pnodeB->GetCollisionShape() != NULL)
+					{
+						CollisionPair cp;
+						cp.pObjectA = pnodeA;
+						cp.pObjectB = pnodeB;
+						broadphaseColPairs.push_back(cp);
+					}
 
-	//		}
-	//	}
-	//}
-
-	PhysicsEngine::Instance()->GetGlobalSpace()->GetCollisionPairs(broadphaseColPairs);
+				}
+			}
+		}
+	}
 }
 
 

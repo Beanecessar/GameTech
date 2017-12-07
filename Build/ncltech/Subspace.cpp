@@ -1,4 +1,5 @@
 #include "Subspace.h"
+#include "nclgl/NCLDebug.h"
 
 Subspace::Subspace(const float&size, const Vector3& centre, const unsigned depth, Subspace* const parent, const float& maxDepth, Subspace* const root) {
 	this->size = size;
@@ -77,12 +78,101 @@ Subspace::~Subspace()
 	delete brd;
 }
 
+void Subspace::DrawDebugFrame() {
+	DrawDebugFrame(root);
+}
+
+void Subspace::DrawDebugFrame(Subspace* const ptr) {
+	//centre
+	NCLDebug::DrawPointNDT(ptr->centre, 0.05f, Vector4((float)ptr->depth / ptr->maxDepth, (float)ptr->depth / (float)ptr->maxDepth, ptr->depth / ptr->maxDepth, 1.0f));
+
+	//x axis
+	NCLDebug::DrawThickLineNDT(	Vector3(ptr->centre.x - ptr->size, ptr->centre.y - ptr->size, ptr->centre.z - ptr->size),
+								Vector3(ptr->centre.x + ptr->size, ptr->centre.y - ptr->size, ptr->centre.z - ptr->size),
+								0.01f,
+								Vector4(0.0f, 0.0f, 0.0f, 1.0f));
+
+	NCLDebug::DrawThickLineNDT(	Vector3(ptr->centre.x - ptr->size, ptr->centre.y - ptr->size, ptr->centre.z + ptr->size),
+								Vector3(ptr->centre.x + ptr->size, ptr->centre.y - ptr->size, ptr->centre.z + ptr->size),
+								0.01f,
+								Vector4(0.0f, 0.0f, 0.0f, 1.0f));
+
+	NCLDebug::DrawThickLineNDT(	Vector3(ptr->centre.x - ptr->size, ptr->centre.y + ptr->size, ptr->centre.z - ptr->size),
+								Vector3(ptr->centre.x + ptr->size, ptr->centre.y + ptr->size, ptr->centre.z - ptr->size),
+								0.01f,
+								Vector4(0.0f, 0.0f, 0.0f, 1.0f));
+
+	NCLDebug::DrawThickLineNDT(	Vector3(ptr->centre.x - ptr->size, ptr->centre.y + ptr->size, ptr->centre.z + ptr->size),
+								Vector3(ptr->centre.x + ptr->size, ptr->centre.y + ptr->size, ptr->centre.z + ptr->size),
+								0.01f,
+								Vector4(0.0f, 0.0f, 0.0f, 1.0f));
+
+	//y axis
+	NCLDebug::DrawThickLineNDT(	Vector3(ptr->centre.x - ptr->size, ptr->centre.y - ptr->size, ptr->centre.z - ptr->size),
+								Vector3(ptr->centre.x - ptr->size, ptr->centre.y + ptr->size, ptr->centre.z - ptr->size),
+								0.01f,
+								Vector4(0.0f, 0.0f, 0.0f, 1.0f));
+
+	NCLDebug::DrawThickLineNDT(	Vector3(ptr->centre.x - ptr->size, ptr->centre.y - ptr->size, ptr->centre.z + ptr->size),
+								Vector3(ptr->centre.x - ptr->size, ptr->centre.y + ptr->size, ptr->centre.z + ptr->size),
+								0.01f,
+								Vector4(0.0f, 0.0f, 0.0f, 1.0f));
+
+	NCLDebug::DrawThickLineNDT(	Vector3(ptr->centre.x + ptr->size, ptr->centre.y - ptr->size, ptr->centre.z - ptr->size),
+								Vector3(ptr->centre.x + ptr->size, ptr->centre.y + ptr->size, ptr->centre.z - ptr->size),
+								0.01f,
+								Vector4(0.0f, 0.0f, 0.0f, 1.0f));
+
+	NCLDebug::DrawThickLineNDT(	Vector3(ptr->centre.x + ptr->size, ptr->centre.y - ptr->size, ptr->centre.z + ptr->size),
+								Vector3(ptr->centre.x + ptr->size, ptr->centre.y + ptr->size, ptr->centre.z + ptr->size),
+								0.01f,
+								Vector4(0.0f, 0.0f, 0.0f, 1.0f));
+
+	//z axis
+	NCLDebug::DrawThickLineNDT(	Vector3(ptr->centre.x - ptr->size, ptr->centre.y - ptr->size, ptr->centre.z - ptr->size),
+								Vector3(ptr->centre.x - ptr->size, ptr->centre.y - ptr->size, ptr->centre.z + ptr->size),
+								0.01f,
+								Vector4(0.0f, 0.0f, 0.0f, 1.0f));
+
+	NCLDebug::DrawThickLineNDT(	Vector3(ptr->centre.x - ptr->size, ptr->centre.y + ptr->size, ptr->centre.z - ptr->size),
+								Vector3(ptr->centre.x - ptr->size, ptr->centre.y + ptr->size, ptr->centre.z + ptr->size),
+								0.01f,
+								Vector4(0.0f, 0.0f, 0.0f, 1.0f));
+
+	NCLDebug::DrawThickLineNDT(	Vector3(ptr->centre.x + ptr->size, ptr->centre.y - ptr->size, ptr->centre.z - ptr->size),
+								Vector3(ptr->centre.x + ptr->size, ptr->centre.y - ptr->size, ptr->centre.z + ptr->size),
+								0.01f,
+								Vector4(0.0f, 0.0f, 0.0f, 1.0f));
+
+	NCLDebug::DrawThickLineNDT(	Vector3(ptr->centre.x + ptr->size, ptr->centre.y + ptr->size, ptr->centre.z - ptr->size),
+								Vector3(ptr->centre.x + ptr->size, ptr->centre.y + ptr->size, ptr->centre.z + ptr->size),
+								0.01f,
+								Vector4(0.0f, 0.0f, 0.0f, 1.0f));
+
+	if (ptr->depth < ptr->maxDepth)
+	{
+		DrawDebugFrame(ptr->flu);
+		DrawDebugFrame(ptr->fld);
+		DrawDebugFrame(ptr->fru);
+		DrawDebugFrame(ptr->frd);
+		DrawDebugFrame(ptr->blu);
+		DrawDebugFrame(ptr->bld);
+		DrawDebugFrame(ptr->bru);
+		DrawDebugFrame(ptr->brd);
+	}
+}
+
 void Subspace::AddNode(PhysicsNode* const data) {
 	AddNode(data, root);
 }
 
 
 bool Subspace::IsObjectSpaceCollision(PhysicsNode* const data, Subspace* const ptr) {
+	if (!data->GetCollisionShape())
+	{
+		return false;
+	}
+
 	Vector3 v_min, v_max;
 
 	//x axis
@@ -110,6 +200,11 @@ bool Subspace::IsObjectSpaceCollision(PhysicsNode* const data, Subspace* const p
 }
 
 bool Subspace::IsObjectOutOfSpace(PhysicsNode* const data) {
+	if (!data->GetCollisionShape())
+	{
+		return false;
+	}
+
 	Vector3 v_min, v_max;
 
 	//x axis
@@ -207,7 +302,12 @@ void Subspace::AddNode(PhysicsNode* const data, Subspace* const ptr) {
 }
 
 void Subspace::RemoveNode(PhysicsNode* const data) {
-	for (auto i = data->GetSubspace()->nodes.begin();i!= data->GetSubspace()->nodes.end();i++)
+	if (!data->GetSubspace()->nodes.empty())
+	{
+		return;
+	}
+
+	for (auto i = data->GetSubspace()->nodes.begin(); i != data->GetSubspace()->nodes.end(); i++)
 	{
 		if (*i == data) {
 			data->GetSubspace()->nodes.erase(i);
@@ -225,19 +325,24 @@ void Subspace::UpdateNode(PhysicsNode* const data) {
 }
 
 void Subspace::GetCollisionPairs(std::vector<CollisionPair>& collisionpairs) {
-	GetCollisionPairs(collisionpairs, root);
+	std::vector<PhysicsNode*> emptyVector;
+	GetCollisionPairs(collisionpairs, root, emptyVector);
 }
 
-void Subspace::GetCollisionPairs(std::vector<CollisionPair>& collisionpairs, Subspace* const ptr) {
-	if (ptr->nodes.size() > 0)
+void Subspace::GetCollisionPairs(std::vector<CollisionPair>& collisionpairs, Subspace* const ptr, const std::vector<PhysicsNode*>& parentNodes) {
+	std::vector<PhysicsNode*> possibleCollisionNodes = parentNodes;
+
+	possibleCollisionNodes.insert(possibleCollisionNodes.end(), ptr->nodes.begin(), ptr->nodes.end());
+
+	if (possibleCollisionNodes.size() > 0)
 	{
 		PhysicsNode *pnodeA, *pnodeB;
-		for (size_t i = 0; i < ptr->nodes.size() - 1; ++i)
+		for (size_t i = 0; i < possibleCollisionNodes.size() - 1; ++i)
 		{
-			for (size_t j = i + 1; j < ptr->nodes.size(); ++j)
+			for (size_t j = i + 1; j < possibleCollisionNodes.size(); ++j)
 			{
-				pnodeA = ptr->nodes[i];
-				pnodeB = ptr->nodes[j];
+				pnodeA = possibleCollisionNodes[i];
+				pnodeB = possibleCollisionNodes[j];
 
 				//Check they both atleast have collision shapes
 				if (pnodeA->GetCollisionShape() != NULL
@@ -255,13 +360,13 @@ void Subspace::GetCollisionPairs(std::vector<CollisionPair>& collisionpairs, Sub
 	
 	if (ptr->depth < ptr->maxDepth)
 	{
-		GetCollisionPairs(collisionpairs, ptr->flu);
-		GetCollisionPairs(collisionpairs, ptr->fld);
-		GetCollisionPairs(collisionpairs, ptr->fru);
-		GetCollisionPairs(collisionpairs, ptr->frd);
-		GetCollisionPairs(collisionpairs, ptr->blu);
-		GetCollisionPairs(collisionpairs, ptr->bld);
-		GetCollisionPairs(collisionpairs, ptr->bru);
-		GetCollisionPairs(collisionpairs, ptr->brd);
+		GetCollisionPairs(collisionpairs, ptr->flu, possibleCollisionNodes);
+		GetCollisionPairs(collisionpairs, ptr->fld, possibleCollisionNodes);
+		GetCollisionPairs(collisionpairs, ptr->fru, possibleCollisionNodes);
+		GetCollisionPairs(collisionpairs, ptr->frd, possibleCollisionNodes);
+		GetCollisionPairs(collisionpairs, ptr->blu, possibleCollisionNodes);
+		GetCollisionPairs(collisionpairs, ptr->bld, possibleCollisionNodes);
+		GetCollisionPairs(collisionpairs, ptr->bru, possibleCollisionNodes);
+		GetCollisionPairs(collisionpairs, ptr->brd, possibleCollisionNodes);
 	}
 }

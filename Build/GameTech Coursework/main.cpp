@@ -49,7 +49,6 @@ void Initialize()
 
 	//Initialise the PhysicsEngine
 	PhysicsEngine::Instance();
-	PhysicsEngine::Instance()->SetGlobalSpace(new Subspace(1024.f, 5));
 
 	//Enqueue All Scenes
 	SceneManager::Instance()->EnqueueScene(new TestScene("GameTech #1 - Framework Sandbox!"));
@@ -65,12 +64,19 @@ void PrintStatusEntries()
 	//Print Engine Options
 	NCLDebug::AddStatusEntry(status_colour_header, "NCLTech Settings");
 	NCLDebug::AddStatusEntry(status_colour, "     Physics Engine: %s (Press P to toggle)", PhysicsEngine::Instance()->IsPaused() ? "Paused  " : "Enabled ");
+	NCLDebug::AddStatusEntry(status_colour, "     Broadphase Detection: %s (Press B to toggle)", PhysicsEngine::Instance()->IsBroadphase() ? "Paused  " : "Enabled ");
 	NCLDebug::AddStatusEntry(status_colour, "     Monitor V-Sync: %s (Press V to toggle)", GraphicsPipeline::Instance()->GetVsyncEnabled() ? "Enabled " : "Disabled");
 	NCLDebug::AddStatusEntry(status_colour, "");
 
 	//Print Control Settings
 	NCLDebug::AddStatusEntry(status_colour_header, "Controls");
 	NCLDebug::AddStatusEntry(status_colour, "     J: Launch a sphere from camera position");
+	NCLDebug::AddStatusEntry(status_colour, "");
+
+	//Print Debug Draw
+	uint drawFlags = PhysicsEngine::Instance()->GetDebugDrawFlags();
+	NCLDebug::AddStatusEntry(status_colour, "--- Debug Draw ---");
+	NCLDebug::AddStatusEntry(status_colour, "Subspace Frame       : %s (Press U to toggle)", (drawFlags & DEBUGDRAW_FLAGS_SUBSPACE) ? "Enabled " : "Disabled");
 	NCLDebug::AddStatusEntry(status_colour, "");
 
 	//Print Current Scene Name
@@ -103,6 +109,9 @@ void HandleKeyboardInputs()
 	if (Window::GetKeyboard()->KeyTriggered(KEYBOARD_P))
 		PhysicsEngine::Instance()->SetPaused(!PhysicsEngine::Instance()->IsPaused());
 
+	if (Window::GetKeyboard()->KeyTriggered(KEYBOARD_B))
+		PhysicsEngine::Instance()->SetBroadphase(!PhysicsEngine::Instance()->IsBroadphase());
+
 	if (Window::GetKeyboard()->KeyTriggered(KEYBOARD_V))
 		GraphicsPipeline::Instance()->SetVsyncEnabled(!GraphicsPipeline::Instance()->GetVsyncEnabled());
 
@@ -119,6 +128,12 @@ void HandleKeyboardInputs()
 
 	if (Window::GetKeyboard()->KeyTriggered(KEYBOARD_G))
 		show_perf_metrics = !show_perf_metrics;
+
+	uint drawFlags = PhysicsEngine::Instance()->GetDebugDrawFlags();
+	if (Window::GetKeyboard()->KeyTriggered(KEYBOARD_U))
+		drawFlags ^= DEBUGDRAW_FLAGS_SUBSPACE;
+
+	PhysicsEngine::Instance()->SetDebugDrawFlags(drawFlags);
 
 	//Launch a sphere to current scene.
 	if (Window::GetKeyboard()->KeyTriggered(KEYBOARD_J))

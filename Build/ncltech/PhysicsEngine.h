@@ -61,6 +61,7 @@ Description:
 #define DEBUGDRAW_FLAGS_MANIFOLD				0x2
 #define DEBUGDRAW_FLAGS_COLLISIONVOLUMES		0x4
 #define DEBUGDRAW_FLAGS_COLLISIONNORMALS		0x8
+#define DEBUGDRAW_FLAGS_SUBSPACE				0x16
 
 class PhysicsEngine : public TSingleton<PhysicsEngine>
 {
@@ -89,6 +90,9 @@ public:
 	//Getters / Setters 
 	inline bool IsPaused() const				{ return isPaused; }
 	inline void SetPaused(bool paused)			{ isPaused = paused; }
+
+	inline bool IsBroadphase() const { return isBroadphase; }
+	inline void SetBroadphase(bool broadphase) { isBroadphase = broadphase; }
 
 	inline uint GetDebugDrawFlags() const { return debugDrawFlags;  }
 	inline void SetDebugDrawFlags(uint flags)   { debugDrawFlags = flags; }
@@ -130,6 +134,7 @@ protected:
 
 protected:
 	bool		isPaused;
+	bool		isBroadphase;
 	float		updateTimestep, updateRealTimeAccum;
 	uint		debugDrawFlags;
 

@@ -1,1 +1,18 @@
-﻿  nclgl.vcxproj -> D:\GameTech\Build\Release\nclgl.lib
+﻿  Camera.cpp
+  CubeRobot.cpp
+  Frustum.cpp
+  HeightMap.cpp
+  MD5Anim.cpp
+  MD5FileData.cpp
+  MD5Mesh.cpp
+  MD5Node.cpp
+  Matrix3.cpp
+  Mesh.cpp
+  NCLDebug.cpp
+  OBJMesh.cpp
+  OGLRenderer.cpp
+  RenderNode.cpp
+  Shader.cpp
+  Window.cpp
+  正在生成代码...
+  nclgl.vcxproj -> D:\CPPproject\GameTech\Build\Release\nclgl.lib

@@ -11,6 +11,8 @@ public:
 	Subspace(const float&size, const Vector3& centre, const unsigned depth, Subspace* const parent, const float& maxDepth, Subspace* const root);
 	~Subspace();
 
+	void DrawDebugFrame();
+
 	void AddNode		(PhysicsNode* const data);
 	void RemoveNode		(PhysicsNode* const data);
 
@@ -29,12 +31,14 @@ public:
 	const Subspace* GetParent()	{ return parent; }
 
 protected:
+	void DrawDebugFrame(Subspace* const ptr);
+
 	bool IsObjectSpaceCollision(PhysicsNode* const data, Subspace* const ptr);
 	bool IsObjectOutOfSpace(PhysicsNode* const data);							//include the case that object is on the bound
 
 	void AddNode(PhysicsNode* const data, Subspace* const ptr);
 
-	void GetCollisionPairs(std::vector<CollisionPair>& collisionpairs,Subspace* const ptr);
+	void GetCollisionPairs(std::vector<CollisionPair>& collisionpairs,Subspace* const ptr, const std::vector<PhysicsNode*>& parentNodes);
 
 	float maxDepth;
 	unsigned depth;
