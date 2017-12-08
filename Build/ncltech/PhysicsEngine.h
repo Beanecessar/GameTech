@@ -109,7 +109,7 @@ public:
 	inline float GetDeltaTime() const			{ return updateTimestep; }
 
 	inline void SetGlobalSpace(Subspace* const ss)	{ globalSpace = ss; }
-	Subspace* GetGlobalSpace() const		{ return globalSpace; }
+	Subspace* GetGlobalSpace() const				{ return globalSpace; }
 
 	void PrintPerformanceTimers(const Vector4& color)
 	{
@@ -118,6 +118,8 @@ public:
 		perfNarrowphase.PrintOutputToStatusEntry(color,	"    Narrowphase :");
 		perfSolver.PrintOutputToStatusEntry(color,		"    Solver      :");
 	}
+
+	inline unsigned GetCollisionPairsNum()			{ return collisionPairsNum; }
 
 protected:
 	PhysicsEngine();
@@ -154,4 +156,5 @@ protected:
 	PerfTimer perfBroadphase;
 	PerfTimer perfNarrowphase;
 	PerfTimer perfSolver;
+	unsigned collisionPairsNum;
 };

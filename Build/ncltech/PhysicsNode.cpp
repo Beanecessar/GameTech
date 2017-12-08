@@ -29,6 +29,20 @@ void PhysicsNode::IntegrateForPosition(float dt)
 
 	orientation.Normalise();
 
+	Vector3 v_min, v_max;
+
+	//x axis
+	collisionShape->GetMinMaxVertexOnAxis(Vector3(1, 0, 0), v_min, v_max);
+	axisAlignedBoundingBox.x = v_max.x - position.x;
+
+	//y axis
+	collisionShape->GetMinMaxVertexOnAxis(Vector3(0, 1, 0), v_min, v_max);
+	axisAlignedBoundingBox.y = v_max.y - position.y;
+
+	//z axis
+	collisionShape->GetMinMaxVertexOnAxis(Vector3(0, 0, 1), v_min, v_max);
+	axisAlignedBoundingBox.z = v_max.z - position.z;
+
 	if (subspace)
 		subspace->UpdateNode(this);
 

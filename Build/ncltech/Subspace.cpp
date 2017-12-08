@@ -345,6 +345,25 @@ void Subspace::UpdateNode(PhysicsNode* const data) {
 	}
 }
 
+bool Subspace::FastCollisionDetection(PhysicsNode* const pnodeA, PhysicsNode* const pnodeB) {
+	//x axis
+	if (pnodeA->GetPosition().x + pnodeA->getAABB().x<pnodeB->GetPosition().x - pnodeB->getAABB().x ||
+		pnodeA->GetPosition().x - pnodeA->getAABB().x>pnodeB->GetPosition().x + pnodeB->getAABB().x)
+		return false;
+
+	//y axis
+	if (pnodeA->GetPosition().y + pnodeA->getAABB().y<pnodeB->GetPosition().y - pnodeB->getAABB().y ||
+		pnodeA->GetPosition().y - pnodeA->getAABB().y>pnodeB->GetPosition().y + pnodeB->getAABB().y)
+		return false;
+
+	//z axis
+	if (pnodeA->GetPosition().z + pnodeA->getAABB().z<pnodeB->GetPosition().z - pnodeB->getAABB().z ||
+		pnodeA->GetPosition().z - pnodeA->getAABB().z>pnodeB->GetPosition().z + pnodeB->getAABB().z)
+		return false;
+
+	return true;
+}
+
 void Subspace::GetCollisionPairs(std::vector<CollisionPair>& collisionpairs) {
 	std::vector<PhysicsNode*> emptyVector;
 	emptyVector.clear();
@@ -365,16 +384,18 @@ void Subspace::GetCollisionPairs(std::vector<CollisionPair>& collisionpairs, Sub
 				pnodeA = ptr->nodes[i];
 				pnodeB = ptr->nodes[j];
 
-				//Check they both atleast have collision shapes
-				if (pnodeA->GetCollisionShape() != NULL
-					&& pnodeB->GetCollisionShape() != NULL)
+				if (FastCollisionDetection(pnodeA, pnodeB))
 				{
-					CollisionPair cp;
-					cp.pObjectA = pnodeA;
-					cp.pObjectB = pnodeB;
-					collisionpairs.push_back(cp);
+					//Check they both at least have collision shapes
+					if (pnodeA->GetCollisionShape() != NULL
+						&& pnodeB->GetCollisionShape() != NULL)
+					{
+						CollisionPair cp;
+						cp.pObjectA = pnodeA;
+						cp.pObjectB = pnodeB;
+						collisionpairs.push_back(cp);
+					}
 				}
-
 			}
 		}
 
@@ -388,16 +409,18 @@ void Subspace::GetCollisionPairs(std::vector<CollisionPair>& collisionpairs, Sub
 					pnodeA = parentNodes[i];
 					pnodeB = ptr->nodes[j];
 
-					//Check they both atleast have collision shapes
-					if (pnodeA->GetCollisionShape() != NULL
-						&& pnodeB->GetCollisionShape() != NULL)
+					if (FastCollisionDetection(pnodeA, pnodeB))
 					{
-						CollisionPair cp;
-						cp.pObjectA = pnodeA;
-						cp.pObjectB = pnodeB;
-						collisionpairs.push_back(cp);
+						//Check they both at least have collision shapes
+						if (pnodeA->GetCollisionShape() != NULL
+							&& pnodeB->GetCollisionShape() != NULL)
+						{
+							CollisionPair cp;
+							cp.pObjectA = pnodeA;
+							cp.pObjectB = pnodeB;
+							collisionpairs.push_back(cp);
+						}
 					}
-
 				}
 			}
 		}

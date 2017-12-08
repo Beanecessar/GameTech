@@ -68,7 +68,7 @@ public:
 		, orientation(0.0f, 0.0f, 0.0f, 1.0f)
 		, angVelocity(0.0f, 0.0f, 0.0f)
 		, torque(0.0f, 0.0f, 0.0f)
-		//, axisAlignedBoundingBox(0.0f, 0.0f, 0.0f)
+		, axisAlignedBoundingBox(0.0f, 0.0f, 0.0f)
 		, invInertia(Matrix3::ZeroMatrix)
 		, collisionShape(NULL)
 		, friction(0.5f)
@@ -108,7 +108,7 @@ public:
 	inline const Vector3&		GetTorque()					const { return torque; }
 	inline const Matrix3&		GetInverseInertia()			const { return invInertia; }
 
-	//inline const Vector3&		getAABB()					const { return axisAlignedBoundingBox; }
+	inline const Vector3&		getAABB()					const { return axisAlignedBoundingBox; }
 	inline CollisionShape*		GetCollisionShape()			const { return collisionShape; }
 
 	const Matrix4&				GetWorldSpaceTransform()    const { return worldTransform; }
@@ -133,7 +133,7 @@ public:
 	inline void SetTorque(const Vector3& v)							{ torque = v; }
 	inline void SetInverseInertia(const Matrix3& v)					{ invInertia = v; }
 
-	//inline void SetAABB(const Vector3& v)						{ axisAlignedBoundingBox = v; }
+	inline void SetAABB(const Vector3& v)							{ axisAlignedBoundingBox = v; }
 	inline void SetCollisionShape(CollisionShape* colShape)
 	{ 
 		if (collisionShape) collisionShape->SetParent(NULL);
@@ -189,7 +189,7 @@ protected:
 //Added in Tutorial 4/5
 	//<----------COLLISION------------>
 	CollisionShape*				collisionShape;
-	//Vector3						axisAlignedBoundingBox;
+	Vector3						axisAlignedBoundingBox;
 	PhysicsCollisionCallback	onCollisionCallback;
 
 

@@ -134,7 +134,7 @@ GameObject* CommonUtils::BuildSphereObject(
 		else
 		{
 			CollisionShape* pColshape = new SphereCollisionShape(radius);
-			//pnode->SetAABB(Vector3(radius, radius, radius));
+			pnode->SetAABB(Vector3(radius, radius, radius));
 			pnode->SetCollisionShape(pColshape);
 			pnode->SetInverseInertia(pColshape->BuildInverseInertia(inverse_mass));
 		}
@@ -189,7 +189,7 @@ GameObject* CommonUtils::BuildCuboidObject(
 		else
 		{
 			CollisionShape* pColshape = new CuboidCollisionShape(halfdims);
-			//pnode->SetAABB(halfdims);
+			pnode->SetAABB(halfdims);
 			pnode->SetCollisionShape(pColshape);
 			pnode->SetInverseInertia(pColshape->BuildInverseInertia(inverse_mass));
 		}

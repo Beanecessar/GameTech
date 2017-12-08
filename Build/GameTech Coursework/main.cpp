@@ -79,6 +79,11 @@ void PrintStatusEntries()
 	NCLDebug::AddStatusEntry(status_colour, "Subspace Frame       : %s (Press U to toggle)", (drawFlags & DEBUGDRAW_FLAGS_SUBSPACE) ? "Enabled " : "Disabled");
 	NCLDebug::AddStatusEntry(status_colour, "");
 
+	//Print Debug Info
+	NCLDebug::AddStatusEntry(status_colour, "--- Debug Info ---");
+	NCLDebug::AddStatusEntry(status_colour, "Collision Pairs       : %d", PhysicsEngine::Instance()->GetCollisionPairsNum());
+	NCLDebug::AddStatusEntry(status_colour, "");
+
 	//Print Performance
 	timer_total.PrintOutputToStatusEntry(status_colour, "Frame Total     :");
 	timer_physics.PrintOutputToStatusEntry(status_colour, "Physics Total   :");
@@ -142,7 +147,7 @@ void HandleKeyboardInputs()
 
 	//Launch a sphere to current scene.
 	if (Window::GetKeyboard()->KeyTriggered(KEYBOARD_J))
-		SceneManager::Instance()->LaunchSphere(100.f, 0.5f);
+		SceneManager::Instance()->LaunchSphere(50.f, 0.5f);
 }
 
 

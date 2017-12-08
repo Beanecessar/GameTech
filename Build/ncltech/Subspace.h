@@ -40,6 +40,7 @@ protected:
 	void AddNode(PhysicsNode* const data, Subspace* const ptr);
 	void Clear(Subspace* ptr);
 
+	bool FastCollisionDetection(PhysicsNode* const pnodeA, PhysicsNode* const pnodeB);
 	void GetCollisionPairs(std::vector<CollisionPair>& collisionpairs,Subspace* const ptr, const std::vector<PhysicsNode*>& parentNodes);
 
 	float maxDepth;
