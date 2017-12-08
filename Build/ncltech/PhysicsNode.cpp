@@ -31,20 +31,23 @@ void PhysicsNode::IntegrateForPosition(float dt)
 
 	Vector3 v_min, v_max;
 
-	//x axis
-	collisionShape->GetMinMaxVertexOnAxis(Vector3(1, 0, 0), v_min, v_max);
-	axisAlignedBoundingBox.x = v_max.x - position.x;
+	if (collisionShape)
+	{
+		//x axis
+		collisionShape->GetMinMaxVertexOnAxis(Vector3(1, 0, 0), v_min, v_max);
+		axisAlignedBoundingBox.x = v_max.x - position.x;
 
-	//y axis
-	collisionShape->GetMinMaxVertexOnAxis(Vector3(0, 1, 0), v_min, v_max);
-	axisAlignedBoundingBox.y = v_max.y - position.y;
+		//y axis
+		collisionShape->GetMinMaxVertexOnAxis(Vector3(0, 1, 0), v_min, v_max);
+		axisAlignedBoundingBox.y = v_max.y - position.y;
 
-	//z axis
-	collisionShape->GetMinMaxVertexOnAxis(Vector3(0, 0, 1), v_min, v_max);
-	axisAlignedBoundingBox.z = v_max.z - position.z;
+		//z axis
+		collisionShape->GetMinMaxVertexOnAxis(Vector3(0, 0, 1), v_min, v_max);
+		axisAlignedBoundingBox.z = v_max.z - position.z;
 
-	if (subspace)
-		subspace->UpdateNode(this);
+		if (subspace)
+			subspace->UpdateNode(this);
+	}
 
 	//Finally: Notify any listener's that this PhysicsNode has a new world transform.
 	// - This is used by GameObject to set the worldTransform of any RenderNode's. 

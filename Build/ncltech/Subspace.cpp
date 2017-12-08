@@ -313,7 +313,8 @@ void Subspace::RemoveNode(PhysicsNode* const data) {
 			return;
 		}
 	}
-	return;
+
+	NCLERROR("Fail to remove from subspace!");
 }
 
 void Subspace::Clear() {

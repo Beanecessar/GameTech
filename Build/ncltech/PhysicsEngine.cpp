@@ -23,7 +23,7 @@ PhysicsEngine::PhysicsEngine()
 	isPaused = false;
 	isPaused = false;
 	debugDrawFlags = DEBUGDRAW_FLAGS_MANIFOLD | DEBUGDRAW_FLAGS_CONSTRAINT | DEBUGDRAW_FLAGS_SUBSPACE;
-	globalSpace = new Subspace(Vector3(-0.5, 1, -0.5), 32.f, 5);
+	globalSpace = new Subspace(Vector3(-0.5, 1, -0.5), 32.f, 4);
 	SetDefaults();
 }
 
@@ -34,11 +34,17 @@ PhysicsEngine::~PhysicsEngine()
 
 void PhysicsEngine::AddPhysicsObject(PhysicsNode* obj)
 {
+	if (obj->GetCollisionShape())
+		PhysicsEngine::Instance()->GetGlobalSpace()->AddNode(obj);
+
 	physicsNodes.push_back(obj);
 }
 
 void PhysicsEngine::RemovePhysicsObject(PhysicsNode* obj)
 {
+	if (obj->GetCollisionShape())
+		PhysicsEngine::Instance()->GetGlobalSpace()->RemoveNode(obj);
+
 	//Lookup the object in question
 	auto found_loc = std::find(physicsNodes.begin(), physicsNodes.end(), obj);
 

@@ -148,6 +148,9 @@ void HandleKeyboardInputs()
 	//Launch a sphere to current scene.
 	if (Window::GetKeyboard()->KeyTriggered(KEYBOARD_J))
 		SceneManager::Instance()->LaunchSphere(50.f, 0.5f);
+
+	if (Window::GetKeyboard()->KeyTriggered(KEYBOARD_X))
+		Quit();
 }
 
 
