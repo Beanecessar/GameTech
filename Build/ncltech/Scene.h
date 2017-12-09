@@ -62,10 +62,12 @@ public:
 		m_UpdateCallbacks.clear();
 	}
 
+	inline const unsigned GetScore() { return score; }
+	inline const void SetScore(const unsigned u) { score = u; }
 
 	// Called when scene is being activated, and will begin being rendered/updated. 
 	//	 - Initialize objects/physics here
-	virtual void OnInitializeScene()	{}		
+	virtual void OnInitializeScene()	{ score = 0; }
 
 	// Called when scene is being swapped and will no longer be rendered/updated 
 	//	 - Override to remove custom objects/physics here as needed
@@ -192,4 +194,6 @@ protected:
 	std::string					m_SceneName;
 	std::vector<GameObject*>	m_vpObjects;
 	SceneUpdateMap				m_UpdateCallbacks;
+
+	unsigned score;
 };

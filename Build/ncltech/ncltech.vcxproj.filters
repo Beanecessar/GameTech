@@ -140,5 +140,8 @@
     <ClInclude Include="CollisionPair.h">
       <Filter>Header Files\Physics</Filter>
     </ClInclude>
+    <ClInclude Include="FixedConstraint.h">
+      <Filter>Header Files\Physics</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

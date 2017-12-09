@@ -28,6 +28,13 @@ SceneManager::~SceneManager()
 	CommonMeshes::ReleaseMeshes();
 }
 
+bool IsAGoodTarget(PhysicsNode* ball, PhysicsNode* target) {
+	if (target->IsGoodTarget())
+		SceneManager::Instance()->GetCurrentScene()->SetScore(SceneManager::Instance()->GetCurrentScene()->GetScore() + 100);
+	if (target->IsBadTarget())
+		SceneManager::Instance()->GetCurrentScene()->SetScore(SceneManager::Instance()->GetCurrentScene()->GetScore() - 50);
+	return true;
+}
 
 void SceneManager::LaunchSphere(float speed, float ballsize) {
 	const int dims = 4;
@@ -54,7 +61,7 @@ void SceneManager::LaunchSphere(float speed, float ballsize) {
 		false,				// Dragable by user?
 		col);// Render color
 	sphere->Physics()->SetLinearVelocity(dir*speed);
-	//sphere->Physics()->FireOnCollisionEvent()
+	sphere->Physics()->SetOnCollisionCallback(IsAGoodTarget);
 	SceneManager::Instance()->GetCurrentScene()->AddGameObject(sphere);
 }
 

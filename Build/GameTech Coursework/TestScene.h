@@ -14,7 +14,6 @@ public:
 
 protected:
 
-	unsigned score;
 	float m_AccumTime;
 	GameObject* m_pPlayer;
 };

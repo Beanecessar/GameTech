@@ -73,6 +73,8 @@ public:
 		, collisionShape(NULL)
 		, friction(0.5f)
 		, elasticity(0.9f)
+		, goodTarget(false)
+		, badTarget(false)
 	{
 		subspace = nullptr;
 	}
@@ -113,8 +115,8 @@ public:
 
 	const Matrix4&				GetWorldSpaceTransform()    const { return worldTransform; }
 
-
-
+	inline const bool			IsGoodTarget()				const { return goodTarget; }
+	inline const bool			IsBadTarget()				const { return badTarget; }
 
 	//<--------- SETTERS ------------->
 	inline void SetParent(GameObject* obj)							{ parent = obj; }
@@ -141,7 +143,8 @@ public:
 		if (collisionShape) collisionShape->SetParent(this);
 	}
 	
-
+	inline void SetGoodTarget(const bool b) { goodTarget = b; }
+	inline void SetBadTarget(const bool b) { badTarget = b; }
 
 
 	//<---------- CALLBACKS ------------>
@@ -198,4 +201,6 @@ protected:
 	float				elasticity;		///Value from 0-1 definiing how much the object bounces off other objects
 	float				friction;		///Value from 0-1 defining how much the object can slide off other objects
 
+	bool				goodTarget;
+	bool				badTarget;
 };

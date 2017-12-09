@@ -108,6 +108,9 @@ void PrintStatusEntries()
 		timer_render.PrintOutputToStatusEntry(status_colour, "          Render Scene   :");
 	}
 	NCLDebug::AddStatusEntry(status_colour, "");
+
+	//Score
+	NCLDebug::AddStatusEntry(status_colour, "Score: %d", SceneManager::Instance()->GetCurrentScene()->GetScore());
 }
 
 

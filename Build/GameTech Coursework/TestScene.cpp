@@ -20,7 +20,6 @@ TestScene::~TestScene()
 
 }
 
-
 void TestScene::OnInitializeScene()
 {
 	//Disable the physics engine (We will be starting this later!)
@@ -80,6 +79,7 @@ void TestScene::OnInitializeScene()
 					true,					// Physically Collidable (has collision shape)
 					true,					// Dragable by user?
 					color);					// Render color
+				cube->Physics()->SetBadTarget(true);
 				this->AddGameObject(cube);
 			}
 		}
@@ -106,6 +106,7 @@ void TestScene::OnInitializeScene()
 						true,				// Physically Collidable (has collision shape)
 						false,				// Dragable by user?
 						col);// Render color
+					sphere->Physics()->SetGoodTarget(true);
 					this->AddGameObject(sphere);
 				}
 			}
@@ -143,6 +144,7 @@ void TestScene::OnUpdateScene(float dt)
 	NCLDebug::AddStatusEntry(Vector4(1.0f, 0.4f, 0.4f, 1.0f), "   The %s in this scene are dragable", donkeys ? "donkeys" : "cubes");
 	NCLDebug::AddStatusEntry(Vector4(1.0f, 0.4f, 0.4f, 1.0f), "   - Left click to move");
 	NCLDebug::AddStatusEntry(Vector4(1.0f, 0.4f, 0.4f, 1.0f), "   - Right click to rotate (They will be more spinnable after tutorial 2)");
+	
 
 	//Or move our car around the scene..
 	{
