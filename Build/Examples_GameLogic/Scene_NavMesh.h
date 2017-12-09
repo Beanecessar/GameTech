@@ -141,6 +141,10 @@ public:
 		NCLDebug::DrawThickLine(start, goal, line_thickness, line_color);
 	}
 
+	void Repathing() {
+		pathValid = pathFinder.FindBestPath(tri_start, start_pos, tri_goal, goal_pos, navMesh);
+	}
+
 protected:
 	GameObject* start;
 	GameObject* end;

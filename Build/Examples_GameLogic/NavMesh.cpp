@@ -97,24 +97,31 @@ bool NavMesh::IsLineVaild(const Vector3 & line_start, const Vector3 & line_end)
 		NavTri& tri = navTris[i];
 
 		Plane p = Plane(tri.normal, -Vector3::Dot(tri.normal, tri._a->_pos));
-		if (p.PointInPlane(line_start) != p.PointInPlane(line_end))
+		if (p.PointInPlane(line_start) && p.PointInPlane(line_end))
 		{
+			NCLDebug::DrawThickLine(tri._a->_pos, tri._a->_pos + tri.normal, 0.01f, Vector4(0, 1.f, 0, 1.f));
 			if (GeometryUtils::PlaneEdgeIntersection(p, line_start, line_end, pointOnPlane))
 			{
 				if (PointInTriangle(&tri, pointOnPlane))
 				{
+					intersectedTris.push_back(make_pair(&tri, (pointOnPlane - line_start).Length()));
 #ifdef NAVMESH_DRAW_INTERSECT
 					tri.intersect = true;
+					continue;
 #endif
-					intersectedTris.push_back(make_pair(&tri, (pointOnPlane - line_start).Length()));
+					NCLDebug::DrawPoint(pointOnPlane,0.05f, Vector4(0, 0, 1.f, 1.f));
+					NCLDebug::DrawTriangle(tri._a->_pos, tri._b->_pos, tri._c->_pos, Vector4(1.f, 0, 0, 1.f));
 				}
 			}
 		}
+#ifdef NAVMESH_DRAW_INTERSECT
+		tri.intersect = false;
+#endif
 	}
 
-	auto cmp = [&](Pair A, Pair B)->bool {
+	/*auto cmp = [&](Pair A, Pair B)->bool {
 		return A.second < B.second;
-	};
+	};*/
 
 	auto IsTrisAdj = [](NavTri* A, NavTri* B)->bool {
 		for (uint i = 0; i < 3; ++i)
@@ -125,15 +132,21 @@ bool NavMesh::IsLineVaild(const Vector3 & line_start, const Vector3 & line_end)
 
 		return false;
 	};
+	
 
-	sort(intersectedTris.begin(), intersectedTris.end(), cmp);
+	//sort(intersectedTris.begin(), intersectedTris.end(), cmp);
 
 	for (auto i=intersectedTris.begin();i!=intersectedTris.end();++i)
 	{
-		if (i + 1 != intersectedTris.end())
+		bool hasAdj = false;
+		for (auto j = i+1; j != intersectedTris.end(); ++j)
 		{
-			if (!IsTrisAdj((*i).first, (*(i + 1)).first))
-				return false;
+			if (IsTrisAdj((*i).first, (*j).first))
+				hasAdj = true;
+		}
+		if (!hasAdj)
+		{
+			return false;
 		}
 	}
 
@@ -170,7 +183,7 @@ void NavMesh::DebugDraw()
 			NCLDebug::DrawTriangle(vA, vB, vC, tri_color);
 			NCLDebug::DrawTriangle(vB, vA, vC, tri_color);
 #ifdef NAVMESH_DRAW_INTERSECT
-	}
+		}
 #endif
 
 		//Offset here just to move the lines 'up' and not z-fight the triangles themselves

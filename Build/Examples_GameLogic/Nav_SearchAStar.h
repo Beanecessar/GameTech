@@ -180,18 +180,23 @@ protected:
 		NavVertex* current = goal;
 		NavVertex* parent = NULL;
 
-		if (current!=NULL)
+		if (current != NULL)
+		{
 			finalPath.push_front(current);
 
-		while (map.at(current) != NULL)
-		{
-			parent = current;
-			while (map.at(parent) != NULL&&navMesh->IsLineVaild(current->_pos, map.at(parent)->_pos))
+			while (map.at(current) != NULL)
 			{
-				parent = map.at(parent);
+				parent = map.at(current);
+				if (!(PhysicsEngine::Instance()->GetDebugDrawFlags()&DEBUGDRAW_FLAGS_ASTARPATH))
+				{
+					while (map.at(parent) != NULL&&navMesh->IsLineVaild(current->_pos, map.at(parent)->_pos))
+					{
+						parent = map.at(parent);
+					}
+				}
+				finalPath.push_front(parent);
+				current = parent;
 			}
-			finalPath.push_front(parent);
-			current = parent;
 		}
 	}
 

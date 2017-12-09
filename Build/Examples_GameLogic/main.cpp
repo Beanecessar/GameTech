@@ -77,8 +77,15 @@ void PrintStatusEntries()
 		SceneManager::Instance()->SceneCount(),
 		SceneManager::Instance()->GetCurrentScene()->GetSceneName().c_str()
 	);
+	NCLDebug::AddStatusEntry(status_color, "");
+
+	uint drawFlags = PhysicsEngine::Instance()->GetDebugDrawFlags();
+	NCLDebug::AddStatusEntry(status_color, "Path Finding       : %s (Press p to toggle)", (drawFlags & DEBUGDRAW_FLAGS_ASTARPATH) ? "A star" : "String-pulling");
 }
 
+
+
+bool pause = false;
 
 void HandleKeyboardInputs()
 {
@@ -92,6 +99,16 @@ void HandleKeyboardInputs()
 
 	if (Window::GetKeyboard()->KeyTriggered(KEYBOARD_R))
 		SceneManager::Instance()->JumpToScene(sceneIdx);
+
+	Scene_NavMesh* scene = (Scene_NavMesh*) SceneManager::Instance()->GetCurrentScene();
+	uint drawFlags = PhysicsEngine::Instance()->GetDebugDrawFlags();
+	if (Window::GetKeyboard()->KeyTriggered(KEYBOARD_P))
+	{
+		drawFlags ^= DEBUGDRAW_FLAGS_ASTARPATH;
+		scene->Repathing();
+		pause = false;
+	}
+	PhysicsEngine::Instance()->SetDebugDrawFlags(drawFlags);
 }
 
 
@@ -125,8 +142,17 @@ int main()
 
 		//Render Scene
 
-		GraphicsPipeline::Instance()->UpdateScene(dt);
-		GraphicsPipeline::Instance()->RenderScene();
+		if (!pause)
+		{
+			GraphicsPipeline::Instance()->UpdateScene(dt);
+			GraphicsPipeline::Instance()->RenderScene();
+		}
+		
+		if (PhysicsEngine::Instance()->GetDebugDrawFlags()&DEBUGDRAW_FLAGS_ASTARPATH)
+		{
+			pause = true;
+		}
+
 		timer_total.EndTimingSection();
 	}
 

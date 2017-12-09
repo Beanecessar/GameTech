@@ -125,6 +125,7 @@ int main(int arcg, char** argv)
 				sin(rotation) * 2.0f);
 
 			//Create the packet and broadcast it (unreliable transport) to all clients
+
 			ENetPacket* position_update = enet_packet_create(&pos, sizeof(Vector3), 0);
 			enet_host_broadcast(server.m_pNetwork, 0, position_update);
 		}

@@ -62,6 +62,7 @@ Description:
 #define DEBUGDRAW_FLAGS_COLLISIONVOLUMES		0x4
 #define DEBUGDRAW_FLAGS_COLLISIONNORMALS		0x8
 #define DEBUGDRAW_FLAGS_SUBSPACE				0x10
+#define DEBUGDRAW_FLAGS_ASTARPATH				0x20
 
 class PhysicsEngine : public TSingleton<PhysicsEngine>
 {
