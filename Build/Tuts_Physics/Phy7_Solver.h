@@ -69,7 +69,6 @@ public:
 
 		NCLDebug::AddStatusEntry(Vector4(1.0f, 0.9f, 0.8f, 1.0f), "--- Controls ---");
 		NCLDebug::AddStatusEntry(Vector4(1.0f, 0.9f, 0.8f, 1.0f), "    Stack Height : %2d ([1]/[2] to change)", m_StackHeight);
-		NCLDebug::AddStatusEntry(Vector4(1.0f, 0.9f, 0.8f, 1.0f), "     Broadphase Detection: %s [B]", PhysicsEngine::Instance()->IsBroadphase() ? "Enabled " : "Disabled ");
 
 		if (Window::GetKeyboard()->KeyTriggered(KEYBOARD_1))
 		{
@@ -82,8 +81,5 @@ public:
 			m_StackHeight = max(m_StackHeight - 1, 1);
 			SceneManager::Instance()->JumpToScene(SceneManager::Instance()->GetCurrentSceneIndex());
 		}
-
-		if (Window::GetKeyboard()->KeyTriggered(KEYBOARD_B))
-			PhysicsEngine::Instance()->SetBroadphase(!PhysicsEngine::Instance()->IsBroadphase());
 	}
 };

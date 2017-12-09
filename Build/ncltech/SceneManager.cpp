@@ -54,7 +54,7 @@ void SceneManager::LaunchSphere(float speed, float ballsize) {
 		false,				// Dragable by user?
 		col);// Render color
 	sphere->Physics()->SetLinearVelocity(dir*speed);
-	sphere->Physics()->FireOnCollisionEvent()
+	//sphere->Physics()->FireOnCollisionEvent()
 	SceneManager::Instance()->GetCurrentScene()->AddGameObject(sphere);
 }
 

@@ -1,0 +1,70 @@
+[10:38:50] Loading Shader:
+[10:38:50]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechVertexBasic.glsl
+[10:38:50] [ERROR] Shader.cpp:55
+[10:38:50] 	  "    ERROR: File does not exist!"
+[10:38:50]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechFragSuperSample.glsl
+[10:38:50] [ERROR] Shader.cpp:55
+[10:38:50] 	  "    ERROR: File does not exist!"
+[10:38:50] [ERROR] GraphicsPipeline.cpp:116
+[10:38:50] 	  "Could not link shader: Present to window / SuperSampling"
+[10:38:50] Loading Shader:
+[10:38:50]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechVertexShadow.glsl
+[10:38:50] [ERROR] Shader.cpp:55
+[10:38:50] 	  "    ERROR: File does not exist!"
+[10:38:50]     -> Compiling Shader: ../../Data/Shaders/Common/EmptyFragment.glsl
+[10:38:50] [ERROR] Shader.cpp:55
+[10:38:50] 	  "    ERROR: File does not exist!"
+[10:38:50]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechGeomShadow.glsl
+[10:38:50] [ERROR] Shader.cpp:55
+[10:38:50] 	  "    ERROR: File does not exist!"
+[10:38:50] [ERROR] GraphicsPipeline.cpp:125
+[10:38:50] 	  "Could not link shader: Shadow Shader"
+[10:38:50] Loading Shader:
+[10:38:50]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechVertexFull.glsl
+[10:38:50] [ERROR] Shader.cpp:55
+[10:38:50] 	  "    ERROR: File does not exist!"
+[10:38:50]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechFragForwardRender.glsl
+[10:38:50] [ERROR] Shader.cpp:55
+[10:38:50] 	  "    ERROR: File does not exist!"
+[10:38:50] [ERROR] GraphicsPipeline.cpp:133
+[10:38:50] 	  "Could not link shader: Forward Renderer"
+[10:38:50] Loading Shader:
+[10:38:50]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/PointVertex.glsl
+[10:38:50] [ERROR] Shader.cpp:55
+[10:38:50] 	  "    ERROR: File does not exist!"
+[10:38:50]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/PointFragment.glsl
+[10:38:50] [ERROR] Shader.cpp:55
+[10:38:50] 	  "    ERROR: File does not exist!"
+[10:38:50]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/PointGeometry.glsl
+[10:38:50] [ERROR] Shader.cpp:55
+[10:38:50] 	  "    ERROR: File does not exist!"
+[10:38:50] [ERROR] NCLDebug.cpp:981
+[10:38:50] 	  "NCLDebug Point shader could not be loaded"
+[10:38:50] Loading Shader:
+[10:38:50]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechVertexPicker.glsl
+[10:38:50] [ERROR] Shader.cpp:55
+[10:38:50] 	  "    ERROR: File does not exist!"
+[10:38:50]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechFragScreenPicker_nsightfix.glsl
+[10:38:50] [ERROR] Shader.cpp:55
+[10:38:50] 	  "    ERROR: File does not exist!"
+[10:38:50] [ERROR] ScreenPicker.cpp:109
+[10:38:50] 	  "Unable to build ScreenPicker Shader!"
+[10:38:50] [ERROR] CommonMeshes.cpp:28
+[10:38:50] 	  "Unable to load checkerboard texture!"
+[10:38:50] Loading Mesh: ../../Data/Meshes/cube.obj
+[10:38:50] [ERROR] OBJMesh.cpp:29
+[10:38:50] 	  "    Error: Mesh file does not exist!"
+[10:38:50] Loading Mesh: ../../Data/Meshes/sphere.obj
+[10:38:50] [ERROR] OBJMesh.cpp:29
+[10:38:50] 	  "    Error: Mesh file does not exist!"
+[10:38:50] [SceneManager] - Enqueued scene: "Network #1 - Example Client"
+[10:38:50] 
+[10:38:50] Network: Initialized!
+[10:38:50] Network: Attempting to connect to server.
+[10:38:50] [SceneManager] - Scene switched to: "Network #1 - Example Client"
+[10:38:50] Network: Successfully connected to server!
+[10:38:51] Physics too slow to run in real time!
+[10:38:52] Physics too slow to run in real time!
+[10:38:54] Physics too slow to run in real time!
+[10:38:54] Physics too slow to run in real time!
+[10:38:56] [SceneManager] Closing scene manager
