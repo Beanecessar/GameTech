@@ -1,68 +1,65 @@
-[09:53:00] Loading Shader:
-[09:53:00]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechVertexBasic.glsl
-[09:53:00]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechFragSuperSample.glsl
-[09:53:00]     -> Linking Shader: Success!
-[09:53:00] 
-[09:53:00] Loading Shader:
-[09:53:00]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechVertexShadow.glsl
-[09:53:00]     -> Compiling Shader: ../../Data/Shaders/Common/EmptyFragment.glsl
-[09:53:00]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechGeomShadow.glsl
-[09:53:00]     -> Linking Shader: Success!
-[09:53:00] 
-[09:53:00] Loading Shader:
-[09:53:00]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechVertexFull.glsl
-[09:53:00]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechFragForwardRender.glsl
-[09:53:00]     -> Linking Shader: Success!
-[09:53:00] 
-[09:53:00] Loading Shader:
-[09:53:00]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/PointVertex.glsl
-[09:53:00]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/PointFragment.glsl
-[09:53:00]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/PointGeometry.glsl
-[09:53:00]     -> Linking Shader: Success!
-[09:53:00] 
-[09:53:00] Loading Shader:
-[09:53:00]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/Vertex.glsl
-[09:53:00]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/Fragment.glsl
-[09:53:00]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/LineGeometry.glsl
-[09:53:00]     -> Linking Shader: Success!
-[09:53:00] 
-[09:53:00] Loading Shader:
-[09:53:00]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/VertexColOnly.glsl
-[09:53:00]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/Fragment.glsl
-[09:53:00]     -> Linking Shader: Success!
-[09:53:00] 
-[09:53:00] Loading Shader:
-[09:53:00]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/TextVertex.glsl
-[09:53:00]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/TextFragment.glsl
-[09:53:00]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/TextGeometry.glsl
-[09:53:00]     -> Linking Shader: Success!
-[09:53:00] 
-[09:53:00] Loading Shader:
-[09:53:00]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechVertexPicker.glsl
-[09:53:00]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechFragScreenPicker_nsightfix.glsl
-[09:53:00]     -> Linking Shader: Success!
-[09:53:00] 
-[09:53:00] Loading Mesh: ../../Data/Meshes/cube.obj
-[09:53:00] 
-[09:53:00] Loading Mesh: ../../Data/Meshes/sphere.obj
-[09:53:00] 
-[09:53:00] [SceneManager] - Enqueued scene: "Cuda Particle - Test/Example"
-[09:53:00] 
-[09:53:00] Loading Shader:
-[09:53:00]     -> Compiling Shader: ../../Data/Shaders/Particles/ParticleShadowVertex.glsl
-[09:53:00]     -> Compiling Shader: ../../Data/Shaders/Particles/ParticleShadowFragment.glsl
-[09:53:00]     -> Compiling Shader: ../../Data/Shaders/Particles/ParticleShadowGeometry.glsl
-[09:53:00]     -> Linking Shader: Success!
-[09:53:00] 
-[09:53:00] Loading Shader:
-[09:53:00]     -> Compiling Shader: ../../Data/Shaders/Particles/ParticleLightVertex.glsl
-[09:53:00]     -> Compiling Shader: ../../Data/Shaders/Particles/ParticleLightFragment.glsl
-[09:53:00]     -> Compiling Shader: ../../Data/Shaders/Particles/ParticleLightGeometry.glsl
-[09:53:00]     -> Linking Shader: Success!
-[09:53:00] 
-[09:53:02] [SceneManager] - Scene switched to: "Cuda Particle - Test/Example"
-[09:53:02] [SceneManager] - Enqueued scene: "Cuda Collision - Test/Example"
-[09:53:03] Physics too slow to run in real time!
-[09:53:03] Physics too slow to run in real time!
-[09:53:14] Physics too slow to run in real time!
-[09:53:14] Physics too slow to run in real time!
+[18:36:02] Loading Shader:
+[18:36:02]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechVertexBasic.glsl
+[18:36:02]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechFragSuperSample.glsl
+[18:36:02]     -> Linking Shader: Success!
+[18:36:02] 
+[18:36:02] Loading Shader:
+[18:36:02]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechVertexShadow.glsl
+[18:36:02]     -> Compiling Shader: ../../Data/Shaders/Common/EmptyFragment.glsl
+[18:36:02]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechGeomShadow.glsl
+[18:36:02]     -> Linking Shader: Success!
+[18:36:02] 
+[18:36:02] Loading Shader:
+[18:36:02]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechVertexFull.glsl
+[18:36:02]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechFragForwardRender.glsl
+[18:36:02]     -> Linking Shader: Success!
+[18:36:02] 
+[18:36:02] Loading Shader:
+[18:36:02]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/PointVertex.glsl
+[18:36:02]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/PointFragment.glsl
+[18:36:02]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/PointGeometry.glsl
+[18:36:02]     -> Linking Shader: Success!
+[18:36:02] 
+[18:36:02] Loading Shader:
+[18:36:02]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/Vertex.glsl
+[18:36:02]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/Fragment.glsl
+[18:36:02]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/LineGeometry.glsl
+[18:36:02]     -> Linking Shader: Success!
+[18:36:02] 
+[18:36:02] Loading Shader:
+[18:36:02]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/VertexColOnly.glsl
+[18:36:02]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/Fragment.glsl
+[18:36:02]     -> Linking Shader: Success!
+[18:36:02] 
+[18:36:02] Loading Shader:
+[18:36:02]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/TextVertex.glsl
+[18:36:02]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/TextFragment.glsl
+[18:36:02]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/TextGeometry.glsl
+[18:36:02]     -> Linking Shader: Success!
+[18:36:02] 
+[18:36:02] Loading Shader:
+[18:36:02]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechVertexPicker.glsl
+[18:36:02]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechFragScreenPicker_nsightfix.glsl
+[18:36:02]     -> Linking Shader: Success!
+[18:36:02] 
+[18:36:02] Loading Mesh: ../../Data/Meshes/cube.obj
+[18:36:02] 
+[18:36:02] Loading Mesh: ../../Data/Meshes/sphere.obj
+[18:36:02] 
+[18:36:02] [SceneManager] - Enqueued scene: "Cuda Particle - Test/Example"
+[18:36:02] 
+[18:36:02] Loading Shader:
+[18:36:02]     -> Compiling Shader: ../../Data/Shaders/Particles/ParticleShadowVertex.glsl
+[18:36:02]     -> Compiling Shader: ../../Data/Shaders/Particles/ParticleShadowFragment.glsl
+[18:36:02]     -> Compiling Shader: ../../Data/Shaders/Particles/ParticleShadowGeometry.glsl
+[18:36:02]     -> Linking Shader: Success!
+[18:36:02] 
+[18:36:02] Loading Shader:
+[18:36:02]     -> Compiling Shader: ../../Data/Shaders/Particles/ParticleLightVertex.glsl
+[18:36:02]     -> Compiling Shader: ../../Data/Shaders/Particles/ParticleLightFragment.glsl
+[18:36:02]     -> Compiling Shader: ../../Data/Shaders/Particles/ParticleLightGeometry.glsl
+[18:36:02]     -> Linking Shader: Success!
+[18:36:02] 
+[18:36:03] [SceneManager] - Scene switched to: "Cuda Particle - Test/Example"
+[18:36:03] [SceneManager] - Enqueued scene: "Cuda Collision - Test/Example"
+[18:36:05] [SceneManager] Closing scene manager

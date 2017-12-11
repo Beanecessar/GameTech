@@ -17,6 +17,7 @@ public:
 	// so any two nodes picked randomly /will/ have a path between them
 	GraphNode* GetStartNode() const { return start; }
 	GraphNode* GetGoalNode()  const { return end; }
+	void SetStartGoal(Vector2 start_pos, Vector2 goal_pos);
 	uint GetSize() const { return size; }
 
 

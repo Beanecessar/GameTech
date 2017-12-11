@@ -87,6 +87,19 @@ void MazeGenerator::Generate(int grid_size, float maze_density)
 	GetRandomStartEndNodes();
 }
 
+void MazeGenerator::SetStartGoal(Vector2 start_pos, Vector2 goal_pos) {
+	for (unsigned i=0;i<size*size;++i)
+	{
+		if (allNodes[i]._pos.x == start_pos.x&&allNodes[i]._pos.y == start_pos.y) {
+			start = &allNodes[i];
+		}
+
+		if (allNodes[i]._pos.x == goal_pos.x&&allNodes[i]._pos.y == goal_pos.y) {
+			end = &allNodes[i];
+		}
+	}
+}
+
 void MazeGenerator::GetRandomStartEndNodes()
 {
 	//Traditional Maze one side to the other

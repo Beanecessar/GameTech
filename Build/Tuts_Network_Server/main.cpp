@@ -42,6 +42,10 @@ FOR MORE NETWORKING INFORMATION SEE "Tuts_Network_Client -> Net1_Client.h"
 #include "MazeGenerator.h"
 #include "MazeRenderer.h"
 #include "MazeData.h"
+#include "SearchAStar.h"
+#include "PacketFlag.h"
+
+class SearchAStar;
 
 //Needed to get computer adapter IPv4 addresses via windows
 #include <iphlpapi.h>
@@ -192,18 +196,130 @@ int main(int arcg, char** argv)
 					unsigned flatSize = mazeRen->GetFlatMazeSize();
 					unsigned numWalls = mazeRen->GetNumOfWalls();
 
-					char* data = new char[sizeof(unsigned)*2 + sizeof(bool)*flatSize*flatSize];
+					char* data = new char[sizeof(PacketFlag)+sizeof(unsigned)*2 + sizeof(bool)*flatSize*flatSize];
 					
-					memcpy(data, &flatSize, sizeof(unsigned));
-					memcpy(data + sizeof(unsigned), &numWalls, sizeof(unsigned));
-					memcpy(data + sizeof(unsigned)*2, mazeRen->GetFlatMaze(), sizeof(bool)*flatSize*flatSize);
+					PacketFlag pf = PacketFlag::MazeArray;
+					memcpy(data, &pf, sizeof(unsigned));
+					unsigned offset = sizeof(PacketFlag);
+
+					memcpy(data + offset, &flatSize, sizeof(unsigned));
+					offset += sizeof(unsigned);
+
+					memcpy(data + offset, &numWalls, sizeof(unsigned));
+					offset += sizeof(unsigned);
+
+					memcpy(data + offset, mazeRen->GetFlatMaze(), sizeof(bool)*flatSize*flatSize);
+					offset += sizeof(bool)*flatSize*flatSize;
 					
-					ENetPacket* packet = enet_packet_create(data, sizeof(unsigned)*2+sizeof(bool)*flatSize*flatSize, 0);
+					bool* maze = mazeRen->GetFlatMaze();
+
+// 					for (unsigned i = 0; i < flatSize; ++i)
+// 					{
+// 						for (unsigned j = 0; j < flatSize; ++j)
+// 						{
+// 							cout << (maze[flatSize*i + j] ? "1" : ".");
+// 						}
+// 						cout << endl;
+// 					}
+
+					ENetPacket* packet = enet_packet_create(data, offset, 0);
 					enet_peer_send(evnt.peer,0,packet);
 
-					delete [] data;
+					delete[] data;
 
 					state[evnt.peer->incomingPeerID] = WAITING_START_GOAL;
+				}
+				else if(state[evnt.peer->incomingPeerID] == WAITING_START_GOAL&& evnt.packet->dataLength == 2*sizeof(Vector2))
+				{
+					Vector2 start_pos, goal_pos;
+					memcpy(&start_pos, evnt.packet->data, sizeof(Vector2));
+					memcpy(&goal_pos, evnt.packet->data + sizeof(Vector2), sizeof(Vector2));
+
+					mazeGen->SetStartGoal(start_pos, goal_pos);
+					GraphNode* startNode = mazeGen->GetStartNode();
+					GraphNode* goalNode = mazeGen->GetGoalNode();
+
+					SearchAStar as_searcher;
+
+					as_searcher.FindBestPath(startNode, goalNode);
+
+					list<const GraphNode*> path = as_searcher.GetFinalPath();
+
+					char* data = new char[sizeof(PacketFlag) + sizeof(unsigned) + sizeof(float)*path.size() * 3];
+
+					PacketFlag pf = PacketFlag::MazePath;
+					memcpy(data, &pf, sizeof(PacketFlag));
+					unsigned offset = sizeof(PacketFlag);
+
+					unsigned listSize = path.size();
+					memcpy(data + offset, &listSize, sizeof(unsigned));
+					offset += sizeof(unsigned);
+
+					float temp;
+					for (auto i = path.begin(); i != path.end(); ++i)
+					{
+						temp = (*i)->_pos.x;
+						memcpy(data + offset, &temp, sizeof(unsigned));
+						offset += sizeof(float);
+
+						temp = (*i)->_pos.y;
+						memcpy(data + offset, &temp, sizeof(unsigned));
+						offset += sizeof(float);
+
+						temp = (*i)->_pos.z;
+						memcpy(data + offset, &temp, sizeof(unsigned));
+						offset += sizeof(float);
+					}
+
+					ENetPacket* packet = enet_packet_create(data, sizeof(PacketFlag) + sizeof(float)*path.size() * 3, 0);
+					enet_peer_send(evnt.peer, 0, packet);
+
+					delete[] data;
+
+// 					SearchHistory searchHistory = as_searcher.GetSearchHistory();
+// 
+// 					char* data = new char[sizeof(PacketFlag)+ sizeof(unsigned) +sizeof(float)*searchHistory.size()*6];
+// 
+// 					PacketFlag pf = PacketFlag::MazePath;
+// 					memcpy(data, &pf, sizeof(PacketFlag));
+// 					unsigned offset = sizeof(PacketFlag);
+// 
+// 					unsigned listSize = searchHistory.size();
+// 					memcpy(data + offset, &listSize, sizeof(unsigned));
+// 					offset += sizeof(unsigned);
+// 
+// 					float temp;
+// 					for (auto i=searchHistory.begin();i!=searchHistory.end();++i)
+// 					{
+// 						temp = (*i).first->_pos.x;
+// 						memcpy(data+ offset, &temp, sizeof(unsigned));
+// 						offset += sizeof(float);
+// 
+// 						temp = (*i).first->_pos.y;
+// 						memcpy(data + offset, &temp, sizeof(unsigned));
+// 						offset += sizeof(float);
+// 
+// 						temp = (*i).first->_pos.z;
+// 						memcpy(data + offset, &temp, sizeof(unsigned));
+// 						offset += sizeof(float);
+// 
+// 						temp = (*i).second->_pos.x;
+// 						memcpy(data + offset, &temp, sizeof(unsigned));
+// 						offset += sizeof(float);
+// 
+// 						temp = (*i).second->_pos.y;
+// 						memcpy(data + offset, &temp, sizeof(unsigned));
+// 						offset += sizeof(float);
+// 
+// 						temp = (*i).second->_pos.z;
+// 						memcpy(data + offset, &temp, sizeof(unsigned));
+// 						offset += sizeof(float);
+// 					}
+// 
+// 					ENetPacket* packet = enet_packet_create(data, sizeof(PacketFlag) + sizeof(float)*searchHistory.size() * 6, 0);
+// 					enet_peer_send(evnt.peer, 0, packet);
+// 
+// 					delete[] data;
 				}
 
 				enet_packet_destroy(evnt.packet);
@@ -211,6 +327,7 @@ int main(int arcg, char** argv)
 
 			case ENET_EVENT_TYPE_DISCONNECT:
 				printf("- Client %d has disconnected.\n", evnt.peer->incomingPeerID);
+				state[evnt.peer->incomingPeerID] = WAITING_MAZE_PARAMETER;
 				break;
 			}
 		});

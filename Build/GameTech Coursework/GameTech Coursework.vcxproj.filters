@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="CUDA">
+      <UniqueIdentifier>{34d44654-09b5-4a1f-97f7-cf3e9da4ed17}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -35,5 +38,31 @@
     <ClInclude Include="BallPoolScene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="helper_math.h">
+      <Filter>CUDA</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene_CollisionHandling.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene_Particles.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CudaCollidingParticles.cu">
+      <Filter>CUDA</Filter>
+    </None>
+    <None Include="CudaCollidingParticles.cuh">
+      <Filter>CUDA</Filter>
+    </None>
+    <None Include="CudaCommon.cuh">
+      <Filter>CUDA</Filter>
+    </None>
+    <None Include="CudaParticles.cu">
+      <Filter>CUDA</Filter>
+    </None>
+    <None Include="CudaParticles.cuh">
+      <Filter>CUDA</Filter>
+    </None>
   </ItemGroup>
 </Project>

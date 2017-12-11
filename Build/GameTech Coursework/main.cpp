@@ -3,9 +3,14 @@
 #include <nclgl\Window.h>
 #include <nclgl\NCLDebug.h>
 #include <nclgl\PerfTimer.h>
+#include <cuda_gl_interop.h>
+#include <cuda_runtime.h>
 
+#include "Scene_Particles.h"
+#include "Scene_CollisionHandling.h"
 #include "TestScene.h"
 #include "EmptyScene.h"
+
 
 const Vector4 status_colour = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 const Vector4 status_colour_header = Vector4(0.8f, 0.9f, 1.0f, 1.0f);
@@ -52,7 +57,7 @@ void Initialize()
 
 	//Enqueue All Scenes
 	SceneManager::Instance()->EnqueueScene(new TestScene("GameTech #1 - Framework Sandbox!"));
-	SceneManager::Instance()->EnqueueScene(new EmptyScene("GameTech #2 - Peace and quiet"));
+	SceneManager::Instance()->EnqueueScene(new Scene_CollisionHandling("GameTech #2 - Ball Pool"));
 	SceneManager::Instance()->EnqueueScene(new EmptyScene("GameTech #3 - More peace and quiet"));
 }
 

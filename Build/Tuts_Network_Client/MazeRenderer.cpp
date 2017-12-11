@@ -25,15 +25,16 @@ MazeRenderer::MazeRenderer(MazeGenerator* gen, Mesh* wallmesh)
 	}
 }
 
-MazeRenderer::MazeRenderer(uint flat_maze_size,uint num_walls,bool* flat_maze, Mesh* wallmesh)
+MazeRenderer::MazeRenderer(uint flat_maze_size,uint num_walls,bool* flat_maze,Vector2 start,Vector2 goal, Mesh* wallmesh)
 	: GameObject("")
 	, mesh(wallmesh)
 	, maze(NULL)
+	, flat_maze_size(flat_maze_size)
+	, flat_maze(flat_maze)
+	, start_pos(start)
+	, goal_pos(goal)
 {
 	this->SetRender(new RenderNode());
-
-	this->flat_maze_size = flat_maze_size;
-	this->flat_maze = flat_maze;
 
 	wall_descriptors.reserve(num_walls);
 
@@ -56,27 +57,58 @@ MazeRenderer::~MazeRenderer()
 
 //The search history draws from edges because they already store the 'to'
 // and 'from' of GraphNodes.
-void MazeRenderer::DrawSearchHistory(const SearchHistory& history, float line_width)
+void MazeRenderer::DrawSearchHistory(const list<pair<Vector3,Vector3>>& history,unsigned mazeSize,unsigned historySize, float line_width)
 {
-	float grid_scalar = 1.0f / (float)maze->GetSize();
-	float col_factor = 0.2f / (float)history.size();
+	float grid_scalar = 1.0f / (float)mazeSize;
+	float col_factor = 0.2f / (float)historySize;
 
 	Matrix4 transform = this->Render()->GetWorldTransform();
 
 	float index = 0.0f;
-	for (const SearchHistoryElement& edge : history)
+	for (const pair<Vector3,Vector3>& edge : history)
 	{
 		Vector3 start = transform * Vector3(
-			(edge.first->_pos.x + 0.5f) * grid_scalar,
+			(edge.first.x + 0.5f) * grid_scalar,
 			0.1f,
-			(edge.first->_pos.y + 0.5f) * grid_scalar);
+			(edge.first.y + 0.5f) * grid_scalar);
 
 		Vector3 end = transform * Vector3(
-			(edge.second->_pos.x + 0.5f) * grid_scalar,
+			(edge.second.x + 0.5f) * grid_scalar,
 			0.1f,
-			(edge.second->_pos.y + 0.5f) * grid_scalar);
+			(edge.second.y + 0.5f) * grid_scalar);
 
 		NCLDebug::DrawThickLine(start, end, line_width, CommonUtils::GenColor(0.8f + index * col_factor));
+		index += 1.0f;
+	}
+}
+
+void MazeRenderer::DrawPath(const list<Vector3>& path, unsigned mazeSize, unsigned pathSize, float line_width)
+{
+	float grid_scalar = 1.0f / (float)mazeSize;
+	float col_factor = 0.2f / (float)pathSize;
+
+	Matrix4 transform = this->Render()->GetWorldTransform();
+
+	float index = 0.0f;
+	for (auto i=path.begin();i!=path.end();++i)
+	{
+		Vector3 start = transform * Vector3(
+			((*i).x + 0.5f) * grid_scalar,
+			0.1f,
+			((*i).y + 0.5f) * grid_scalar);
+
+		++i;
+		if (i!=path.end())
+		{
+			Vector3 end = transform * Vector3(
+				((*i).x + 0.5f) * grid_scalar,
+				0.1f,
+				((*i).y + 0.5f) * grid_scalar);
+
+			NCLDebug::DrawThickLine(start, end, line_width, CommonUtils::GenColor(0.8f + index * col_factor));
+		}
+		--i;
+
 		index += 1.0f;
 	}
 }
@@ -258,32 +290,30 @@ void MazeRenderer::Generate_BuildRenderNodes()
 
 
 	//Finally - our start/end goals
-// 	GraphNode* start = maze->GetStartNode();
-// 	GraphNode* end = maze->GetGoalNode();
-// 
-// 	Vector3 cellpos = Vector3(
-// 		start->_pos.x * 3,
-// 		0.0f,
-// 		start->_pos.y * 3
-// 	) * scalar;
-// 	Vector3 cellsize = Vector3(
-// 		scalar * 2,
-// 		1.0f,
-// 		scalar * 2
-// 	);
-// 
-// 	cube = new RenderNode(mesh, Vector4(0.0f, 1.0f, 0.0f, 1.0f));
-// 	cube->SetTransform(Matrix4::Translation(cellpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
-// 	root->AddChild(cube);
-// 
-// 	cellpos = Vector3(
-// 		end->_pos.x * 3,
-// 		0.0f,
-// 		end->_pos.y * 3
-// 	) * scalar;
-// 	cube = new RenderNode(mesh, Vector4(1.0f, 0.0f, 0.0f, 1.0f));
-// 	cube->SetTransform(Matrix4::Translation(cellpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
-// 	root->AddChild(cube);
+
+	Vector3 cellpos = Vector3(
+		start_pos.x*3,
+		0.0f,
+		start_pos.y*3
+	) * scalar;
+	Vector3 cellsize = Vector3(
+		scalar * 2,
+		1.0f,
+		scalar * 2
+	);
+
+	cube = new RenderNode(mesh, Vector4(0.0f, 1.0f, 0.0f, 1.0f));
+	cube->SetTransform(Matrix4::Translation(cellpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
+	root->AddChild(cube);
+
+	cellpos = Vector3(
+		goal_pos.x*3 ,
+		0.0f,
+		goal_pos.y*3
+	) * scalar;
+	cube = new RenderNode(mesh, Vector4(1.0f, 0.0f, 0.0f, 1.0f));
+	cube->SetTransform(Matrix4::Translation(cellpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
+	root->AddChild(cube);
 
 	this->SetRender(root);
 }

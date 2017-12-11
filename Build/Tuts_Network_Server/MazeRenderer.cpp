@@ -18,10 +18,6 @@ MazeRenderer::MazeRenderer(MazeGenerator* gen, Mesh* wallmesh)
 		num_walls = Generate_FlatMaze();
 
 		wall_descriptors.reserve(num_walls);
-
-		Generate_ConstructWalls();
-
-		Generate_BuildRenderNodes();
 	}
 }
 

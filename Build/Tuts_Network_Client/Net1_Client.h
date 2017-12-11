@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include <ncltech\Scene.h>
@@ -10,6 +9,8 @@ class MazeRenderer;
 
 #define WAITING_MAZE_DATA	0
 #define WAITING_PATH		1
+#define CREATING_START_GOAL 2
+#define WAITING_POSITION	3
 
 //Basic Network Example
 
@@ -26,7 +27,7 @@ public:
 	void ProcessNetworkEvent(const ENetEvent& evnt);
 
 protected:
-	GameObject* box;
+	ENetPacket* packet = nullptr;
 
 	NetworkBase network;
 	ENetPeer*	serverConnection;
@@ -35,6 +36,10 @@ protected:
 
 	MazeParameter mp;
 	MazeData md;
+
+	unsigned pathSize;
+	//std::list<pair<Vector3, Vector3>> searchHistory;
+	list<Vector3> path;
 
 	MazeRenderer* mazeRenderer;
 

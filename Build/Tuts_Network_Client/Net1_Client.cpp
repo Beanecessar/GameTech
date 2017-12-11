@@ -87,6 +87,8 @@ produce satisfactory results on the networked peers.
 #include <ncltech\DistanceConstraint.h>
 #include <ncltech\CommonUtils.h>
 #include <nclgl\OBJMesh.h>
+#include <nclgl\Vector2.h>
+#include "PacketFlag.h"
 
 const Vector3 status_color3 = Vector3(1.0f, 0.6f, 0.6f);
 const Vector4 status_color = Vector4(status_color3.x, status_color3.y, status_color3.z, 1.0f);
@@ -94,7 +96,6 @@ const Vector4 status_color = Vector4(status_color3.x, status_color3.y, status_co
 Net1_Client::Net1_Client(const std::string& friendly_name)
 	: Scene(friendly_name)
 	, serverConnection(NULL)
-	, box(NULL)
 {
 }
 
@@ -102,6 +103,8 @@ void Net1_Client::OnInitializeScene()
 {
 	state = WAITING_MAZE_DATA;
 	wallMesh = new OBJMesh(MESHDIR"cube.obj");
+
+	srand(94165);
 
 	GLuint whitetex;
 	glGenTextures(1, &whitetex);
@@ -121,18 +124,6 @@ void Net1_Client::OnInitializeScene()
 		serverConnection = network.ConnectPeer(127, 0, 0, 1, 1234);
 		NCLDebug::Log("Network: Attempting to connect to server.");
 	}
-
-	//Generate Simple Scene with a box that can be updated upon recieving server packets
-	box = CommonUtils::BuildCuboidObject(
-		"Server",
-		Vector3(0.0f, 1.0f, 0.0f),
-		Vector3(0.5f, 0.5f, 0.5f),
-		true,									//Physics Enabled here Purely to make setting position easier via Physics()->SetPosition()
-		0.0f,
-		false,
-		false,
-		Vector4(0.2f, 0.5f, 1.0f, 1.0f));
-	//this->AddGameObject(box);
 }
 
 void Net1_Client::OnCleanupScene()
@@ -140,8 +131,6 @@ void Net1_Client::OnCleanupScene()
 	Scene::OnCleanupScene();
 
 	SAFE_DELETE(wallMesh);
-
-	box = NULL; // Deleted in above function
 
 	//Send one final packet telling the server we are disconnecting
 	// - We are not waiting to resend this, so if it fails to arrive
@@ -168,12 +157,66 @@ void Net1_Client::OnUpdateScene(float dt)
 	mp.size = 16;
 	mp.density = 0.5;
 
-	ENetPacket* packet;
 	switch (state)
 	{
 	case WAITING_MAZE_DATA:
 		packet = enet_packet_create(&mp, sizeof(MazeParameter), 0);
 		enet_peer_send(serverConnection, 0, packet);
+		break;
+
+	case CREATING_START_GOAL:
+	{
+		unsigned x = 0, y = 0;
+		do
+		{
+			x = rand() % mp.size;
+			y = rand() % mp.size;
+		} while (md.flat_maze[y * 3 * md.flat_maze_size + x * 3] || md.flat_maze[(y * 3 + 1)*md.flat_maze_size + x * 3] &&
+			md.flat_maze[y * 3 * md.flat_maze_size + x * 3 + 1] && md.flat_maze[(y * 3 + 1)*md.flat_maze_size + x * 3 + 1]);
+		Vector2 start_position = Vector2(x, y);
+
+		do
+		{
+			x = rand() % mp.size;
+			y = rand() % mp.size;
+		} while (md.flat_maze[y * 3 * md.flat_maze_size + x * 3] || md.flat_maze[(y * 3 + 1)*md.flat_maze_size + x * 3] &&
+			md.flat_maze[y * 3 * md.flat_maze_size + x * 3 + 1] && md.flat_maze[(y * 3 + 1)*md.flat_maze_size + x * 3 + 1]);
+		Vector2 goal_position = Vector2(x, y);
+
+		mazeRenderer = new MazeRenderer(md.flat_maze_size, md.num_walls, md.flat_maze, start_position, goal_position, wallMesh);
+
+		char* data = new char[sizeof(Vector2) * 2];
+		memcpy(data, &start_position, sizeof(Vector2));
+		memcpy(data + sizeof(Vector2), &goal_position, sizeof(Vector2));
+
+		packet = enet_packet_create(data, sizeof(Vector2) * 2, 0);
+
+		enet_peer_send(serverConnection, 0, packet);
+
+// 		for (unsigned i = 0; i < md.flat_maze_size; ++i)
+// 		{
+// 			for (unsigned j = 0; j < md.flat_maze_size; ++j)
+// 			{
+// 				cout << (md.flat_maze[i*md.flat_maze_size + j] ? "1" : ".");
+// 			}
+// 			cout << endl;
+// 		}
+
+		mazeRenderer->Render()->SetTransform(Matrix4::Scale(Vector3(5.f, 5.0f / float(mp.size), 5.f)) * Matrix4::Translation(Vector3(-0.5f, 0.f, -0.5f)));
+
+		this->AddGameObject(mazeRenderer);
+
+		state = WAITING_PATH;
+	}
+		break;
+
+	case WAITING_PATH:
+		enet_peer_send(serverConnection, 0, packet);
+		break;
+
+	case WAITING_POSITION:
+		//mazeRenderer->DrawSearchHistory(searchHistory, mp.size, historySize, 2.5f/mp.size);
+		mazeRenderer->DrawPath(path, mp.size, pathSize, 2.0f / mp.size);
 		break;
 	default:
 		break;
@@ -185,8 +228,8 @@ void Net1_Client::OnUpdateScene(float dt)
 	uint8_t ip3 = (serverConnection->address.host >> 16) & 0xFF;
 	uint8_t ip4 = (serverConnection->address.host >> 24) & 0xFF;
 
-	NCLDebug::DrawTextWs(box->Physics()->GetPosition() + Vector3(0.f, 0.6f, 0.f), STATUS_TEXT_SIZE, TEXTALIGN_CENTRE, Vector4(0.f, 0.f, 0.f, 1.f),
-		"Peer: %u.%u.%u.%u:%u", ip1, ip2, ip3, ip4, serverConnection->address.port);
+// 	NCLDebug::DrawTextWs(box->Physics()->GetPosition() + Vector3(0.f, 0.6f, 0.f), STATUS_TEXT_SIZE, TEXTALIGN_CENTRE, Vector4(0.f, 0.f, 0.f, 1.f),
+// 		"Peer: %u.%u.%u.%u:%u", ip1, ip2, ip3, ip4, serverConnection->address.port);
 
 	
 	NCLDebug::AddStatusEntry(status_color, "Network Traffic");
@@ -209,6 +252,7 @@ void Net1_Client::ProcessNetworkEvent(const ENetEvent& evnt)
 				char* text_data = "Hellooo!";
 				ENetPacket* packet = enet_packet_create(text_data, strlen(text_data) + 1, 0);
 				enet_peer_send(serverConnection, 0, packet);
+				enet_packet_destroy(packet);
 			}	
 		}
 		break;
@@ -217,51 +261,104 @@ void Net1_Client::ProcessNetworkEvent(const ENetEvent& evnt)
 	//Server has sent us a new packet
 	case ENET_EVENT_TYPE_RECEIVE:
 		{
-			if (evnt.packet->dataLength == sizeof(Vector3))
-			{
-				Vector3 pos;
-				memcpy(&pos, evnt.packet->data, sizeof(Vector3));
-				box->Physics()->SetPosition(pos);
-			}
-			else if (state==WAITING_MAZE_DATA&&evnt.packet->dataLength== sizeof(unsigned)*2+sizeof(bool)*(mp.size*3-1)*(mp.size * 3 - 1)) {
+			if (state==WAITING_MAZE_DATA) {
+				//loading packet flag
+				PacketFlag pf;
+				memcpy(&pf, evnt.packet->data, sizeof(PacketFlag));
+				unsigned offset = sizeof(PacketFlag);
+
+				if (pf==PacketFlag::MazeArray)
+				{
 					md.flat_maze = new bool[(mp.size * 3 - 1) * (mp.size * 3 - 1)];
 
-					memcpy(&md.flat_maze_size, evnt.packet->data, sizeof(unsigned));
-					memcpy(&md.num_walls, evnt.packet->data+sizeof(unsigned), sizeof(unsigned));
-					memcpy(md.flat_maze, evnt.packet->data+sizeof(unsigned)*2, sizeof(bool)*(mp.size * 3 - 1)*(mp.size * 3 - 1));
+					memcpy(&md.flat_maze_size, evnt.packet->data + offset, sizeof(unsigned));
+					offset += sizeof(unsigned);
 
-					mazeRenderer = new MazeRenderer(md.flat_maze_size, md.num_walls, md.flat_maze, wallMesh);
-					
+					memcpy(&md.num_walls, evnt.packet->data + offset, sizeof(unsigned));
+					offset += sizeof(unsigned);
+
+					memcpy(md.flat_maze, evnt.packet->data + offset, sizeof(bool)*(mp.size * 3 - 1)*(mp.size * 3 - 1));
+					offset += sizeof(bool)*(mp.size * 3 - 1)*(mp.size * 3 - 1);
+
 // 					for (unsigned i = 0; i < md.flat_maze_size; ++i)
 // 					{
 // 						for (unsigned j = 0; j < md.flat_maze_size; ++j)
 // 						{
-// 							cout << (md.flat_maze[i*md.flat_maze_size + j] ? "1" : ".");
+// 							cout << (md.flat_maze[md.flat_maze_size*i + j] ? "1" : ".");
 // 						}
 // 						cout << endl;
 // 					}
-// 
-// 					cout << endl;
-// 					cout << endl;
-// 
-// 					MazeGenerator* mazeGen = new MazeGenerator();
-// 					mazeGen->Generate(16, 0.5f);
-// 					mazeRenderer = new MazeRenderer(mazeGen, wallMesh);
-// 
-// 					for (unsigned i = 0; i < md.flat_maze_size; ++i)
+					state = CREATING_START_GOAL;
+				}		
+			}
+			else if (state == WAITING_PATH)
+			{
+				//loading packet flag
+				PacketFlag pf;
+				memcpy(&pf, evnt.packet->data, sizeof(PacketFlag));
+				unsigned offset = sizeof(PacketFlag);
+
+				if (pf==PacketFlag::MazePath)
+				{
+					//loading list size
+					memcpy(&pathSize, evnt.packet->data+offset, sizeof(unsigned));
+					offset += sizeof(unsigned);
+
+					//loading list data
+
+					Vector3 pathNode;
+					float temp;
+					for (unsigned i = 0; i < pathSize; ++i)
+					{
+						memcpy(&temp, evnt.packet->data + offset, sizeof(float));
+						pathNode.x = temp;
+						offset += sizeof(float);
+
+						memcpy(&temp, evnt.packet->data + offset, sizeof(float));
+						pathNode.y = temp;
+						offset += sizeof(float);
+
+						memcpy(&temp, evnt.packet->data + offset, sizeof(float));
+						pathNode.z = temp;
+						offset += sizeof(float);
+
+						path.push_back(pathNode);
+					}
+
+// 					Vector3 list_first;
+// 					Vector3 list_second;
+// 					float temp;
+// 					for (unsigned i=0;i<historySize;++i)
 // 					{
-// 						for (unsigned j = 0; j < md.flat_maze_size; ++j)
-// 						{
-// 							cout << (mazeRenderer->GetFlatMaze()[i*md.flat_maze_size + j] ? "1" : ".");
-// 						}
-// 						cout << endl;
+// 						memcpy(&temp, evnt.packet->data + offset, sizeof(float));
+// 						list_first.x = temp;
+// 						offset += sizeof(float);
+// 
+// 						memcpy(&temp, evnt.packet->data + offset, sizeof(float));
+// 						list_first.y = temp;
+// 						offset += sizeof(float);
+// 
+// 						memcpy(&temp, evnt.packet->data + offset, sizeof(float));
+// 						list_first.z = temp;
+// 						offset += sizeof(float);
+// 
+// 						memcpy(&temp, evnt.packet->data + offset, sizeof(float));
+// 						list_second.x = temp;
+// 						offset += sizeof(float);
+// 
+// 						memcpy(&temp, evnt.packet->data + offset, sizeof(float));
+// 						list_second.y = temp;
+// 						offset += sizeof(float);
+// 
+// 						memcpy(&temp, evnt.packet->data + offset, sizeof(float));
+// 						list_second.z = temp;
+// 						offset += sizeof(float);
+// 
+// 						searchHistory.push_back(make_pair(list_first, list_second));
 // 					}
 
-					mazeRenderer->Render()->SetTransform(Matrix4::Scale(Vector3(5.f, 5.0f / float(mp.size), 5.f)) * Matrix4::Translation(Vector3(-0.5f, 0.f, -0.5f)));
-					
-					this->AddGameObject(mazeRenderer);
-
-				state = WAITING_PATH;
+					state = WAITING_POSITION;
+				}
 			}
 			else
 			{
