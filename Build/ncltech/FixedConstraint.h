@@ -40,6 +40,12 @@ public:
 		Vector3 r1 = pnodeA->GetOrientation().ToMatrix3() * relPosA;
 		Vector3 r2 = pnodeB->GetOrientation().ToMatrix3() * relPosB;
 
+		Vector3 p1 = pnodeA->GetPosition();
+		Vector3 p2 = pnodeB->GetPosition();
+
+		float im1 = pnodeA->GetInverseMass();
+		float im2 = pnodeB->GetInverseMass();
+
 		//Get the global contact points in world space
 		globalOnA = r1 + pnodeA->GetPosition();
 		globalOnB = r2 + pnodeB->GetPosition();
@@ -52,17 +58,17 @@ public:
 
 		//Compute the velocity of objects A and B at the point of
 		//contact
-		Vector3 v0 = pnodeA->GetLinearVelocity() + Vector3::Cross(pnodeA->GetAngularVelocity(), r1);
+		Vector3 v1 = pnodeA->GetLinearVelocity() + Vector3::Cross(pnodeA->GetAngularVelocity(), r1);
 
-		Vector3 v1 = pnodeB->GetLinearVelocity() + Vector3::Cross(pnodeB->GetAngularVelocity(), r2);
+		Vector3 v2 = pnodeB->GetLinearVelocity() + Vector3::Cross(pnodeB->GetAngularVelocity(), r2);
 
 		// Relative velocity in constraint direction
-		float abnVel = Vector3::Dot(v0 - v1, abn);
+		float abnVel = Vector3::Dot(v1 - v2, abn);
 
 		//Compute the 'mass' of the constraint
 		//e.g. How difficult it is to move the two objects in
 		//the direction of the constraint
-		float invConstraintMassLin = pnodeA->GetInverseMass() + pnodeB->GetInverseMass();
+		float invConstraintMassLin = im1 + im2;
 
 		float invConstraintMassRot = Vector3::Dot(abn,
 			Vector3::Cross(pnodeA->GetInverseInertia()
@@ -138,6 +144,8 @@ public:
 
 protected:
 	PhysicsNode *pnodeA, *pnodeB;
+
+	float targetLength;
 
 	Vector3 relPosA;
 	Vector3 relPosB;

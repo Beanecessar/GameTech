@@ -3,6 +3,13 @@
 
 #include <ncltech\Scene.h>
 #include <ncltech\NetworkBase.h>
+#include "MazeData.h"
+#include "MazeRenderer.h"
+
+class MazeRenderer;
+
+#define WAITING_MAZE_DATA	0
+#define WAITING_PATH		1
 
 //Basic Network Example
 
@@ -23,4 +30,13 @@ protected:
 
 	NetworkBase network;
 	ENetPeer*	serverConnection;
+
+	uint state;
+
+	MazeParameter mp;
+	MazeData md;
+
+	MazeRenderer* mazeRenderer;
+
+	Mesh* wallMesh;
 };

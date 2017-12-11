@@ -6,6 +6,7 @@
 #include <ncltech\DistanceConstraint.h>
 #include <ncltech\SceneManager.h>
 #include <ncltech\CommonUtils.h>
+#include <ncltech\CuboidCollisionShape.h>
 using namespace CommonUtils;
 
 TestScene::TestScene(const std::string& friendly_name)
@@ -17,7 +18,8 @@ TestScene::TestScene(const std::string& friendly_name)
 
 TestScene::~TestScene()
 {
-
+	delete m_Mesh;
+	m_Mesh = nullptr;
 }
 
 void TestScene::OnInitializeScene()
@@ -58,6 +60,17 @@ void TestScene::OnInitializeScene()
 		Vector4(0.1f, 0.1f, 0.1f, 1.0f)); // Render color
 	this->AddGameObject(m_pPlayer);
 
+	GameObject* player = new GameObject("raptor");
+	m_Mesh = new OBJMesh(MESHDIR"raptor.obj");
+	player->SetRender(new RenderNode(m_Mesh));
+	player->Render()->SetBoundingRadius(1.0f);
+	player->Render()->SetColor(Vector4(1.0f, 1.0f, 1.0f, 1.0f));
+
+	player->SetPhysics(new PhysicsNode());
+	player->Physics()->SetPosition(Vector3(0.0f, 0.5f, 0.0f));
+	player->Physics()->AddCollisionShape(new CuboidCollisionShape(Vector3(0.5f, 0.5f, 1.0f)), Vector3(0, 0, 0));
+
+	this->AddGameObject(player);
 
 	auto create_cube_tower = [&](const Vector3& offset, float cubewidth)
 	{

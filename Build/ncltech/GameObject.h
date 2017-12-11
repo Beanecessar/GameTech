@@ -43,6 +43,10 @@ public:
 		, physicsNode(physicsNde)
 	{
 		RegisterPhysicsToRenderTransformCallback();
+		if (physicsNde)
+		{
+			physicsNde->SetParent(this);
+		}
 	}
 
 	virtual ~GameObject()

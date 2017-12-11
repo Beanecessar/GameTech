@@ -1,54 +1,57 @@
-[15:00:01] Loading Shader:
-[15:00:01]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechVertexBasic.glsl
-[15:00:01]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechFragSuperSample.glsl
-[15:00:01]     -> Linking Shader: Success!
-[15:00:01] 
-[15:00:01] Loading Shader:
-[15:00:01]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechVertexShadow.glsl
-[15:00:01]     -> Compiling Shader: ../../Data/Shaders/Common/EmptyFragment.glsl
-[15:00:01]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechGeomShadow.glsl
-[15:00:01]     -> Linking Shader: Success!
-[15:00:01] 
-[15:00:01] Loading Shader:
-[15:00:01]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechVertexFull.glsl
-[15:00:01]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechFragForwardRender.glsl
-[15:00:01]     -> Linking Shader: Success!
-[15:00:01] 
-[15:00:01] Loading Shader:
-[15:00:01]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/PointVertex.glsl
-[15:00:01]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/PointFragment.glsl
-[15:00:01]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/PointGeometry.glsl
-[15:00:01]     -> Linking Shader: Success!
-[15:00:01] 
-[15:00:01] Loading Shader:
-[15:00:01]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/Vertex.glsl
-[15:00:01]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/Fragment.glsl
-[15:00:01]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/LineGeometry.glsl
-[15:00:01]     -> Linking Shader: Success!
-[15:00:01] 
-[15:00:01] Loading Shader:
-[15:00:01]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/VertexColOnly.glsl
-[15:00:01]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/Fragment.glsl
-[15:00:01]     -> Linking Shader: Success!
-[15:00:01] 
-[15:00:01] Loading Shader:
-[15:00:01]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/TextVertex.glsl
-[15:00:01]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/TextFragment.glsl
-[15:00:01]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/TextGeometry.glsl
-[15:00:01]     -> Linking Shader: Success!
-[15:00:01] 
-[15:00:01] Loading Shader:
-[15:00:01]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechVertexPicker.glsl
-[15:00:01]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechFragScreenPicker_nsightfix.glsl
-[15:00:01]     -> Linking Shader: Success!
-[15:00:01] 
-[15:00:01] Loading Mesh: ../../Data/Meshes/cube.obj
-[15:00:01] 
-[15:00:01] Loading Mesh: ../../Data/Meshes/sphere.obj
-[15:00:01] 
-[15:00:01] [SceneManager] - Enqueued scene: "Network #1 - Example Client"
-[15:00:01] 
-[15:00:01] Network: Initialized!
-[15:00:01] Network: Attempting to connect to server.
-[15:00:01] [SceneManager] - Scene switched to: "Network #1 - Example Client"
-[15:00:01] Network: Successfully connected to server!
+[09:07:02] Loading Shader:
+[09:07:02]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechVertexBasic.glsl
+[09:07:02]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechFragSuperSample.glsl
+[09:07:02]     -> Linking Shader: Success!
+[09:07:02] 
+[09:07:02] Loading Shader:
+[09:07:02]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechVertexShadow.glsl
+[09:07:02]     -> Compiling Shader: ../../Data/Shaders/Common/EmptyFragment.glsl
+[09:07:02]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechGeomShadow.glsl
+[09:07:02]     -> Linking Shader: Success!
+[09:07:02] 
+[09:07:02] Loading Shader:
+[09:07:02]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechVertexFull.glsl
+[09:07:02]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechFragForwardRender.glsl
+[09:07:02]     -> Linking Shader: Success!
+[09:07:02] 
+[09:07:02] Loading Shader:
+[09:07:02]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/PointVertex.glsl
+[09:07:02]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/PointFragment.glsl
+[09:07:02]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/PointGeometry.glsl
+[09:07:02]     -> Linking Shader: Success!
+[09:07:02] 
+[09:07:02] Loading Shader:
+[09:07:02]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/Vertex.glsl
+[09:07:02]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/Fragment.glsl
+[09:07:02]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/LineGeometry.glsl
+[09:07:02]     -> Linking Shader: Success!
+[09:07:02] 
+[09:07:02] Loading Shader:
+[09:07:02]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/VertexColOnly.glsl
+[09:07:02]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/Fragment.glsl
+[09:07:02]     -> Linking Shader: Success!
+[09:07:02] 
+[09:07:02] Loading Shader:
+[09:07:02]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/TextVertex.glsl
+[09:07:02]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/TextFragment.glsl
+[09:07:02]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/TextGeometry.glsl
+[09:07:02]     -> Linking Shader: Success!
+[09:07:02] 
+[09:07:02] Loading Shader:
+[09:07:02]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechVertexPicker.glsl
+[09:07:02]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechFragScreenPicker_nsightfix.glsl
+[09:07:02]     -> Linking Shader: Success!
+[09:07:02] 
+[09:07:02] Loading Mesh: ../../Data/Meshes/cube.obj
+[09:07:02] 
+[09:07:02] Loading Mesh: ../../Data/Meshes/sphere.obj
+[09:07:02] 
+[09:07:02] [SceneManager] - Enqueued scene: "Network #1 - Example Client"
+[09:07:02] 
+[09:07:02] Loading Mesh: ../../Data/Meshes/cube.obj
+[09:07:02] 
+[09:07:02] Network: Initialized!
+[09:07:02] Network: Attempting to connect to server.
+[09:07:02] [SceneManager] - Scene switched to: "Network #1 - Example Client"
+[09:07:02] Network: Successfully connected to server!
+[09:07:02] Physics too slow to run in real time!

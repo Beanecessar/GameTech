@@ -97,9 +97,6 @@ public:
 				ball->Physics(),													//Physics Object B
 				handle->Physics()->GetPosition() + Vector3(1.0f, 0.0f, 0.0f),		//Attachment Position on Object A	-> Currently the far right edge
 				ball->Physics()->GetPosition() + Vector3(-0.5f, -0.5f, -0.5f)));	//Attachment Position on Object B	-> Currently the far left edge 
-		
-
-
 	}
 
 };

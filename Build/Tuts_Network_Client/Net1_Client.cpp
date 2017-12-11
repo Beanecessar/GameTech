@@ -86,6 +86,7 @@ produce satisfactory results on the networked peers.
 #include <nclgl\NCLDebug.h>
 #include <ncltech\DistanceConstraint.h>
 #include <ncltech\CommonUtils.h>
+#include <nclgl\OBJMesh.h>
 
 const Vector3 status_color3 = Vector3(1.0f, 0.6f, 0.6f);
 const Vector4 status_color = Vector4(status_color3.x, status_color3.y, status_color3.z, 1.0f);
@@ -99,6 +100,18 @@ Net1_Client::Net1_Client(const std::string& friendly_name)
 
 void Net1_Client::OnInitializeScene()
 {
+	state = WAITING_MAZE_DATA;
+	wallMesh = new OBJMesh(MESHDIR"cube.obj");
+
+	GLuint whitetex;
+	glGenTextures(1, &whitetex);
+	glBindTexture(GL_TEXTURE_2D, whitetex);
+	unsigned int pixel = 0xFFFFFFFF;
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1, 1, 0, GL_RGB, GL_UNSIGNED_BYTE, &pixel);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	wallMesh->SetTexture(whitetex);
+
 	//Initialize Client Network
 	if (network.Initialize(0))
 	{
@@ -119,12 +132,15 @@ void Net1_Client::OnInitializeScene()
 		false,
 		false,
 		Vector4(0.2f, 0.5f, 1.0f, 1.0f));
-	this->AddGameObject(box);
+	//this->AddGameObject(box);
 }
 
 void Net1_Client::OnCleanupScene()
 {
 	Scene::OnCleanupScene();
+
+	SAFE_DELETE(wallMesh);
+
 	box = NULL; // Deleted in above function
 
 	//Send one final packet telling the server we are disconnecting
@@ -149,7 +165,19 @@ void Net1_Client::OnUpdateScene(float dt)
 		std::placeholders::_1);				// Where to place the first parameter
 	network.ServiceNetwork(dt, callback);
 
+	mp.size = 16;
+	mp.density = 0.5;
 
+	ENetPacket* packet;
+	switch (state)
+	{
+	case WAITING_MAZE_DATA:
+		packet = enet_packet_create(&mp, sizeof(MazeParameter), 0);
+		enet_peer_send(serverConnection, 0, packet);
+		break;
+	default:
+		break;
+	}
 
 	//Add Debug Information to screen
 	uint8_t ip1 = serverConnection->address.host & 0xFF;
@@ -194,6 +222,46 @@ void Net1_Client::ProcessNetworkEvent(const ENetEvent& evnt)
 				Vector3 pos;
 				memcpy(&pos, evnt.packet->data, sizeof(Vector3));
 				box->Physics()->SetPosition(pos);
+			}
+			else if (state==WAITING_MAZE_DATA&&evnt.packet->dataLength== sizeof(unsigned)*2+sizeof(bool)*(mp.size*3-1)*(mp.size * 3 - 1)) {
+					md.flat_maze = new bool[(mp.size * 3 - 1) * (mp.size * 3 - 1)];
+
+					memcpy(&md.flat_maze_size, evnt.packet->data, sizeof(unsigned));
+					memcpy(&md.num_walls, evnt.packet->data+sizeof(unsigned), sizeof(unsigned));
+					memcpy(md.flat_maze, evnt.packet->data+sizeof(unsigned)*2, sizeof(bool)*(mp.size * 3 - 1)*(mp.size * 3 - 1));
+
+					mazeRenderer = new MazeRenderer(md.flat_maze_size, md.num_walls, md.flat_maze, wallMesh);
+					
+// 					for (unsigned i = 0; i < md.flat_maze_size; ++i)
+// 					{
+// 						for (unsigned j = 0; j < md.flat_maze_size; ++j)
+// 						{
+// 							cout << (md.flat_maze[i*md.flat_maze_size + j] ? "1" : ".");
+// 						}
+// 						cout << endl;
+// 					}
+// 
+// 					cout << endl;
+// 					cout << endl;
+// 
+// 					MazeGenerator* mazeGen = new MazeGenerator();
+// 					mazeGen->Generate(16, 0.5f);
+// 					mazeRenderer = new MazeRenderer(mazeGen, wallMesh);
+// 
+// 					for (unsigned i = 0; i < md.flat_maze_size; ++i)
+// 					{
+// 						for (unsigned j = 0; j < md.flat_maze_size; ++j)
+// 						{
+// 							cout << (mazeRenderer->GetFlatMaze()[i*md.flat_maze_size + j] ? "1" : ".");
+// 						}
+// 						cout << endl;
+// 					}
+
+					mazeRenderer->Render()->SetTransform(Matrix4::Scale(Vector3(5.f, 5.0f / float(mp.size), 5.f)) * Matrix4::Translation(Vector3(-0.5f, 0.f, -0.5f)));
+					
+					this->AddGameObject(mazeRenderer);
+
+				state = WAITING_PATH;
 			}
 			else
 			{

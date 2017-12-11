@@ -70,7 +70,7 @@ public:
 		, torque(0.0f, 0.0f, 0.0f)
 		, axisAlignedBoundingBox(0.0f, 0.0f, 0.0f)
 		, invInertia(Matrix3::ZeroMatrix)
-		, collisionShape(NULL)
+		, collisionShapes(NULL)
 		, friction(0.5f)
 		, elasticity(0.9f)
 		, goodTarget(false)
@@ -81,8 +81,7 @@ public:
 
 	virtual ~PhysicsNode()
 	{
-		//subspace->RemoveNode(this);
-		SAFE_DELETE(collisionShape);
+		DeleteAllCollisionShapes();
 	}
 
 
@@ -111,7 +110,7 @@ public:
 	inline const Matrix3&		GetInverseInertia()			const { return invInertia; }
 
 	inline const Vector3&		getAABB()					const { return axisAlignedBoundingBox; }
-	inline CollisionShape*		GetCollisionShape()			const { return collisionShape; }
+	inline CollisionShape*		GetCollisionShape()			const { if (collisionShapes.empty()) return NULL; else return collisionShapes[0]; }
 
 	const Matrix4&				GetWorldSpaceTransform()    const { return worldTransform; }
 
@@ -136,13 +135,15 @@ public:
 	inline void SetInverseInertia(const Matrix3& v)					{ invInertia = v; }
 
 	inline void SetAABB(const Vector3& v)							{ axisAlignedBoundingBox = v; }
-	inline void SetCollisionShape(CollisionShape* colShape)
-	{ 
-		if (collisionShape) collisionShape->SetParent(NULL);
-		collisionShape = colShape;
-		if (collisionShape) collisionShape->SetParent(this);
-	}
-	
+	inline void SetCollisionShape(CollisionShape* colShape)			{ DeleteAllCollisionShapes(); AddCollisionShape(colShape,Vector3(0,0,0)); }
+		/*{
+			if (collisionShape) collisionShape->SetParent(NULL);
+			collisionShape = colShape;
+			if (collisionShape) collisionShape->SetParent(this);
+		}*/
+	void DeleteAllCollisionShapes();
+	void AddCollisionShape(CollisionShape* colShape, Vector3 offset = Vector3(0, 0, 0), float weight = 1);
+
 	inline void SetGoodTarget(const bool b) { goodTarget = b; }
 	inline void SetBadTarget(const bool b) { badTarget = b; }
 
@@ -191,7 +192,9 @@ protected:
 
 //Added in Tutorial 4/5
 	//<----------COLLISION------------>
-	CollisionShape*				collisionShape;
+	std::vector<CollisionShape*>	collisionShapes;
+	std::vector<Vector3>			offsets;
+	float							weights;
 	Vector3						axisAlignedBoundingBox;
 	PhysicsCollisionCallback	onCollisionCallback;
 

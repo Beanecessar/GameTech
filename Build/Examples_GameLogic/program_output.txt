@@ -1,95 +1,61 @@
-[14:38:45] Loading Shader:
-[14:38:45]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechVertexBasic.glsl
-[14:38:45]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechFragSuperSample.glsl
-[14:38:45]     -> Linking Shader: Success!
-[14:38:45] 
-[14:38:45] Loading Shader:
-[14:38:45]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechVertexShadow.glsl
-[14:38:45]     -> Compiling Shader: ../../Data/Shaders/Common/EmptyFragment.glsl
-[14:38:45]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechGeomShadow.glsl
-[14:38:45]     -> Linking Shader: Success!
-[14:38:45] 
-[14:38:45] Loading Shader:
-[14:38:45]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechVertexFull.glsl
-[14:38:45]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechFragForwardRender.glsl
-[14:38:45]     -> Linking Shader: Success!
-[14:38:45] 
-[14:38:45] Loading Shader:
-[14:38:45]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/PointVertex.glsl
-[14:38:45]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/PointFragment.glsl
-[14:38:45]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/PointGeometry.glsl
-[14:38:45]     -> Linking Shader: Success!
-[14:38:45] 
-[14:38:45] Loading Shader:
-[14:38:45]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/Vertex.glsl
-[14:38:45]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/Fragment.glsl
-[14:38:45]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/LineGeometry.glsl
-[14:38:45]     -> Linking Shader: Success!
-[14:38:45] 
-[14:38:45] Loading Shader:
-[14:38:45]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/VertexColOnly.glsl
-[14:38:45]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/Fragment.glsl
-[14:38:45]     -> Linking Shader: Success!
-[14:38:45] 
-[14:38:45] Loading Shader:
-[14:38:45]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/TextVertex.glsl
-[14:38:45]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/TextFragment.glsl
-[14:38:45]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/TextGeometry.glsl
-[14:38:45]     -> Linking Shader: Success!
-[14:38:45] 
-[14:38:46] Loading Shader:
-[14:38:46]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechVertexPicker.glsl
-[14:38:46]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechFragScreenPicker_nsightfix.glsl
-[14:38:46]     -> Linking Shader: Success!
-[14:38:46] 
-[14:38:46] Loading Mesh: ../../Data/Meshes/cube.obj
-[14:38:46] 
-[14:38:46] Loading Mesh: ../../Data/Meshes/sphere.obj
-[14:38:46] 
-[14:38:46] [SceneManager] - Enqueued scene: "Navigation Mesh - Test/Example"
-[14:38:46] 
-[14:38:46] [SceneManager] - Scene switched to: "Navigation Mesh - Test/Example"
-[14:39:04] Physics too slow to run in real time!
-[14:39:05] Physics too slow to run in real time!
-[14:39:05] Physics too slow to run in real time!
-[14:39:06] Physics too slow to run in real time!
-[14:39:06] Physics too slow to run in real time!
-[14:39:06] Physics too slow to run in real time!
-[14:39:06] Physics too slow to run in real time!
-[14:39:07] Physics too slow to run in real time!
-[14:39:07] Physics too slow to run in real time!
-[14:39:08] Physics too slow to run in real time!
-[14:39:08] Physics too slow to run in real time!
-[14:39:09] Physics too slow to run in real time!
-[14:39:10] Physics too slow to run in real time!
-[14:39:10] Physics too slow to run in real time!
-[14:39:10] Physics too slow to run in real time!
-[14:39:12] Physics too slow to run in real time!
-[14:39:12] Physics too slow to run in real time!
-[14:39:22] Physics too slow to run in real time!
-[14:39:22] Physics too slow to run in real time!
-[14:39:35] Physics too slow to run in real time!
-[14:39:35] Physics too slow to run in real time!
-[14:39:36] Physics too slow to run in real time!
-[14:39:36] Physics too slow to run in real time!
-[14:39:39] Physics too slow to run in real time!
-[14:39:40] Physics too slow to run in real time!
-[14:39:41] Physics too slow to run in real time!
-[14:39:42] Physics too slow to run in real time!
-[14:39:46] Physics too slow to run in real time!
-[14:39:48] Physics too slow to run in real time!
-[14:39:49] Physics too slow to run in real time!
-[14:39:50] Physics too slow to run in real time!
-[14:39:57] Physics too slow to run in real time!
-[14:39:59] Physics too slow to run in real time!
-[14:40:01] Physics too slow to run in real time!
-[14:40:03] Physics too slow to run in real time!
-[14:40:08] Physics too slow to run in real time!
-[14:40:08] Physics too slow to run in real time!
-[14:40:45] Physics too slow to run in real time!
-[14:40:46] Physics too slow to run in real time!
-[14:40:48] Physics too slow to run in real time!
-[14:40:48] Physics too slow to run in real time!
-[14:40:54] Physics too slow to run in real time!
-[14:40:55] Physics too slow to run in real time!
-[14:40:57] [SceneManager] Closing scene manager
+[02:19:03] Loading Shader:
+[02:19:03]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechVertexBasic.glsl
+[02:19:03]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechFragSuperSample.glsl
+[02:19:03]     -> Linking Shader: Success!
+[02:19:03] 
+[02:19:03] Loading Shader:
+[02:19:03]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechVertexShadow.glsl
+[02:19:03]     -> Compiling Shader: ../../Data/Shaders/Common/EmptyFragment.glsl
+[02:19:03]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechGeomShadow.glsl
+[02:19:03]     -> Linking Shader: Success!
+[02:19:03] 
+[02:19:03] Loading Shader:
+[02:19:03]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechVertexFull.glsl
+[02:19:03]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechFragForwardRender.glsl
+[02:19:03]     -> Linking Shader: Success!
+[02:19:03] 
+[02:19:03] Loading Shader:
+[02:19:03]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/PointVertex.glsl
+[02:19:03]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/PointFragment.glsl
+[02:19:03]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/PointGeometry.glsl
+[02:19:03]     -> Linking Shader: Success!
+[02:19:03] 
+[02:19:03] Loading Shader:
+[02:19:03]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/Vertex.glsl
+[02:19:03]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/Fragment.glsl
+[02:19:03]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/LineGeometry.glsl
+[02:19:03]     -> Linking Shader: Success!
+[02:19:03] 
+[02:19:03] Loading Shader:
+[02:19:03]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/VertexColOnly.glsl
+[02:19:03]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/Fragment.glsl
+[02:19:03]     -> Linking Shader: Success!
+[02:19:03] 
+[02:19:03] Loading Shader:
+[02:19:03]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/TextVertex.glsl
+[02:19:03]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/TextFragment.glsl
+[02:19:03]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/TextGeometry.glsl
+[02:19:03]     -> Linking Shader: Success!
+[02:19:03] 
+[02:19:03] Loading Shader:
+[02:19:03]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechVertexPicker.glsl
+[02:19:03]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechFragScreenPicker_nsightfix.glsl
+[02:19:03]     -> Linking Shader: Success!
+[02:19:03] 
+[02:19:03] Loading Mesh: ../../Data/Meshes/cube.obj
+[02:19:03] 
+[02:19:03] Loading Mesh: ../../Data/Meshes/sphere.obj
+[02:19:03] 
+[02:19:03] [SceneManager] - Enqueued scene: "Navigation Mesh - Test/Example"
+[02:19:03] 
+[02:19:03] [SceneManager] - Scene switched to: "Navigation Mesh - Test/Example"
+[02:19:04] Physics too slow to run in real time!
+[02:19:04] Physics too slow to run in real time!
+[02:19:04] Physics too slow to run in real time!
+[02:19:04] Physics too slow to run in real time!
+[02:19:04] Physics too slow to run in real time!
+[02:19:04] Physics too slow to run in real time!
+[02:19:05] Physics too slow to run in real time!
+[02:19:05] Physics too slow to run in real time!
+[02:19:05] Physics too slow to run in real time!
+[02:19:06] [SceneManager] Closing scene manager
