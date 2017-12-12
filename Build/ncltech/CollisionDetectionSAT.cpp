@@ -18,8 +18,8 @@ void CollisionDetectionSAT::BeginNewPair(
 
 	pnodeA = obj1;
 	pnodeB = obj2;
-	cshapeA = shape1;
-	cshapeB = shape2;
+	cshapeA = obj1->GetCollisionShape();
+	cshapeB = obj2->GetCollisionShape();
 
 	areColliding = false;
 }

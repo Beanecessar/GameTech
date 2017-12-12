@@ -57,8 +57,8 @@ void Initialize()
 
 	//Enqueue All Scenes
 	SceneManager::Instance()->EnqueueScene(new TestScene("GameTech #1 - Framework Sandbox!"));
-	//SceneManager::Instance()->EnqueueScene(new Scene_CollisionHandling("GameTech #2 - Ball Pool"));
-	SceneManager::Instance()->EnqueueScene(new EmptyScene("GameTech #3 - Debug Place"));
+	SceneManager::Instance()->EnqueueScene(new Scene_CollisionHandling("GameTech #2 - Ball Pool"));
+	SceneManager::Instance()->EnqueueScene(new EmptyScene("GameTech #3 - More peace and quiet"));
 }
 
 // Print Debug Info
@@ -200,7 +200,6 @@ int main()
 		timer_physics.BeginTimingSection();
 		PhysicsEngine::Instance()->Update(dt);
 		timer_physics.EndTimingSection();
-		PhysicsEngine::Instance()->DebugRender();
 
 		//Render Scene
 		timer_render.BeginTimingSection();

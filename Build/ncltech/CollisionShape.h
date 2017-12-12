@@ -42,7 +42,7 @@ struct CollisionEdge
 class CollisionShape
 {
 public:
-	CollisionShape() : m_Parent(NULL),offset(Vector3(0,0,0)){}
+	CollisionShape() : m_Parent(NULL) {}
 	virtual ~CollisionShape()	{}
 
 	// Constructs an inverse inertia matrix of the given collision volume. This is the equivilant of the inverse mass of an object for rotation,
@@ -56,8 +56,6 @@ public:
 	inline		 PhysicsNode* Parent()		 { return m_Parent; }
 	inline const PhysicsNode* Parent() const { return m_Parent; }
 
-	inline void SetOffset(const Vector3& v)		{ offset = v; }
-	inline const Vector3 GetOffset() const { return offset; }
 
 //<----- USED BY COLLISION DETECTION ----->
 	// Get all collision axes between the current shape and the given
@@ -89,6 +87,4 @@ public:
 
 protected:
 	PhysicsNode* m_Parent;
-
-	Vector3 offset;
 };

@@ -22,7 +22,7 @@ PhysicsEngine::PhysicsEngine()
 	//Variables set here will /not/ be reset with each scene
 	isPaused = false;
 	isPaused = false;
-	debugDrawFlags = DEBUGDRAW_FLAGS_MANIFOLD | DEBUGDRAW_FLAGS_CONSTRAINT | DEBUGDRAW_FLAGS_COLLISIONVOLUMES;
+	debugDrawFlags = DEBUGDRAW_FLAGS_MANIFOLD | DEBUGDRAW_FLAGS_CONSTRAINT;
 	globalSpace = new Subspace(Vector3(-0.5, 1, -0.5), 32.f, 4);
 	SetDefaults();
 }
@@ -179,11 +179,6 @@ void PhysicsEngine::BroadPhaseCollisions()
 		PhysicsEngine::Instance()->GetGlobalSpace()->DrawDebugFrame();
 	}
 
-// 	for (size_t i = 0; i < physicsNodes.size() ; ++i)
-// 	{
-// 		physicsNodes[i]->DebugDrawAABB();
-// 	}
-
 	broadphaseColPairs.clear();
 
 	PhysicsNode *pnodeA, *pnodeB;
@@ -245,65 +240,61 @@ void PhysicsEngine::NarrowPhaseCollisions()
 		{
 			CollisionPair& cp = broadphaseColPairs[i];
 
-			for (auto i = cp.pObjectA->GetCollisionShapesBegin(); i != cp.pObjectA->GetCollisionShapesEnd(); ++i)
+			CollisionShape *shapeA = cp.pObjectA->GetCollisionShape();
+			CollisionShape *shapeB = cp.pObjectB->GetCollisionShape();
+
+			colDetect.BeginNewPair(
+				cp.pObjectA,
+				cp.pObjectB,
+				cp.pObjectA->GetCollisionShape(),
+				cp.pObjectB->GetCollisionShape());
+
+			// Detects if the objects are colliding
+			if (colDetect.AreColliding(&colData))
 			{
-				for (auto j = cp.pObjectB->GetCollisionShapesBegin(); j != cp.pObjectB->GetCollisionShapesEnd(); ++j)
+				//Note: As at the end of tutorial 4 we have very little to do, this is a bit messier
+				//      than it should be. We now fire oncollision events for the two objects so they
+				//      can handle AI and also optionally draw the collision normals to see roughly
+				//      where and how the objects are colliding.
+
+				//Draw collision data to the window if requested
+				// - Have to do this here as colData is only temporary. 
+				if (debugDrawFlags & DEBUGDRAW_FLAGS_COLLISIONNORMALS)
 				{
-					CollisionShape *shapeA = *i;
-					CollisionShape *shapeB = *j;
+					NCLDebug::DrawPointNDT(colData._pointOnPlane, 0.1f, Vector4(0.5f, 0.5f, 1.0f, 1.0f));
+					NCLDebug::DrawThickLineNDT(colData._pointOnPlane, colData._pointOnPlane - colData._normal * colData._penetration, 0.05f, Vector4(0.0f, 0.0f, 1.0f, 1.0f));
+				}
 
-					colDetect.BeginNewPair(
-						cp.pObjectA,
-						cp.pObjectB,
-						shapeA,
-						shapeB);
+				//Check to see if any of the objects have a OnCollision callback that dont want the objects to physically collide
+				bool okA = cp.pObjectA->FireOnCollisionEvent(cp.pObjectA, cp.pObjectB);
+				bool okB = cp.pObjectB->FireOnCollisionEvent(cp.pObjectB, cp.pObjectA);
 
-					// Detects if the objects are colliding
-					if (colDetect.AreColliding(&colData))
+				if (okA && okB)
+				{
+					// Build full collision manifold that will also handle the
+					// collision response between the two objects in the solver
+					// stage
+
+					Manifold * manifold = new Manifold();
+
+					manifold->Initiate(cp.pObjectA, cp.pObjectB);
+
+					// Construct contact points that form the perimeter of the
+					// collision manifold
+
+					colDetect.GenContactPoints(manifold);
+
+					if (manifold->contactPoints.size() > 0)
 					{
-						//Note: As at the end of tutorial 4 we have very little to do, this is a bit messier
-						//      than it should be. We now fire oncollision events for the two objects so they
-						//      can handle AI and also optionally draw the collision normals to see roughly
-						//      where and how the objects are colliding.
-
-						//Draw collision data to the window if requested
-						// - Have to do this here as colData is only temporary. 
-						if (debugDrawFlags & DEBUGDRAW_FLAGS_COLLISIONNORMALS)
-						{
-							NCLDebug::DrawPointNDT(colData._pointOnPlane, 0.1f, Vector4(0.5f, 0.5f, 1.0f, 1.0f));
-							NCLDebug::DrawThickLineNDT(colData._pointOnPlane, colData._pointOnPlane - colData._normal * colData._penetration, 0.05f, Vector4(0.0f, 0.0f, 1.0f, 1.0f));
-						}
-						//Check to see if any of the objects have a OnCollision callback that dont want the objects to physically collide
-						bool okA = cp.pObjectA->FireOnCollisionEvent(cp.pObjectA, cp.pObjectB);
-						bool okB = cp.pObjectB->FireOnCollisionEvent(cp.pObjectB, cp.pObjectA);
-
-						if (okA && okB)
-						{
-							// Build full collision manifold that will also handle the
-							// collision response between the two objects in the solver
-							// stage
-
-							Manifold * manifold = new Manifold();
-
-							manifold->Initiate(cp.pObjectA, cp.pObjectB);
-
-							// Construct contact points that form the perimeter of the
-							// collision manifold
-
-							colDetect.GenContactPoints(manifold);
-
-							if (manifold->contactPoints.size() > 0)
-							{
-								// Add to list of manifolds that need solving
-								manifolds.push_back(manifold);
-							}
-							else
-								delete manifold;
-						}
+						// Add to list of manifolds that need solving
+						manifolds.push_back(manifold);
 					}
+					else
+						delete manifold;
 				}
 			}
 		}
+
 	}
 }
 
@@ -333,12 +324,9 @@ void PhysicsEngine::DebugRender()
 	{
 		for (PhysicsNode* obj : physicsNodes)
 		{
-			if (!obj->IsCollisionShapesEmpty())
+			if (obj->GetCollisionShape() != NULL)
 			{
-				for (auto i = obj->GetCollisionShapesBegin(); i != obj->GetCollisionShapesEnd(); i++)
-				{
-					(*i)->DebugDraw();
-				}
+				obj->GetCollisionShape()->DebugDraw();
 			}
 		}
 	}

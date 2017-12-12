@@ -6,6 +6,7 @@ void PhysicsNode::DeleteAllCollisionShapes() {
 		SAFE_DELETE(*i);
 	}
 	collisionShapes.clear();
+	offsets.clear();
 	weights = 0;
 }
 
@@ -23,8 +24,8 @@ void PhysicsNode::AddCollisionShape(CollisionShape* colShape, Vector3 offset, fl
 			weights += weight;
 		}*/
 		colShape->SetParent(this);
-		colShape->SetOffset(offset);
 		collisionShapes.push_back(colShape);
+		offsets.push_back(offset);
 	}
 }
 
@@ -79,22 +80,22 @@ void PhysicsNode::IntegrateForPosition(float dt)
 		else {
 			//x axis
 			collisionShapes[0]->GetMinMaxVertexOnAxis(Vector3(1, 0, 0), v_min, v_max);
-			axisAlignedBoundingBox.x = v_max.x - position.x + collisionShapes[0]->GetOffset().x;
+			axisAlignedBoundingBox.x = v_max.x - position.x + offsets[0].x;
 
 			//y axis
 			collisionShapes[0]->GetMinMaxVertexOnAxis(Vector3(0, 1, 0), v_min, v_max);
-			axisAlignedBoundingBox.y = v_max.y - position.y + collisionShapes[0]->GetOffset().y;
+			axisAlignedBoundingBox.y = v_max.y - position.y + offsets[0].y;
 
 			//z axis
 			collisionShapes[0]->GetMinMaxVertexOnAxis(Vector3(0, 0, 1), v_min, v_max);
-			axisAlignedBoundingBox.z = v_max.z - position.z + collisionShapes[0]->GetOffset().z;
+			axisAlignedBoundingBox.z = v_max.z - position.z + offsets[0].z;
 
 			for (auto i = collisionShapes.begin() + 1; i != collisionShapes.end(); ++i)
 			{
 				float temp;
 				//x
 				(*i)->GetMinMaxVertexOnAxis(Vector3(1, 0, 0), v_min, v_max);
-				temp = v_max.x - position.x + collisionShapes[0]->GetOffset().x;
+				temp = v_max.x - position.x + offsets[0].x;
 				if (temp > axisAlignedBoundingBox.x)
 				{
 					axisAlignedBoundingBox.x = temp;
@@ -102,7 +103,7 @@ void PhysicsNode::IntegrateForPosition(float dt)
 
 				//y
 				(*i)->GetMinMaxVertexOnAxis(Vector3(0, 1, 0), v_min, v_max);
-				temp = v_max.y - position.y + collisionShapes[0]->GetOffset().y;
+				temp = v_max.y - position.y + offsets[0].y;
 				if (temp > axisAlignedBoundingBox.y)
 				{
 					axisAlignedBoundingBox.y = temp;
@@ -110,7 +111,7 @@ void PhysicsNode::IntegrateForPosition(float dt)
 
 				//z
 				(*i)->GetMinMaxVertexOnAxis(Vector3(0, 0, 1), v_min, v_max);
-				temp = v_max.z - position.z + collisionShapes[0]->GetOffset().z;
+				temp = v_max.z - position.z + offsets[0].z;
 				if (temp > axisAlignedBoundingBox.z)
 				{
 					axisAlignedBoundingBox.z = temp;
@@ -130,24 +131,4 @@ void PhysicsNode::SetPosition(const Vector3& v) {
 	if(subspace)
 		subspace->UpdateNode(this);
 	FireOnUpdateCallback();
-}
-
-void PhysicsNode::DebugDrawAABB() {
-	Vector3 p, a;
-	p = position;
-	a = axisAlignedBoundingBox;
-	NCLDebug::DrawThickLineNDT(Vector3(p.x - a.x, p.y - a.y, p.z + a.z), Vector3(p.x + a.x, p.y - a.y, p.z + a.z), 0.05f, Vector4(1, 0, 0, 1));
-	NCLDebug::DrawThickLineNDT(Vector3(p.x - a.x, p.y - a.y, p.z + a.z), Vector3(p.x - a.x, p.y + a.y, p.z + a.z), 0.05f, Vector4(1, 0, 0, 1));
-	NCLDebug::DrawThickLineNDT(Vector3(p.x + a.x, p.y + a.y, p.z + a.z), Vector3(p.x + a.x, p.y - a.y, p.z + a.z), 0.05f, Vector4(1, 0, 0, 1));
-	NCLDebug::DrawThickLineNDT(Vector3(p.x + a.x, p.y + a.y, p.z + a.z), Vector3(p.x - a.x, p.y + a.y, p.z + a.z), 0.05f, Vector4(1, 0, 0, 1));
-
-	NCLDebug::DrawThickLineNDT(Vector3(p.x - a.x, p.y - a.y, p.z - a.z), Vector3(p.x + a.x, p.y - a.y, p.z - a.z), 0.05f, Vector4(1, 0, 0, 1));
-	NCLDebug::DrawThickLineNDT(Vector3(p.x - a.x, p.y - a.y, p.z - a.z), Vector3(p.x - a.x, p.y + a.y, p.z - a.z), 0.05f, Vector4(1, 0, 0, 1));
-	NCLDebug::DrawThickLineNDT(Vector3(p.x + a.x, p.y + a.y, p.z - a.z), Vector3(p.x + a.x, p.y - a.y, p.z - a.z), 0.05f, Vector4(1, 0, 0, 1));
-	NCLDebug::DrawThickLineNDT(Vector3(p.x + a.x, p.y + a.y, p.z - a.z), Vector3(p.x - a.x, p.y + a.y, p.z - a.z), 0.05f, Vector4(1, 0, 0, 1));
-
-	NCLDebug::DrawThickLineNDT(Vector3(p.x + a.x, p.y + a.y, p.z + a.z), Vector3(p.x + a.x, p.y + a.y, p.z - a.z), 0.05f, Vector4(1, 0, 0, 1));
-	NCLDebug::DrawThickLineNDT(Vector3(p.x + a.x, p.y - a.y, p.z + a.z), Vector3(p.x + a.x, p.y - a.y, p.z - a.z), 0.05f, Vector4(1, 0, 0, 1));
-	NCLDebug::DrawThickLineNDT(Vector3(p.x - a.x, p.y + a.y, p.z + a.z), Vector3(p.x - a.x, p.y + a.y, p.z - a.z), 0.05f, Vector4(1, 0, 0, 1));
-	NCLDebug::DrawThickLineNDT(Vector3(p.x - a.x, p.y - a.y, p.z + a.z), Vector3(p.x - a.x, p.y - a.y, p.z - a.z), 0.05f, Vector4(1, 0, 0, 1));
 }

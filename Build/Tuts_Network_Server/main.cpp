@@ -57,7 +57,6 @@ class SearchAStar;
 
 #define WAITING_MAZE_PARAMETER			0
 #define WAITING_START_GOAL				1
-#define WAITING_INSTRUCTION				2
 
 NetworkBase server;
 GameTimer timer;
@@ -271,15 +270,56 @@ int main(int arcg, char** argv)
 						memcpy(data + offset, &temp, sizeof(unsigned));
 						offset += sizeof(float);
 					}
-					
+
 					ENetPacket* packet = enet_packet_create(data, sizeof(PacketFlag) + sizeof(float)*path.size() * 3, 0);
 					enet_peer_send(evnt.peer, 0, packet);
 
 					delete[] data;
-				}
-				else if (state[evnt.peer->incomingPeerID] == WAITING_INSTRUCTION)
-				{
-					;
+
+// 					SearchHistory searchHistory = as_searcher.GetSearchHistory();
+// 
+// 					char* data = new char[sizeof(PacketFlag)+ sizeof(unsigned) +sizeof(float)*searchHistory.size()*6];
+// 
+// 					PacketFlag pf = PacketFlag::MazePath;
+// 					memcpy(data, &pf, sizeof(PacketFlag));
+// 					unsigned offset = sizeof(PacketFlag);
+// 
+// 					unsigned listSize = searchHistory.size();
+// 					memcpy(data + offset, &listSize, sizeof(unsigned));
+// 					offset += sizeof(unsigned);
+// 
+// 					float temp;
+// 					for (auto i=searchHistory.begin();i!=searchHistory.end();++i)
+// 					{
+// 						temp = (*i).first->_pos.x;
+// 						memcpy(data+ offset, &temp, sizeof(unsigned));
+// 						offset += sizeof(float);
+// 
+// 						temp = (*i).first->_pos.y;
+// 						memcpy(data + offset, &temp, sizeof(unsigned));
+// 						offset += sizeof(float);
+// 
+// 						temp = (*i).first->_pos.z;
+// 						memcpy(data + offset, &temp, sizeof(unsigned));
+// 						offset += sizeof(float);
+// 
+// 						temp = (*i).second->_pos.x;
+// 						memcpy(data + offset, &temp, sizeof(unsigned));
+// 						offset += sizeof(float);
+// 
+// 						temp = (*i).second->_pos.y;
+// 						memcpy(data + offset, &temp, sizeof(unsigned));
+// 						offset += sizeof(float);
+// 
+// 						temp = (*i).second->_pos.z;
+// 						memcpy(data + offset, &temp, sizeof(unsigned));
+// 						offset += sizeof(float);
+// 					}
+// 
+// 					ENetPacket* packet = enet_packet_create(data, sizeof(PacketFlag) + sizeof(float)*searchHistory.size() * 6, 0);
+// 					enet_peer_send(evnt.peer, 0, packet);
+// 
+// 					delete[] data;
 				}
 
 				enet_packet_destroy(evnt.packet);
