@@ -51,4 +51,11 @@ public:
 		this->AddGameObject(player);
 	}
 
+	void EmptyScene::OnCleanupScene()
+	{
+		//Just delete all created game objects 
+		//  - this is the default command on any Scene instance so we don't really need to override this function here.
+		Scene::OnCleanupScene();
+	}
+
 };

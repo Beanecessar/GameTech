@@ -158,7 +158,10 @@ void HandleKeyboardInputs()
 		SceneManager::Instance()->LaunchSphere(50.f, 0.5f);
 
 	if (Window::GetKeyboard()->KeyTriggered(KEYBOARD_X))
+	{
 		Quit();
+		exit(0);
+	}
 }
 
 
