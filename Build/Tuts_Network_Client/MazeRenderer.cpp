@@ -15,6 +15,8 @@ MazeRenderer::MazeRenderer(MazeGenerator* gen, Mesh* wallmesh)
 
 	if (maze)
 	{
+		sphere = CommonMeshes::Sphere();
+
 		uint num_walls = Generate_FlatMaze();
 
 		wall_descriptors.reserve(num_walls);
@@ -34,6 +36,8 @@ MazeRenderer::MazeRenderer(uint flat_maze_size,uint num_walls,bool* flat_maze,Ve
 	, start_pos(start)
 	, goal_pos(goal)
 {
+	sphere = CommonMeshes::Sphere();
+
 	this->SetRender(new RenderNode());
 
 	wall_descriptors.reserve(num_walls);
@@ -45,6 +49,9 @@ MazeRenderer::MazeRenderer(uint flat_maze_size,uint num_walls,bool* flat_maze,Ve
 
 MazeRenderer::~MazeRenderer()
 {
+	//SAFE_DELETE(sphere);
+	sphere = nullptr;
+
 	mesh = NULL;
 	maze = NULL;
 
@@ -93,17 +100,17 @@ void MazeRenderer::DrawPath(const list<Vector3>& path, unsigned mazeSize, unsign
 	for (auto i=path.begin();i!=path.end();++i)
 	{
 		Vector3 start = transform * Vector3(
-			((*i).x + 0.5f) * grid_scalar,
+			((*i).x + 0.4f) * grid_scalar,
 			0.1f,
-			((*i).y + 0.5f) * grid_scalar);
+			((*i).y + 0.6f) * grid_scalar);
 
 		++i;
 		if (i!=path.end())
 		{
 			Vector3 end = transform * Vector3(
-				((*i).x + 0.5f) * grid_scalar,
+				((*i).x + 0.4f) * grid_scalar,
 				0.1f,
-				((*i).y + 0.5f) * grid_scalar);
+				((*i).y + 0.6f) * grid_scalar);
 
 			NCLDebug::DrawThickLine(start, end, line_width, CommonUtils::GenColor(0.8f + index * col_factor));
 		}
@@ -302,7 +309,7 @@ void MazeRenderer::Generate_BuildRenderNodes()
 		scalar * 2
 	);
 
-	cube = new RenderNode(mesh, Vector4(0.0f, 1.0f, 0.0f, 1.0f));
+	cube = new RenderNode(sphere, Vector4(0.0f, 1.0f, 0.0f, 1.0f));
 	cube->SetTransform(Matrix4::Translation(cellpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
 	root->AddChild(cube);
 
@@ -311,7 +318,7 @@ void MazeRenderer::Generate_BuildRenderNodes()
 		0.0f,
 		goal_pos.y*3
 	) * scalar;
-	cube = new RenderNode(mesh, Vector4(1.0f, 0.0f, 0.0f, 1.0f));
+	cube = new RenderNode(sphere, Vector4(1.0f, 0.0f, 0.0f, 1.0f));
 	cube->SetTransform(Matrix4::Translation(cellpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
 	root->AddChild(cube);
 

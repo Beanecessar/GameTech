@@ -5,5 +5,7 @@ enum PacketFlag
 	MazeParam,
 	MazeArray,
 	MazeStartGoal,
-	MazePath
+	MazePath,
+	CreateAvator,
+	AvatorPosition
 };

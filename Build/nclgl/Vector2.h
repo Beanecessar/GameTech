@@ -34,6 +34,18 @@ public:
 		y = 0.0f;
 	}
 
+	const Vector2& Normalise() {
+		float length = Length();
+
+		if (length != 0.0f) {
+			length = 1.0f / length;
+			x = x * length;
+			y = y * length;
+		}
+
+		return *this;
+	}
+
 	float Length() const {
 		return sqrt(x * x + y * y);
 	}

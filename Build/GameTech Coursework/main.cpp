@@ -57,7 +57,7 @@ void Initialize()
 
 	//Enqueue All Scenes
 	SceneManager::Instance()->EnqueueScene(new TestScene("GameTech #1 - Framework Sandbox!"));
-	//SceneManager::Instance()->EnqueueScene(new Scene_CollisionHandling("GameTech #2 - Ball Pool"));
+	SceneManager::Instance()->EnqueueScene(new Scene_CollisionHandling("GameTech #2 - Ball Pool"));
 	SceneManager::Instance()->EnqueueScene(new EmptyScene("GameTech #3 - Debug Place"));
 }
 

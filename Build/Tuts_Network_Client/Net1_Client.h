@@ -8,9 +8,10 @@
 class MazeRenderer;
 
 #define WAITING_MAZE_DATA	0
-#define WAITING_PATH		1
-#define CREATING_START_GOAL 2
-#define WAITING_POSITION	3
+#define CREATING_START_GOAL 1
+#define WAITING_PATH		2
+#define CREATING_AVATOR		3
+#define WAITING_POSITION	4
 
 //Basic Network Example
 
@@ -40,6 +41,9 @@ protected:
 	unsigned pathSize;
 	//std::list<pair<Vector3, Vector3>> searchHistory;
 	list<Vector3> path;
+
+	RenderNode *avator;
+	Vector2 currentPos;
 
 	MazeRenderer* mazeRenderer;
 

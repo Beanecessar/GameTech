@@ -1,0 +1,22 @@
+#pragma once
+
+#include "SearchAlgorithm.h"
+#include <ncltech\NetworkBase.h>
+
+enum ServerState
+{
+	Idle,
+	WaitingMazeParameter,
+	WaitingStartGoal,
+	WaitingInstruction,
+	SendingPosition
+};
+
+struct ClientData
+{
+	unsigned state = ServerState::WaitingMazeParameter;
+	Vector2 startPos = Vector2(0, 0);
+	Vector2 goalPos = Vector2(0, 0);
+	list<const GraphNode*> path;
+	Vector2 currentPos = Vector2(0, 0);
+};

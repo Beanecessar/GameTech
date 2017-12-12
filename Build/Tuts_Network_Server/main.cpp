@@ -44,6 +44,7 @@ FOR MORE NETWORKING INFORMATION SEE "Tuts_Network_Client -> Net1_Client.h"
 #include "MazeData.h"
 #include "SearchAStar.h"
 #include "PacketFlag.h"
+#include "NetworkDataset.h"
 
 class SearchAStar;
 
@@ -55,15 +56,12 @@ class SearchAStar;
 #define SERVER_PORT 1234
 #define UPDATE_TIMESTEP (1.0f / 30.0f) //send 30 position updates per second
 
-#define WAITING_MAZE_PARAMETER			0
-#define WAITING_START_GOAL				1
-#define WAITING_INSTRUCTION				2
-
 NetworkBase server;
 GameTimer timer;
 MazeGenerator* mazeGen;
 MazeRenderer* mazeRen;
-std::vector<uint> state;
+std::vector<ClientData> clients;
+float moving_speed = 10.f;
 float accum_time = 0.0f;
 
 
@@ -83,12 +81,12 @@ void InitializeServer() {
 	srand(93225);
 }
 
-void UpdateServer() {
-
+void UpdateServer(float dt) {
+	
 }
 
-ENetPacket* UpdatePacket() {
-	return NULL;
+void  SendPacket() {
+	
 }
 
 
@@ -174,7 +172,7 @@ int main(int arcg, char** argv)
 		float dt = timer.GetTimedMS() * 0.001f;
 		accum_time += dt;
 
-		UpdateServer();
+		UpdateServer(dt);
 
 		//Handle All Incoming Packets and Send any enqued packets
 		server.ServiceNetwork(dt, [&](const ENetEvent& evnt)
@@ -182,112 +180,193 @@ int main(int arcg, char** argv)
 			switch (evnt.type)
 			{
 			case ENET_EVENT_TYPE_CONNECT:
-				state.push_back(WAITING_MAZE_PARAMETER);
+				if (evnt.peer->incomingPeerID + 1>clients.size())
+				{
+					clients.resize(evnt.peer->incomingPeerID + 1);
+				}
+				clients[evnt.peer->incomingPeerID] = (ClientData());
+				
 				printf("- New Client Connected\n");
 				break;
+
+				
 
 			case ENET_EVENT_TYPE_RECEIVE:
 				//printf("\t Client %d says: %s\n", evnt.peer->incomingPeerID, evnt.packet->data);
 
-				if (state[evnt.peer->incomingPeerID]==WAITING_MAZE_PARAMETER && evnt.packet->dataLength==sizeof(MazeParameter))
+				if (clients[evnt.peer->incomingPeerID].state == ServerState::WaitingMazeParameter)
 				{
-					MazeParameter* mp = (MazeParameter*)evnt.packet->data;
-					mazeGen->Generate(mp->size, mp->density);
-					mazeRen = new MazeRenderer(mazeGen);
-					unsigned flatSize = mazeRen->GetFlatMazeSize();
-					unsigned numWalls = mazeRen->GetNumOfWalls();
-
-					char* data = new char[sizeof(PacketFlag)+sizeof(unsigned)*2 + sizeof(bool)*flatSize*flatSize];
-					
-					PacketFlag pf = PacketFlag::MazeArray;
-					memcpy(data, &pf, sizeof(unsigned));
+					PacketFlag pf;
+					memcpy(&pf, evnt.packet->data, sizeof(PacketFlag));
 					unsigned offset = sizeof(PacketFlag);
 
-					memcpy(data + offset, &flatSize, sizeof(unsigned));
-					offset += sizeof(unsigned);
+					if (pf == PacketFlag::MazeParam) {
 
-					memcpy(data + offset, &numWalls, sizeof(unsigned));
-					offset += sizeof(unsigned);
+						MazeParameter mp;
+						memcpy(&mp, evnt.packet->data+offset, sizeof(MazeParameter));
 
-					memcpy(data + offset, mazeRen->GetFlatMaze(), sizeof(bool)*flatSize*flatSize);
-					offset += sizeof(bool)*flatSize*flatSize;
-					
-					bool* maze = mazeRen->GetFlatMaze();
+						mazeGen->Generate(mp.size, mp.density);
+						mazeRen = new MazeRenderer(mazeGen);
+						unsigned flatSize = mazeRen->GetFlatMazeSize();
+						unsigned numWalls = mazeRen->GetNumOfWalls();
 
-// 					for (unsigned i = 0; i < flatSize; ++i)
-// 					{
-// 						for (unsigned j = 0; j < flatSize; ++j)
-// 						{
-// 							cout << (maze[flatSize*i + j] ? "1" : ".");
-// 						}
-// 						cout << endl;
-// 					}
+						char* data = new char[sizeof(PacketFlag) + sizeof(unsigned) * 2 + sizeof(bool)*flatSize*flatSize];
 
-					ENetPacket* packet = enet_packet_create(data, offset, 0);
-					enet_peer_send(evnt.peer,0,packet);
+						PacketFlag pf = PacketFlag::MazeArray;
+						memcpy(data, &pf, sizeof(unsigned));
+						unsigned offset = sizeof(PacketFlag);
 
-					delete[] data;
+						memcpy(data + offset, &flatSize, sizeof(unsigned));
+						offset += sizeof(unsigned);
 
-					state[evnt.peer->incomingPeerID] = WAITING_START_GOAL;
+						memcpy(data + offset, &numWalls, sizeof(unsigned));
+						offset += sizeof(unsigned);
+
+						memcpy(data + offset, mazeRen->GetFlatMaze(), sizeof(bool)*flatSize*flatSize);
+						offset += sizeof(bool)*flatSize*flatSize;
+
+						bool* maze = mazeRen->GetFlatMaze();
+
+						// 					for (unsigned i = 0; i < flatSize; ++i)
+						// 					{
+						// 						for (unsigned j = 0; j < flatSize; ++j)
+						// 						{
+						// 							cout << (maze[flatSize*i + j] ? "1" : ".");
+						// 						}
+						// 						cout << endl;
+						// 					}
+
+						ENetPacket* packet = enet_packet_create(data, offset, 0);
+						enet_peer_send(evnt.peer, 0, packet);
+
+						delete[] data;
+
+						clients[evnt.peer->incomingPeerID].state = ServerState::WaitingStartGoal;
+					}
 				}
-				else if(state[evnt.peer->incomingPeerID] == WAITING_START_GOAL&& evnt.packet->dataLength == 2*sizeof(Vector2))
+				else if(clients[evnt.peer->incomingPeerID].state == ServerState::WaitingStartGoal)
 				{
-					Vector2 start_pos, goal_pos;
-					memcpy(&start_pos, evnt.packet->data, sizeof(Vector2));
-					memcpy(&goal_pos, evnt.packet->data + sizeof(Vector2), sizeof(Vector2));
+					PacketFlag pf;
+					memcpy(&pf, evnt.packet->data, sizeof(PacketFlag));
+					unsigned offset = sizeof(PacketFlag);
 
-					mazeGen->SetStartGoal(start_pos, goal_pos);
-					GraphNode* startNode = mazeGen->GetStartNode();
-					GraphNode* goalNode = mazeGen->GetGoalNode();
+					if (pf==PacketFlag::MazeStartGoal)
+					{
+						Vector2 start_pos, goal_pos;
+						memcpy(&start_pos, evnt.packet->data+offset, sizeof(Vector2));
+						offset += sizeof(Vector2);
 
-					SearchAStar as_searcher;
+						memcpy(&goal_pos, evnt.packet->data+offset, sizeof(Vector2));
+						offset += sizeof(Vector2);
 
-					as_searcher.FindBestPath(startNode, goalNode);
+						mazeGen->SetStartGoal(start_pos, goal_pos);
 
-					list<const GraphNode*> path = as_searcher.GetFinalPath();
+						clients[evnt.peer->incomingPeerID].startPos = start_pos;
+						clients[evnt.peer->incomingPeerID].goalPos = goal_pos;
 
-					char* data = new char[sizeof(PacketFlag) + sizeof(unsigned) + sizeof(float)*path.size() * 3];
+						GraphNode* startNode = mazeGen->GetStartNode();
+						GraphNode* goalNode = mazeGen->GetGoalNode();
 
-					PacketFlag pf = PacketFlag::MazePath;
+						SearchAStar as_searcher;
+
+						as_searcher.FindBestPath(startNode, goalNode);
+
+						clients[evnt.peer->incomingPeerID].path = as_searcher.GetFinalPath();
+
+						char* data = new char[sizeof(PacketFlag) + sizeof(unsigned) + sizeof(float)*clients[evnt.peer->incomingPeerID].path.size() * 3];
+
+						PacketFlag pf = PacketFlag::MazePath;
+						memcpy(data, &pf, sizeof(PacketFlag));
+						unsigned offset = sizeof(PacketFlag);
+
+						unsigned listSize = clients[evnt.peer->incomingPeerID].path.size();
+						memcpy(data + offset, &listSize, sizeof(unsigned));
+						offset += sizeof(unsigned);
+
+						float temp;
+						for (auto j = clients[evnt.peer->incomingPeerID].path.begin(); j != clients[evnt.peer->incomingPeerID].path.end(); ++j)
+						{
+							temp = (*j)->_pos.x;
+							memcpy(data + offset, &temp, sizeof(unsigned));
+							offset += sizeof(float);
+
+							temp = (*j)->_pos.y;
+							memcpy(data + offset, &temp, sizeof(unsigned));
+							offset += sizeof(float);
+
+							temp = (*j)->_pos.z;
+							memcpy(data + offset, &temp, sizeof(unsigned));
+							offset += sizeof(float);
+						}
+
+						ENetPacket* packet = enet_packet_create(data, sizeof(PacketFlag) + sizeof(float)*clients[evnt.peer->incomingPeerID].path.size() * 3, 0);
+						enet_peer_send(evnt.peer, 0, packet);
+
+						delete[] data;
+
+						clients[evnt.peer->incomingPeerID].state = ServerState::WaitingInstruction;
+					}
+				}
+				else if (clients[evnt.peer->incomingPeerID].state == ServerState::WaitingInstruction)
+				{
+					PacketFlag pf;
+					memcpy(&pf, evnt.packet->data, sizeof(PacketFlag));
+
+					if (pf==PacketFlag::CreateAvator)
+					{
+						clients[evnt.peer->incomingPeerID].currentPos = clients[evnt.peer->incomingPeerID].startPos;
+						clients[evnt.peer->incomingPeerID].path.pop_front();
+						clients[evnt.peer->incomingPeerID].state = ServerState::SendingPosition;
+					}
+				}
+				else if (clients[evnt.peer->incomingPeerID].state == ServerState::SendingPosition) {
+					//creating position packet
+					char* data = new char[sizeof(PacketFlag) + sizeof(Vector2)];
+
+					PacketFlag pf = PacketFlag::AvatorPosition;
 					memcpy(data, &pf, sizeof(PacketFlag));
 					unsigned offset = sizeof(PacketFlag);
 
-					unsigned listSize = path.size();
-					memcpy(data + offset, &listSize, sizeof(unsigned));
-					offset += sizeof(unsigned);
+					memcpy(data + offset, &clients[evnt.peer->incomingPeerID].currentPos, sizeof(Vector2));
+					offset += sizeof(Vector2);
 
-					float temp;
-					for (auto i = path.begin(); i != path.end(); ++i)
-					{
-						temp = (*i)->_pos.x;
-						memcpy(data + offset, &temp, sizeof(unsigned));
-						offset += sizeof(float);
-
-						temp = (*i)->_pos.y;
-						memcpy(data + offset, &temp, sizeof(unsigned));
-						offset += sizeof(float);
-
-						temp = (*i)->_pos.z;
-						memcpy(data + offset, &temp, sizeof(unsigned));
-						offset += sizeof(float);
-					}
-					
-					ENetPacket* packet = enet_packet_create(data, sizeof(PacketFlag) + sizeof(float)*path.size() * 3, 0);
+					ENetPacket* packet = enet_packet_create(data, offset, 0);
 					enet_peer_send(evnt.peer, 0, packet);
 
 					delete[] data;
+
+					//update position
+					clients[evnt.peer->incomingPeerID].currentPos;
+					if (clients[evnt.peer->incomingPeerID].path.empty())
+					{
+						clients[evnt.peer->incomingPeerID].state = ServerState::Idle;
+					}
+					else
+					{
+						Vector2 nextCheckPoint = Vector2(clients[evnt.peer->incomingPeerID].path.front()->_pos.x, clients[evnt.peer->incomingPeerID].path.front()->_pos.y);
+						Vector2 direction = nextCheckPoint - clients[evnt.peer->incomingPeerID].currentPos;
+
+						if (direction.Length() > moving_speed*dt*1000.f) {
+							//haven't reached next check point 
+							direction.Normalise();
+
+							clients[evnt.peer->incomingPeerID].currentPos = clients[evnt.peer->incomingPeerID].currentPos + direction*moving_speed*dt*1000.f;
+						}
+						else
+						{
+							clients[evnt.peer->incomingPeerID].path.pop_front();
+						}
+					}
 				}
-				else if (state[evnt.peer->incomingPeerID] == WAITING_INSTRUCTION)
-				{
-					;
-				}
+
+				//enet_peer_send
 
 				enet_packet_destroy(evnt.packet);
 				break;
 
 			case ENET_EVENT_TYPE_DISCONNECT:
 				printf("- Client %d has disconnected.\n", evnt.peer->incomingPeerID);
-				state[evnt.peer->incomingPeerID] = WAITING_MAZE_PARAMETER;
+				clients[evnt.peer->incomingPeerID].state = ServerState::Idle;
 				break;
 			}
 		});

@@ -33,5 +33,8 @@
     <ClInclude Include="SearchAStar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Hazard.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

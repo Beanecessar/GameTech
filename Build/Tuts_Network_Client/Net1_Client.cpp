@@ -132,6 +132,8 @@ void Net1_Client::OnCleanupScene()
 
 	SAFE_DELETE(wallMesh);
 
+	avator = nullptr;
+
 	//Send one final packet telling the server we are disconnecting
 	// - We are not waiting to resend this, so if it fails to arrive
 	//   the server will have to wait until we time out naturally
@@ -140,6 +142,8 @@ void Net1_Client::OnCleanupScene()
 	//Release network and all associated data/peer connections
 	network.Release();
 	serverConnection = NULL;
+
+	state = WAITING_MAZE_DATA;
 }
 
 void Net1_Client::OnUpdateScene(float dt)
@@ -160,8 +164,21 @@ void Net1_Client::OnUpdateScene(float dt)
 	switch (state)
 	{
 	case WAITING_MAZE_DATA:
-		packet = enet_packet_create(&mp, sizeof(MazeParameter), 0);
+	{
+		char* data = new char[sizeof(PacketFlag)+sizeof(MazeParameter)];
+
+		PacketFlag pf = PacketFlag::MazeParam;
+		memcpy(data, &pf, sizeof(PacketFlag));
+		unsigned offset = sizeof(PacketFlag);
+
+		memcpy(data+offset, &mp, sizeof(MazeParameter));
+		offset += sizeof(MazeParameter);
+
+		packet = enet_packet_create(data, sizeof(PacketFlag)+sizeof(MazeParameter), 0);
 		enet_peer_send(serverConnection, 0, packet);
+
+		delete[] data;
+	}
 		break;
 
 	case CREATING_START_GOAL:
@@ -185,13 +202,23 @@ void Net1_Client::OnUpdateScene(float dt)
 
 		mazeRenderer = new MazeRenderer(md.flat_maze_size, md.num_walls, md.flat_maze, start_position, goal_position, wallMesh);
 
-		char* data = new char[sizeof(Vector2) * 2];
-		memcpy(data, &start_position, sizeof(Vector2));
-		memcpy(data + sizeof(Vector2), &goal_position, sizeof(Vector2));
+		char* data = new char[sizeof(PacketFlag) + sizeof(Vector2) * 2];
 
-		packet = enet_packet_create(data, sizeof(Vector2) * 2, 0);
+		PacketFlag pf = PacketFlag::MazeStartGoal;
+		memcpy(data, &pf, sizeof(PacketFlag));
+		unsigned offset = sizeof(PacketFlag);
+
+		memcpy(data + offset, &start_position, sizeof(Vector2));
+		offset += sizeof(Vector2);
+
+		memcpy(data + offset, &goal_position, sizeof(Vector2));
+		offset += sizeof(Vector2);
+
+		packet = enet_packet_create(data, sizeof(PacketFlag)+sizeof(Vector2) * 2, 0);
 
 		enet_peer_send(serverConnection, 0, packet);
+
+		delete[] data;
 
 		mazeRenderer->Render()->SetTransform(Matrix4::Scale(Vector3(5.f, 5.0f / float(mp.size), 5.f)) * Matrix4::Translation(Vector3(-0.5f, 0.f, -0.5f)));
 
@@ -199,18 +226,61 @@ void Net1_Client::OnUpdateScene(float dt)
 
 		state = WAITING_PATH;
 	}
-		break;
+	break;
 
 	case WAITING_PATH:
-		enet_peer_send(serverConnection, 0, packet);
+		if (packet)
+		{
+			enet_peer_send(serverConnection, 0, packet);
+		}
 		break;
 
-	case WAITING_POSITION:
+	case CREATING_AVATOR:
 	{
-		mazeRenderer->DrawPath(path, mp.size, pathSize, 2.0f / mp.size);
+		float scalar = 1.f / (float)md.flat_maze_size;
+		Vector3 cellpos = Vector3(
+			currentPos.x * 3,
+			0.0f,
+			currentPos.y * 3
+		) * scalar;
+		Vector3 cellsize = Vector3(
+			scalar * 2,
+			1.0f,
+			scalar * 2
+		);
 
+		avator = new RenderNode(CommonMeshes::Cube(), Vector4(0.0f, 1.0f, 0.0f, 1.0f));
+		avator->SetTransform(Matrix4::Translation(cellpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
+		mazeRenderer->Render()->AddChild(avator);
+
+		state = WAITING_POSITION;
 	}
 		break;
+	case WAITING_POSITION:
+	{
+		float scalar = 1.f / (float)md.flat_maze_size;
+		Vector3 cellpos = Vector3(
+			currentPos.x * 3,
+			0.0f,
+			currentPos.y * 3
+		) * scalar;
+		Vector3 cellsize = Vector3(
+			scalar * 2,
+			1.0f,
+			scalar * 2
+		);
+
+		avator->SetTransform(Matrix4::Translation(cellpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
+
+		mazeRenderer->DrawPath(path, mp.size, pathSize, 1.0f / mp.size);
+
+		PacketFlag pf = PacketFlag::CreateAvator;
+
+		packet = enet_packet_create(&pf, sizeof(PacketFlag), 0);
+
+		enet_peer_send(serverConnection, 0, packet);
+	}
+	break;
 	default:
 		break;
 	}
@@ -284,48 +354,55 @@ void Net1_Client::ProcessNetworkEvent(const ENetEvent& evnt)
 					state = CREATING_START_GOAL;
 				}		
 			}
-			else if (state == WAITING_PATH)
-			{
-				//loading packet flag
-				PacketFlag pf;
-				memcpy(&pf, evnt.packet->data, sizeof(PacketFlag));
-				unsigned offset = sizeof(PacketFlag);
-
-				if (pf==PacketFlag::MazePath)
-				{
-					//loading list size
-					memcpy(&pathSize, evnt.packet->data+offset, sizeof(unsigned));
-					offset += sizeof(unsigned);
-
-					//loading list data
-					Vector3 pathNode;
-					float temp;
-					for (unsigned i = 0; i < pathSize; ++i)
-					{
-						memcpy(&temp, evnt.packet->data + offset, sizeof(float));
-						pathNode.x = temp;
-						offset += sizeof(float);
-
-						memcpy(&temp, evnt.packet->data + offset, sizeof(float));
-						pathNode.y = temp;
-						offset += sizeof(float);
-
-						memcpy(&temp, evnt.packet->data + offset, sizeof(float));
-						pathNode.z = temp;
-						offset += sizeof(float);
-
-						path.push_back(pathNode);
-					}
-
-					state = WAITING_POSITION;
-				}
-			}
-			else if (state == WAITING_POSITION) {
-
-			}
+ 			else if (state == WAITING_PATH)
+ 			{
+ 				//loading packet flag
+ 				PacketFlag pf;
+ 				memcpy(&pf, evnt.packet->data, sizeof(PacketFlag));
+ 				unsigned offset = sizeof(PacketFlag);
+ 
+ 				if (pf==PacketFlag::MazePath)
+ 				{
+ 					//loading list size
+ 					memcpy(&pathSize, evnt.packet->data+offset, sizeof(unsigned));
+ 					offset += sizeof(unsigned);
+ 
+ 					//loading list data
+ 					path.clear();
+ 					Vector3 pathNode;
+ 					float temp;
+ 					for (unsigned i = 0; i < pathSize; ++i)
+ 					{
+ 						memcpy(&temp, evnt.packet->data + offset, sizeof(float));
+ 						pathNode.x = temp;
+ 						offset += sizeof(float);
+ 
+ 						memcpy(&temp, evnt.packet->data + offset, sizeof(float));
+ 						pathNode.y = temp;
+ 						offset += sizeof(float);
+ 
+ 						memcpy(&temp, evnt.packet->data + offset, sizeof(float));
+ 						pathNode.z = temp;
+ 						offset += sizeof(float);
+ 
+ 						path.push_back(pathNode);
+ 					}
+ 
+ 					state = CREATING_AVATOR;
+ 				}
+ 			}
+ 			else if (state == WAITING_POSITION) {
+ 				PacketFlag pf;
+ 				memcpy(&pf, evnt.packet->data, sizeof(PacketFlag));
+ 				unsigned offset = sizeof(PacketFlag);
+ 
+ 				if (pf == PacketFlag::AvatorPosition) {
+ 					memcpy(&currentPos, evnt.packet->data + offset, sizeof(Vector2));
+ 				}
+ 			}
 			else
 			{
-				NCLERROR("Recieved Invalid Network Packet!");
+				//NCLERROR("Recieved Invalid Network Packet!");
 			}
 
 		}

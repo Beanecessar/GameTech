@@ -51,6 +51,7 @@ protected:
 protected:
 	MazeGenerator*	maze;
 	Mesh*			mesh;
+	Mesh*			sphere;
 
 	bool*	flat_maze;	//[flat_maze_size x flat_maze_size]
 	uint	flat_maze_size;
