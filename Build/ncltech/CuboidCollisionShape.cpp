@@ -117,7 +117,7 @@ void CuboidCollisionShape::GetIncidentReferencePolygon(
 	std::vector<Plane>& out_adjacent_planes) const
 {
 	//Get the world-space transform
-	Matrix4 wsTransform = Parent()->GetWorldSpaceTransform() * Matrix4::Scale(halfDims);
+	Matrix4 wsTransform = Parent()->GetWorldSpaceTransform()*Matrix4::Translation(offset) * Matrix4::Scale(halfDims);
 
 	//Get normal and inverse-normal matrices to transfom the collision axis to and from modelspace
 	Matrix3 invNormalMatrix = Matrix3::Inverse(Matrix3(wsTransform));
@@ -209,7 +209,7 @@ void CuboidCollisionShape::GetIncidentReferencePolygon(
 void CuboidCollisionShape::DebugDraw() const
 {
 	// Just draw the cuboid hull-mesh at the position of our PhysicsNode
-	Matrix4 transform = Parent()->GetWorldSpaceTransform() * Matrix4::Scale(halfDims);
+	Matrix4 transform = Parent()->GetWorldSpaceTransform()*Matrix4::Translation(offset) * Matrix4::Scale(halfDims);
 	cubeHull.DebugDraw(transform);
 }
 

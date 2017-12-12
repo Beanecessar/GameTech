@@ -193,15 +193,6 @@ void Net1_Client::OnUpdateScene(float dt)
 
 		enet_peer_send(serverConnection, 0, packet);
 
-// 		for (unsigned i = 0; i < md.flat_maze_size; ++i)
-// 		{
-// 			for (unsigned j = 0; j < md.flat_maze_size; ++j)
-// 			{
-// 				cout << (md.flat_maze[i*md.flat_maze_size + j] ? "1" : ".");
-// 			}
-// 			cout << endl;
-// 		}
-
 		mazeRenderer->Render()->SetTransform(Matrix4::Scale(Vector3(5.f, 5.0f / float(mp.size), 5.f)) * Matrix4::Translation(Vector3(-0.5f, 0.f, -0.5f)));
 
 		this->AddGameObject(mazeRenderer);
@@ -215,8 +206,10 @@ void Net1_Client::OnUpdateScene(float dt)
 		break;
 
 	case WAITING_POSITION:
-		//mazeRenderer->DrawSearchHistory(searchHistory, mp.size, historySize, 2.5f/mp.size);
+	{
 		mazeRenderer->DrawPath(path, mp.size, pathSize, 2.0f / mp.size);
+
+	}
 		break;
 	default:
 		break;
@@ -305,7 +298,6 @@ void Net1_Client::ProcessNetworkEvent(const ENetEvent& evnt)
 					offset += sizeof(unsigned);
 
 					//loading list data
-
 					Vector3 pathNode;
 					float temp;
 					for (unsigned i = 0; i < pathSize; ++i)
@@ -325,40 +317,11 @@ void Net1_Client::ProcessNetworkEvent(const ENetEvent& evnt)
 						path.push_back(pathNode);
 					}
 
-// 					Vector3 list_first;
-// 					Vector3 list_second;
-// 					float temp;
-// 					for (unsigned i=0;i<historySize;++i)
-// 					{
-// 						memcpy(&temp, evnt.packet->data + offset, sizeof(float));
-// 						list_first.x = temp;
-// 						offset += sizeof(float);
-// 
-// 						memcpy(&temp, evnt.packet->data + offset, sizeof(float));
-// 						list_first.y = temp;
-// 						offset += sizeof(float);
-// 
-// 						memcpy(&temp, evnt.packet->data + offset, sizeof(float));
-// 						list_first.z = temp;
-// 						offset += sizeof(float);
-// 
-// 						memcpy(&temp, evnt.packet->data + offset, sizeof(float));
-// 						list_second.x = temp;
-// 						offset += sizeof(float);
-// 
-// 						memcpy(&temp, evnt.packet->data + offset, sizeof(float));
-// 						list_second.y = temp;
-// 						offset += sizeof(float);
-// 
-// 						memcpy(&temp, evnt.packet->data + offset, sizeof(float));
-// 						list_second.z = temp;
-// 						offset += sizeof(float);
-// 
-// 						searchHistory.push_back(make_pair(list_first, list_second));
-// 					}
-
 					state = WAITING_POSITION;
 				}
+			}
+			else if (state == WAITING_POSITION) {
+
 			}
 			else
 			{

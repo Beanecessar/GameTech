@@ -111,6 +111,10 @@ public:
 
 	inline const Vector3&		getAABB()					const { return axisAlignedBoundingBox; }
 	inline CollisionShape*		GetCollisionShape()			const { if (collisionShapes.empty()) return NULL; else return collisionShapes[0]; }
+	inline auto	GetCollisionShapesBegin()	const		{ return collisionShapes.begin(); }
+	inline auto	GetCollisionShapesEnd()		const		{ return collisionShapes.end(); }
+	inline size_t GetCollisionShapesSize()	const		{ return collisionShapes.size(); }
+	inline bool IsCollisionShapesEmpty()	const		{ return collisionShapes.empty(); }
 
 	const Matrix4&				GetWorldSpaceTransform()    const { return worldTransform; }
 
@@ -147,6 +151,9 @@ public:
 	inline void SetGoodTarget(const bool b) { goodTarget = b; }
 	inline void SetBadTarget(const bool b) { badTarget = b; }
 
+	//<---------- DEBUG ------------>
+
+	void DebugDrawAABB();
 
 	//<---------- CALLBACKS ------------>
 	inline void SetOnCollisionCallback(PhysicsCollisionCallback callback) { onCollisionCallback = callback; }
@@ -193,7 +200,6 @@ protected:
 //Added in Tutorial 4/5
 	//<----------COLLISION------------>
 	std::vector<CollisionShape*>	collisionShapes;
-	std::vector<Vector3>			offsets;
 	float							weights;
 	Vector3						axisAlignedBoundingBox;
 	PhysicsCollisionCallback	onCollisionCallback;
