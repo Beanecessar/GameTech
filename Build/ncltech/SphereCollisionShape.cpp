@@ -78,13 +78,13 @@ void SphereCollisionShape::GetIncidentReferencePolygon(
 	std::vector<Plane>& out_adjacent_planes) const
 {
 	//This is used in Tutorial 5
-	out_face.push_back(Parent()->GetPosition() + axis * m_Radius);
+	out_face.push_back(Parent()->GetWorldSpaceTransform()*offset + axis * m_Radius);
 	out_normal = axis;	
 }
 
 void SphereCollisionShape::DebugDraw() const
 {
-	Vector3 pos = Parent()->GetPosition();
+	Vector3 pos = Parent()->GetWorldSpaceTransform()*offset;
 
 	//Draw Filled Circle
 	NCLDebug::DrawPointNDT(pos, m_Radius, Vector4(1.0f, 1.0f, 1.0f, 0.2f));
