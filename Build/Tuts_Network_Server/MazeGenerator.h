@@ -18,7 +18,11 @@ public:
 	GraphNode* GetStartNode() const { return start; }
 	GraphNode* GetGoalNode()  const { return end; }
 
+<<<<<<< HEAD
 	GraphNode* GetGraphNode(Vector2 pos);
+=======
+	GraphNode* GetGraphNode(unsigned x,unsigned y);
+>>>>>>> CUDA_DEBUG
 
 	void SetStartGoal(Vector2 start_pos, Vector2 goal_pos);
 	uint GetSize() const { return size; }

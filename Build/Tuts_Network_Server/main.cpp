@@ -39,14 +39,26 @@ FOR MORE NETWORKING INFORMATION SEE "Tuts_Network_Client -> Net1_Client.h"
 #include <nclgl\Vector3.h>
 #include <nclgl\common.h>
 #include <ncltech\NetworkBase.h>
+<<<<<<< HEAD
+=======
+<<<<<<< Updated upstream
+=======
+>>>>>>> CUDA_DEBUG
 #include "MazeGenerator.h"
 #include "MazeRenderer.h"
 #include "MazeData.h"
 #include "SearchAStar.h"
 #include "PacketFlag.h"
 #include "NetworkDataset.h"
+<<<<<<< HEAD
 
 class SearchAStar;
+=======
+#include "Hazard.h"
+
+class SearchAStar;
+>>>>>>> Stashed changes
+>>>>>>> CUDA_DEBUG
 
 //Needed to get computer adapter IPv4 addresses via windows
 #include <iphlpapi.h>
@@ -58,11 +70,26 @@ class SearchAStar;
 
 NetworkBase server;
 GameTimer timer;
+<<<<<<< HEAD
 MazeGenerator* mazeGen;
 MazeRenderer* mazeRen;
 std::vector<ClientData> clients;
 float moving_speed = 5.f;
 float accum_time = 0.0f;
+=======
+<<<<<<< Updated upstream
+float accum_time = 0.0f;
+float rotation = 0.0f;
+=======
+MazeGenerator* mazeGen;
+MazeRenderer* mazeRen;
+vector<Hazard*> hazards;
+std::vector<ClientData> clients;
+float moving_speed = 1.f;
+float accum_time = 0.0f;
+size_t numOfHazards = 10;
+>>>>>>> Stashed changes
+>>>>>>> CUDA_DEBUG
 
 
 void Win32_PrintAllAdapterIPAddresses();
@@ -74,6 +101,11 @@ int onExit(int exitcode)
 	exit(exitcode);
 }
 
+<<<<<<< HEAD
+=======
+<<<<<<< Updated upstream
+=======
+>>>>>>> CUDA_DEBUG
 void InitializeServer() {
 	mazeGen = new MazeGenerator();
 	mazeRen = nullptr;
@@ -82,7 +114,16 @@ void InitializeServer() {
 }
 
 void UpdateServer(float dt) {
+<<<<<<< HEAD
 	
+=======
+	if (!hazards.empty()) {
+		for (auto i = hazards.begin(); i != hazards.end(); i++)
+		{
+			(*i)->Updata(dt);
+		}
+	}
+>>>>>>> CUDA_DEBUG
 }
 
 void  SendPacket() {
@@ -144,6 +185,10 @@ void Win32_PrintAllAdapterIPAddresses()
 	
 }
 
+<<<<<<< HEAD
+=======
+>>>>>>> Stashed changes
+>>>>>>> CUDA_DEBUG
 int main(int arcg, char** argv)
 {
 	if (enet_initialize() != 0)
@@ -193,6 +238,12 @@ int main(int arcg, char** argv)
 				
 
 			case ENET_EVENT_TYPE_RECEIVE:
+<<<<<<< HEAD
+=======
+<<<<<<< Updated upstream
+				printf("\t Client %d says: %s\n", evnt.peer->incomingPeerID, evnt.packet->data);
+=======
+>>>>>>> CUDA_DEBUG
 			{
 				//printf("\t Client %d says: %s\n", evnt.peer->incomingPeerID, evnt.packet->data);
 				float dtp = clients[evnt.peer->incomingPeerID].timer.GetTimedMS()/1000.f;
@@ -204,15 +255,26 @@ int main(int arcg, char** argv)
 					unsigned offset = sizeof(PacketFlag);
 
 					if (pf == PacketFlag::MazeParam) {
+<<<<<<< HEAD
 
 						MazeParameter mp;
 						memcpy(&mp, evnt.packet->data + offset, sizeof(MazeParameter));
 
+=======
+						MazeParameter mp;
+						memcpy(&mp, evnt.packet->data + offset, sizeof(MazeParameter));
+
+						//Generating maze
+>>>>>>> CUDA_DEBUG
 						mazeGen->Generate(mp.size, mp.density);
 						mazeRen = new MazeRenderer(mazeGen);
 						unsigned flatSize = mazeRen->GetFlatMazeSize();
 						unsigned numWalls = mazeRen->GetNumOfWalls();
 
+<<<<<<< HEAD
+=======
+						//Sending data
+>>>>>>> CUDA_DEBUG
 						char* data = new char[sizeof(PacketFlag) + sizeof(unsigned) * 2 + sizeof(bool)*flatSize*flatSize];
 
 						PacketFlag pf = PacketFlag::MazeArray;
@@ -247,6 +309,10 @@ int main(int arcg, char** argv)
 						clients[evnt.peer->incomingPeerID].state = ServerState::WaitingStartGoal;
 					}
 				}
+<<<<<<< HEAD
+=======
+
+>>>>>>> CUDA_DEBUG
 				//Waiting client send start and goal position
 				else if (clients[evnt.peer->incomingPeerID].state == ServerState::WaitingStartGoal)
 				{
@@ -313,6 +379,17 @@ int main(int arcg, char** argv)
 				}
 				else if (clients[evnt.peer->incomingPeerID].state == ServerState::WaitingInstruction)
 				{
+<<<<<<< HEAD
+=======
+					for (size_t i = 0; i < numOfHazards; i++)
+					{
+						Hazard* hazard = new Hazard(mazeGen);
+						hazard->SetTarget(&clients[evnt.peer->incomingPeerID].currentPos);
+
+						hazards.push_back(hazard);
+					}
+
+>>>>>>> CUDA_DEBUG
 					PacketFlag pf;
 					memcpy(&pf, evnt.packet->data, sizeof(PacketFlag));
 
@@ -322,13 +399,35 @@ int main(int arcg, char** argv)
 						clients[evnt.peer->incomingPeerID].state = ServerState::SendingPosition;
 					}
 				}
+<<<<<<< HEAD
+=======
+
+>>>>>>> CUDA_DEBUG
 				//Sending Position
 				else if (clients[evnt.peer->incomingPeerID].state == ServerState::SendingPosition) {
 
 					//creating position packet
+<<<<<<< HEAD
 					printf("client %d in position (%.2f,%.2f)\n", evnt.peer->incomingPeerID, clients[evnt.peer->incomingPeerID].currentPos.x, clients[evnt.peer->incomingPeerID].currentPos.y);
 
 					char* data = new char[sizeof(PacketFlag) + sizeof(Vector2)];
+=======
+					//packet:
+					//-------
+					//Flag
+					//-------
+					//Avator position
+					//-------
+					//Number of hazards
+					//-------
+					//Hazard positions
+					//-------
+					printf("client %d in position (%.2f,%.2f)\n", evnt.peer->incomingPeerID, clients[evnt.peer->incomingPeerID].currentPos.x, clients[evnt.peer->incomingPeerID].currentPos.y);
+
+					size_t numOfHazards = hazards.size();
+
+					char* data = new char[sizeof(PacketFlag) +sizeof(size_t)+ sizeof(Vector2)*(numOfHazards+1)];
+>>>>>>> CUDA_DEBUG
 
 					PacketFlag pf = PacketFlag::AvatorPosition;
 					memcpy(data, &pf, sizeof(PacketFlag));
@@ -336,6 +435,17 @@ int main(int arcg, char** argv)
 
 					memcpy(data + offset, &clients[evnt.peer->incomingPeerID].currentPos, sizeof(Vector2));
 					offset += sizeof(Vector2);
+<<<<<<< HEAD
+=======
+					
+					memcpy(data + offset, &numOfHazards, sizeof(size_t));
+					offset += sizeof(size_t);
+
+					for (auto i = hazards.begin(); i != hazards.end(); ++i) {
+						memcpy(data + offset, &(*i)->GetPosition(), sizeof(Vector2));
+						offset += sizeof(Vector2);
+					}
+>>>>>>> CUDA_DEBUG
 
 					ENetPacket* packet = enet_packet_create(data, offset, 0);
 					enet_peer_send(evnt.peer, 0, packet);
@@ -346,7 +456,11 @@ int main(int arcg, char** argv)
 					clients[evnt.peer->incomingPeerID].currentPos;
 					if (clients[evnt.peer->incomingPeerID].path.empty())
 					{
+<<<<<<< HEAD
 						clients[evnt.peer->incomingPeerID].state = ServerState::Idle;
+=======
+						//clients[evnt.peer->incomingPeerID].state = ServerState::Idle;
+>>>>>>> CUDA_DEBUG
 					}
 					else
 					{
@@ -369,6 +483,10 @@ int main(int arcg, char** argv)
 
 				//enet_peer_send
 
+<<<<<<< HEAD
+=======
+>>>>>>> Stashed changes
+>>>>>>> CUDA_DEBUG
 				enet_packet_destroy(evnt.packet);
 			}
 				break;

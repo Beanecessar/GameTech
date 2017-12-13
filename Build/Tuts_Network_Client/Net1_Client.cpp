@@ -211,6 +211,11 @@ void Net1_Client::OnUpdateScene(float dt)
 		memcpy(data + offset, &start_position, sizeof(Vector2));
 		offset += sizeof(Vector2);
 
+<<<<<<< HEAD
+=======
+<<<<<<< Updated upstream
+=======
+>>>>>>> CUDA_DEBUG
 		memcpy(data + offset, &goal_position, sizeof(Vector2));
 		offset += sizeof(Vector2);
 
@@ -259,7 +264,11 @@ void Net1_Client::OnUpdateScene(float dt)
 	case WAITING_POSITION:
 	{
 		float scalar = 1.f / (float)md.flat_maze_size;
+<<<<<<< HEAD
 		Vector3 cellpos = Vector3(
+=======
+		Vector3 curpos = Vector3(
+>>>>>>> CUDA_DEBUG
 			currentPos.x * 3,
 			0.0f,
 			currentPos.y * 3
@@ -270,7 +279,26 @@ void Net1_Client::OnUpdateScene(float dt)
 			scalar * 2
 		);
 
+<<<<<<< HEAD
 		avator->SetTransform(Matrix4::Translation(cellpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
+=======
+		avator->SetTransform(Matrix4::Translation(curpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
+
+		if (!hazards.empty())
+		{
+			//Update hazard positions
+			for (auto i = hazards.begin(); i != hazards.end(); i++)
+			{
+				Vector3 hazpos = Vector3(
+					(*i).second.x * 3,
+					0.0f,
+					(*i).second.y * 3
+				) * scalar;
+
+				(*i).first->SetTransform(Matrix4::Translation(hazpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.4f));
+			}
+		}
+>>>>>>> CUDA_DEBUG
 
 		mazeRenderer->DrawPath(path, mp.size, pathSize, 1.0f / mp.size);
 
@@ -284,6 +312,10 @@ void Net1_Client::OnUpdateScene(float dt)
 	default:
 		break;
 	}
+<<<<<<< HEAD
+=======
+>>>>>>> Stashed changes
+>>>>>>> CUDA_DEBUG
 
 	//Add Debug Information to screen
 	uint8_t ip1 = serverConnection->address.host & 0xFF;
@@ -354,6 +386,11 @@ void Net1_Client::ProcessNetworkEvent(const ENetEvent& evnt)
 					state = CREATING_START_GOAL;
 				}		
 			}
+<<<<<<< HEAD
+=======
+<<<<<<< Updated upstream
+=======
+>>>>>>> CUDA_DEBUG
  			else if (state == WAITING_PATH)
  			{
  				//loading packet flag
@@ -398,8 +435,56 @@ void Net1_Client::ProcessNetworkEvent(const ENetEvent& evnt)
  
  				if (pf == PacketFlag::AvatorPosition) {
  					memcpy(&currentPos, evnt.packet->data + offset, sizeof(Vector2));
+<<<<<<< HEAD
  				}
  			}
+=======
+					offset += sizeof(Vector2);
+
+					size_t numOfHazards;
+					memcpy(&numOfHazards, evnt.packet->data + offset, sizeof(size_t));
+					offset += sizeof(size_t);
+
+					if (hazards.empty())
+					{
+						//Initializing hazards
+						for (size_t i = 0; i < numOfHazards; i++)
+						{
+							float scalar = 1.f / (float)md.flat_maze_size;
+							Vector3 cellpos = Vector3(
+								currentPos.x * 3,
+								0.0f,
+								currentPos.y * 3
+							) * scalar;
+							Vector3 cellsize = Vector3(
+								scalar * 2,
+								1.0f,
+								scalar * 2
+							);
+
+							RenderNode* hazard = new RenderNode(CommonMeshes::Cube(), Vector4(1.0f, 0.0f, 0.0f, 1.0f));
+							hazard->SetTransform(Matrix4::Translation(cellpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
+							mazeRenderer->Render()->AddChild(hazard);
+
+							Vector2 pos;
+							memcpy(&pos, evnt.packet->data + offset, sizeof(Vector2));
+							offset += sizeof(Vector2);
+
+							hazards.push_back(make_pair(hazard, pos));							
+						}
+					}
+					else 
+					{
+						for (size_t i = 0; i < numOfHazards; i++)
+						{
+							memcpy(&hazards[i].second, evnt.packet->data + offset, sizeof(Vector2));
+							offset += sizeof(Vector2);
+						}
+					}
+ 				}
+ 			}
+>>>>>>> Stashed changes
+>>>>>>> CUDA_DEBUG
 			else
 			{
 				//NCLERROR("Recieved Invalid Network Packet!");
