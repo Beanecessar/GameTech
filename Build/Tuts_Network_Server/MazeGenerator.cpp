@@ -100,6 +100,17 @@ void MazeGenerator::SetStartGoal(Vector2 start_pos, Vector2 goal_pos) {
 	}
 }
 
+GraphNode* MazeGenerator::GetGraphNode(Vector2 pos) {
+	for (unsigned i = 0; i < size*size; ++i)
+	{
+		if (allNodes[i]._pos.x == pos.x&&allNodes[i]._pos.y == pos.y) {
+			return &allNodes[i];
+		}
+	}
+
+	return nullptr;
+}
+
 void MazeGenerator::GetRandomStartEndNodes()
 {
 	//Traditional Maze one side to the other

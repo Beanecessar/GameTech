@@ -61,7 +61,7 @@ GameTimer timer;
 MazeGenerator* mazeGen;
 MazeRenderer* mazeRen;
 std::vector<ClientData> clients;
-float moving_speed = 10.f;
+float moving_speed = 5.f;
 float accum_time = 0.0f;
 
 
@@ -185,6 +185,7 @@ int main(int arcg, char** argv)
 					clients.resize(evnt.peer->incomingPeerID + 1);
 				}
 				clients[evnt.peer->incomingPeerID] = (ClientData());
+				clients[evnt.peer->incomingPeerID].timer.GetTimedMS();
 				
 				printf("- New Client Connected\n");
 				break;
@@ -192,7 +193,9 @@ int main(int arcg, char** argv)
 				
 
 			case ENET_EVENT_TYPE_RECEIVE:
+			{
 				//printf("\t Client %d says: %s\n", evnt.peer->incomingPeerID, evnt.packet->data);
+				float dtp = clients[evnt.peer->incomingPeerID].timer.GetTimedMS()/1000.f;
 
 				if (clients[evnt.peer->incomingPeerID].state == ServerState::WaitingMazeParameter)
 				{
@@ -203,7 +206,7 @@ int main(int arcg, char** argv)
 					if (pf == PacketFlag::MazeParam) {
 
 						MazeParameter mp;
-						memcpy(&mp, evnt.packet->data+offset, sizeof(MazeParameter));
+						memcpy(&mp, evnt.packet->data + offset, sizeof(MazeParameter));
 
 						mazeGen->Generate(mp.size, mp.density);
 						mazeRen = new MazeRenderer(mazeGen);
@@ -244,19 +247,20 @@ int main(int arcg, char** argv)
 						clients[evnt.peer->incomingPeerID].state = ServerState::WaitingStartGoal;
 					}
 				}
-				else if(clients[evnt.peer->incomingPeerID].state == ServerState::WaitingStartGoal)
+				//Waiting client send start and goal position
+				else if (clients[evnt.peer->incomingPeerID].state == ServerState::WaitingStartGoal)
 				{
 					PacketFlag pf;
 					memcpy(&pf, evnt.packet->data, sizeof(PacketFlag));
 					unsigned offset = sizeof(PacketFlag);
 
-					if (pf==PacketFlag::MazeStartGoal)
+					if (pf == PacketFlag::MazeStartGoal)
 					{
 						Vector2 start_pos, goal_pos;
-						memcpy(&start_pos, evnt.packet->data+offset, sizeof(Vector2));
+						memcpy(&start_pos, evnt.packet->data + offset, sizeof(Vector2));
 						offset += sizeof(Vector2);
 
-						memcpy(&goal_pos, evnt.packet->data+offset, sizeof(Vector2));
+						memcpy(&goal_pos, evnt.packet->data + offset, sizeof(Vector2));
 						offset += sizeof(Vector2);
 
 						mazeGen->SetStartGoal(start_pos, goal_pos);
@@ -312,15 +316,18 @@ int main(int arcg, char** argv)
 					PacketFlag pf;
 					memcpy(&pf, evnt.packet->data, sizeof(PacketFlag));
 
-					if (pf==PacketFlag::CreateAvator)
+					if (pf == PacketFlag::CreateAvator)
 					{
 						clients[evnt.peer->incomingPeerID].currentPos = clients[evnt.peer->incomingPeerID].startPos;
-						clients[evnt.peer->incomingPeerID].path.pop_front();
 						clients[evnt.peer->incomingPeerID].state = ServerState::SendingPosition;
 					}
 				}
+				//Sending Position
 				else if (clients[evnt.peer->incomingPeerID].state == ServerState::SendingPosition) {
+
 					//creating position packet
+					printf("client %d in position (%.2f,%.2f)\n", evnt.peer->incomingPeerID, clients[evnt.peer->incomingPeerID].currentPos.x, clients[evnt.peer->incomingPeerID].currentPos.y);
+
 					char* data = new char[sizeof(PacketFlag) + sizeof(Vector2)];
 
 					PacketFlag pf = PacketFlag::AvatorPosition;
@@ -346,14 +353,15 @@ int main(int arcg, char** argv)
 						Vector2 nextCheckPoint = Vector2(clients[evnt.peer->incomingPeerID].path.front()->_pos.x, clients[evnt.peer->incomingPeerID].path.front()->_pos.y);
 						Vector2 direction = nextCheckPoint - clients[evnt.peer->incomingPeerID].currentPos;
 
-						if (direction.Length() > moving_speed*dt*1000.f) {
+						if (direction.Length() > moving_speed*dtp) {
 							//haven't reached next check point 
 							direction.Normalise();
 
-							clients[evnt.peer->incomingPeerID].currentPos = clients[evnt.peer->incomingPeerID].currentPos + direction*moving_speed*dt*1000.f;
+							clients[evnt.peer->incomingPeerID].currentPos = clients[evnt.peer->incomingPeerID].currentPos + direction*moving_speed*dtp;
 						}
 						else
 						{
+							clients[evnt.peer->incomingPeerID].currentPos = nextCheckPoint;
 							clients[evnt.peer->incomingPeerID].path.pop_front();
 						}
 					}
@@ -362,6 +370,7 @@ int main(int arcg, char** argv)
 				//enet_peer_send
 
 				enet_packet_destroy(evnt.packet);
+			}
 				break;
 
 			case ENET_EVENT_TYPE_DISCONNECT:

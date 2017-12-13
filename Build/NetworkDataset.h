@@ -15,6 +15,7 @@ enum ServerState
 struct ClientData
 {
 	unsigned state = ServerState::WaitingMazeParameter;
+	GameTimer timer;
 	Vector2 startPos = Vector2(0, 0);
 	Vector2 goalPos = Vector2(0, 0);
 	list<const GraphNode*> path;
