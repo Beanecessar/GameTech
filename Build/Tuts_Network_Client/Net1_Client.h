@@ -23,4 +23,24 @@ protected:
 
 	NetworkBase network;
 	ENetPeer*	serverConnection;
+<<<<<<< Updated upstream
+=======
+
+	uint state;
+
+	MazeParameter mp;
+	MazeData md;
+
+	unsigned pathSize;
+	//std::list<pair<Vector3, Vector3>> searchHistory;
+	list<Vector3> path;
+
+	RenderNode *avator;
+	vector<pair<RenderNode*, Vector2>> hazards;
+	Vector2 currentPos;
+
+	MazeRenderer* mazeRenderer;
+
+	Mesh* wallMesh;
+>>>>>>> Stashed changes
 };

@@ -150,6 +150,97 @@ void Net1_Client::OnUpdateScene(float dt)
 	network.ServiceNetwork(dt, callback);
 
 
+<<<<<<< Updated upstream
+=======
+		memcpy(data + offset, &goal_position, sizeof(Vector2));
+		offset += sizeof(Vector2);
+
+		packet = enet_packet_create(data, sizeof(PacketFlag)+sizeof(Vector2) * 2, 0);
+
+		enet_peer_send(serverConnection, 0, packet);
+
+		delete[] data;
+
+		mazeRenderer->Render()->SetTransform(Matrix4::Scale(Vector3(5.f, 5.0f / float(mp.size), 5.f)) * Matrix4::Translation(Vector3(-0.5f, 0.f, -0.5f)));
+
+		this->AddGameObject(mazeRenderer);
+
+		state = WAITING_PATH;
+	}
+	break;
+
+	case WAITING_PATH:
+		if (packet)
+		{
+			enet_peer_send(serverConnection, 0, packet);
+		}
+		break;
+
+	case CREATING_AVATOR:
+	{
+		float scalar = 1.f / (float)md.flat_maze_size;
+		Vector3 cellpos = Vector3(
+			currentPos.x * 3,
+			0.0f,
+			currentPos.y * 3
+		) * scalar;
+		Vector3 cellsize = Vector3(
+			scalar * 2,
+			1.0f,
+			scalar * 2
+		);
+
+		avator = new RenderNode(CommonMeshes::Cube(), Vector4(0.0f, 1.0f, 0.0f, 1.0f));
+		avator->SetTransform(Matrix4::Translation(cellpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
+		mazeRenderer->Render()->AddChild(avator);
+
+		state = WAITING_POSITION;
+	}
+		break;
+	case WAITING_POSITION:
+	{
+		float scalar = 1.f / (float)md.flat_maze_size;
+		Vector3 curpos = Vector3(
+			currentPos.x * 3,
+			0.0f,
+			currentPos.y * 3
+		) * scalar;
+		Vector3 cellsize = Vector3(
+			scalar * 2,
+			1.0f,
+			scalar * 2
+		);
+
+		avator->SetTransform(Matrix4::Translation(curpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
+
+		if (!hazards.empty())
+		{
+			//Update hazard positions
+			for (auto i = hazards.begin(); i != hazards.end(); i++)
+			{
+				Vector3 hazpos = Vector3(
+					(*i).second.x * 3,
+					0.0f,
+					(*i).second.y * 3
+				) * scalar;
+
+				(*i).first->SetTransform(Matrix4::Translation(hazpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.4f));
+			}
+		}
+
+		mazeRenderer->DrawPath(path, mp.size, pathSize, 1.0f / mp.size);
+
+		PacketFlag pf = PacketFlag::CreateAvator;
+
+		packet = enet_packet_create(&pf, sizeof(PacketFlag), 0);
+
+		enet_peer_send(serverConnection, 0, packet);
+	}
+	break;
+	default:
+		break;
+	}
+>>>>>>> Stashed changes
 
 	//Add Debug Information to screen
 	uint8_t ip1 = serverConnection->address.host & 0xFF;
@@ -195,6 +286,97 @@ void Net1_Client::ProcessNetworkEvent(const ENetEvent& evnt)
 				memcpy(&pos, evnt.packet->data, sizeof(Vector3));
 				box->Physics()->SetPosition(pos);
 			}
+<<<<<<< Updated upstream
+=======
+ 			else if (state == WAITING_PATH)
+ 			{
+ 				//loading packet flag
+ 				PacketFlag pf;
+ 				memcpy(&pf, evnt.packet->data, sizeof(PacketFlag));
+ 				unsigned offset = sizeof(PacketFlag);
+ 
+ 				if (pf==PacketFlag::MazePath)
+ 				{
+ 					//loading list size
+ 					memcpy(&pathSize, evnt.packet->data+offset, sizeof(unsigned));
+ 					offset += sizeof(unsigned);
+ 
+ 					//loading list data
+ 					path.clear();
+ 					Vector3 pathNode;
+ 					float temp;
+ 					for (unsigned i = 0; i < pathSize; ++i)
+ 					{
+ 						memcpy(&temp, evnt.packet->data + offset, sizeof(float));
+ 						pathNode.x = temp;
+ 						offset += sizeof(float);
+ 
+ 						memcpy(&temp, evnt.packet->data + offset, sizeof(float));
+ 						pathNode.y = temp;
+ 						offset += sizeof(float);
+ 
+ 						memcpy(&temp, evnt.packet->data + offset, sizeof(float));
+ 						pathNode.z = temp;
+ 						offset += sizeof(float);
+ 
+ 						path.push_back(pathNode);
+ 					}
+ 
+ 					state = CREATING_AVATOR;
+ 				}
+ 			}
+ 			else if (state == WAITING_POSITION) {
+ 				PacketFlag pf;
+ 				memcpy(&pf, evnt.packet->data, sizeof(PacketFlag));
+ 				unsigned offset = sizeof(PacketFlag);
+ 
+ 				if (pf == PacketFlag::AvatorPosition) {
+ 					memcpy(&currentPos, evnt.packet->data + offset, sizeof(Vector2));
+					offset += sizeof(Vector2);
+
+					size_t numOfHazards;
+					memcpy(&numOfHazards, evnt.packet->data + offset, sizeof(size_t));
+					offset += sizeof(size_t);
+
+					if (hazards.empty())
+					{
+						//Initializing hazards
+						for (size_t i = 0; i < numOfHazards; i++)
+						{
+							float scalar = 1.f / (float)md.flat_maze_size;
+							Vector3 cellpos = Vector3(
+								currentPos.x * 3,
+								0.0f,
+								currentPos.y * 3
+							) * scalar;
+							Vector3 cellsize = Vector3(
+								scalar * 2,
+								1.0f,
+								scalar * 2
+							);
+
+							RenderNode* hazard = new RenderNode(CommonMeshes::Cube(), Vector4(1.0f, 0.0f, 0.0f, 1.0f));
+							hazard->SetTransform(Matrix4::Translation(cellpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
+							mazeRenderer->Render()->AddChild(hazard);
+
+							Vector2 pos;
+							memcpy(&pos, evnt.packet->data + offset, sizeof(Vector2));
+							offset += sizeof(Vector2);
+
+							hazards.push_back(make_pair(hazard, pos));							
+						}
+					}
+					else 
+					{
+						for (size_t i = 0; i < numOfHazards; i++)
+						{
+							memcpy(&hazards[i].second, evnt.packet->data + offset, sizeof(Vector2));
+							offset += sizeof(Vector2);
+						}
+					}
+ 				}
+ 			}
+>>>>>>> Stashed changes
 			else
 			{
 				NCLERROR("Recieved Invalid Network Packet!");
