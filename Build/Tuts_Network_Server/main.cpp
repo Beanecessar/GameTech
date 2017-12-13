@@ -39,26 +39,15 @@ FOR MORE NETWORKING INFORMATION SEE "Tuts_Network_Client -> Net1_Client.h"
 #include <nclgl\Vector3.h>
 #include <nclgl\common.h>
 #include <ncltech\NetworkBase.h>
-<<<<<<< HEAD
-=======
-<<<<<<< Updated upstream
-=======
->>>>>>> CUDA_DEBUG
 #include "MazeGenerator.h"
 #include "MazeRenderer.h"
 #include "MazeData.h"
 #include "SearchAStar.h"
 #include "PacketFlag.h"
 #include "NetworkDataset.h"
-<<<<<<< HEAD
-
-class SearchAStar;
-=======
 #include "Hazard.h"
 
 class SearchAStar;
->>>>>>> Stashed changes
->>>>>>> CUDA_DEBUG
 
 //Needed to get computer adapter IPv4 addresses via windows
 #include <iphlpapi.h>
@@ -70,17 +59,6 @@ class SearchAStar;
 
 NetworkBase server;
 GameTimer timer;
-<<<<<<< HEAD
-MazeGenerator* mazeGen;
-MazeRenderer* mazeRen;
-std::vector<ClientData> clients;
-float moving_speed = 5.f;
-float accum_time = 0.0f;
-=======
-<<<<<<< Updated upstream
-float accum_time = 0.0f;
-float rotation = 0.0f;
-=======
 MazeGenerator* mazeGen;
 MazeRenderer* mazeRen;
 vector<Hazard*> hazards;
@@ -88,8 +66,6 @@ std::vector<ClientData> clients;
 float moving_speed = 1.f;
 float accum_time = 0.0f;
 size_t numOfHazards = 10;
->>>>>>> Stashed changes
->>>>>>> CUDA_DEBUG
 
 
 void Win32_PrintAllAdapterIPAddresses();
@@ -101,11 +77,6 @@ int onExit(int exitcode)
 	exit(exitcode);
 }
 
-<<<<<<< HEAD
-=======
-<<<<<<< Updated upstream
-=======
->>>>>>> CUDA_DEBUG
 void InitializeServer() {
 	mazeGen = new MazeGenerator();
 	mazeRen = nullptr;
@@ -114,16 +85,12 @@ void InitializeServer() {
 }
 
 void UpdateServer(float dt) {
-<<<<<<< HEAD
-	
-=======
 	if (!hazards.empty()) {
 		for (auto i = hazards.begin(); i != hazards.end(); i++)
 		{
 			(*i)->Updata(dt);
 		}
 	}
->>>>>>> CUDA_DEBUG
 }
 
 void  SendPacket() {
@@ -185,10 +152,6 @@ void Win32_PrintAllAdapterIPAddresses()
 	
 }
 
-<<<<<<< HEAD
-=======
->>>>>>> Stashed changes
->>>>>>> CUDA_DEBUG
 int main(int arcg, char** argv)
 {
 	if (enet_initialize() != 0)
@@ -225,56 +188,43 @@ int main(int arcg, char** argv)
 			switch (evnt.type)
 			{
 			case ENET_EVENT_TYPE_CONNECT:
-				if (evnt.peer->incomingPeerID + 1>clients.size())
+				if (evnt.peer->incomingPeerID + 1 > clients.size())
 				{
 					clients.resize(evnt.peer->incomingPeerID + 1);
 				}
 				clients[evnt.peer->incomingPeerID] = (ClientData());
 				clients[evnt.peer->incomingPeerID].timer.GetTimedMS();
-				
+
 				printf("- New Client Connected\n");
 				break;
 
-				
+
 
 			case ENET_EVENT_TYPE_RECEIVE:
-<<<<<<< HEAD
-=======
-<<<<<<< Updated upstream
-				printf("\t Client %d says: %s\n", evnt.peer->incomingPeerID, evnt.packet->data);
-=======
->>>>>>> CUDA_DEBUG
+
 			{
 				//printf("\t Client %d says: %s\n", evnt.peer->incomingPeerID, evnt.packet->data);
-				float dtp = clients[evnt.peer->incomingPeerID].timer.GetTimedMS()/1000.f;
+				float dtp = clients[evnt.peer->incomingPeerID].timer.GetTimedMS() / 1000.f;
 
-				if (clients[evnt.peer->incomingPeerID].state == ServerState::WaitingMazeParameter)
-				{
+				if (evnt.packet->dataLength >= sizeof(PacketFlag)) {
+					//Loading packet flag
 					PacketFlag pf;
 					memcpy(&pf, evnt.packet->data, sizeof(PacketFlag));
 					unsigned offset = sizeof(PacketFlag);
 
+					cout << evnt.peer->incomingPeerID << "-> State: " << clients[evnt.peer->incomingPeerID].state << ", Packet flag: " << pf << endl;
+
 					if (pf == PacketFlag::MazeParam) {
-<<<<<<< HEAD
-
-						MazeParameter mp;
-						memcpy(&mp, evnt.packet->data + offset, sizeof(MazeParameter));
-
-=======
 						MazeParameter mp;
 						memcpy(&mp, evnt.packet->data + offset, sizeof(MazeParameter));
 
 						//Generating maze
->>>>>>> CUDA_DEBUG
 						mazeGen->Generate(mp.size, mp.density);
 						mazeRen = new MazeRenderer(mazeGen);
 						unsigned flatSize = mazeRen->GetFlatMazeSize();
 						unsigned numWalls = mazeRen->GetNumOfWalls();
 
-<<<<<<< HEAD
-=======
 						//Sending data
->>>>>>> CUDA_DEBUG
 						char* data = new char[sizeof(PacketFlag) + sizeof(unsigned) * 2 + sizeof(bool)*flatSize*flatSize];
 
 						PacketFlag pf = PacketFlag::MazeArray;
@@ -302,193 +252,163 @@ int main(int arcg, char** argv)
 						// 					}
 
 						ENetPacket* packet = enet_packet_create(data, offset, 0);
-						enet_peer_send(evnt.peer, 0, packet);
+						enet_host_broadcast(server.m_pNetwork, 0, packet);
+
+						for(auto i=clients.begin();i!=clients.end();++i)
+						{
+							(*i).state = ServerState::WaitingStartGoal;
+						}
 
 						delete[] data;
-
-						clients[evnt.peer->incomingPeerID].state = ServerState::WaitingStartGoal;
 					}
-				}
-<<<<<<< HEAD
-=======
 
->>>>>>> CUDA_DEBUG
-				//Waiting client send start and goal position
-				else if (clients[evnt.peer->incomingPeerID].state == ServerState::WaitingStartGoal)
-				{
-					PacketFlag pf;
-					memcpy(&pf, evnt.packet->data, sizeof(PacketFlag));
-					unsigned offset = sizeof(PacketFlag);
-
-					if (pf == PacketFlag::MazeStartGoal)
+					//Waiting client send start and goal position
+					if (clients[evnt.peer->incomingPeerID].state == ServerState::WaitingStartGoal)
 					{
-						Vector2 start_pos, goal_pos;
-						memcpy(&start_pos, evnt.packet->data + offset, sizeof(Vector2));
-						offset += sizeof(Vector2);
+						if (pf == PacketFlag::MazeStartGoal)
+						{
+							Vector2 start_pos, goal_pos;
+							memcpy(&start_pos, evnt.packet->data + offset, sizeof(Vector2));
+							offset += sizeof(Vector2);
 
-						memcpy(&goal_pos, evnt.packet->data + offset, sizeof(Vector2));
-						offset += sizeof(Vector2);
+							memcpy(&goal_pos, evnt.packet->data + offset, sizeof(Vector2));
+							offset += sizeof(Vector2);
 
-						mazeGen->SetStartGoal(start_pos, goal_pos);
+							mazeGen->SetStartGoal(start_pos, goal_pos);
 
-						clients[evnt.peer->incomingPeerID].startPos = start_pos;
-						clients[evnt.peer->incomingPeerID].goalPos = goal_pos;
+							clients[evnt.peer->incomingPeerID].startPos = start_pos;
+							clients[evnt.peer->incomingPeerID].goalPos = goal_pos;
 
-						GraphNode* startNode = mazeGen->GetStartNode();
-						GraphNode* goalNode = mazeGen->GetGoalNode();
+							GraphNode* startNode = mazeGen->GetStartNode();
+							GraphNode* goalNode = mazeGen->GetGoalNode();
 
-						SearchAStar as_searcher;
+							SearchAStar as_searcher;
 
-						as_searcher.FindBestPath(startNode, goalNode);
+							as_searcher.FindBestPath(startNode, goalNode);
 
-						clients[evnt.peer->incomingPeerID].path = as_searcher.GetFinalPath();
+							clients[evnt.peer->incomingPeerID].path = as_searcher.GetFinalPath();
 
-						char* data = new char[sizeof(PacketFlag) + sizeof(unsigned) + sizeof(float)*clients[evnt.peer->incomingPeerID].path.size() * 3];
+							char* data = new char[sizeof(PacketFlag) + sizeof(unsigned) + sizeof(float)*clients[evnt.peer->incomingPeerID].path.size() * 3];
 
-						PacketFlag pf = PacketFlag::MazePath;
+							PacketFlag pf = PacketFlag::MazePath;
+							memcpy(data, &pf, sizeof(PacketFlag));
+							unsigned offset = sizeof(PacketFlag);
+
+							unsigned listSize = clients[evnt.peer->incomingPeerID].path.size();
+							memcpy(data + offset, &listSize, sizeof(unsigned));
+							offset += sizeof(unsigned);
+
+							float temp;
+							for (auto j = clients[evnt.peer->incomingPeerID].path.begin(); j != clients[evnt.peer->incomingPeerID].path.end(); ++j)
+							{
+								temp = (*j)->_pos.x;
+								memcpy(data + offset, &temp, sizeof(unsigned));
+								offset += sizeof(float);
+
+								temp = (*j)->_pos.y;
+								memcpy(data + offset, &temp, sizeof(unsigned));
+								offset += sizeof(float);
+
+								temp = (*j)->_pos.z;
+								memcpy(data + offset, &temp, sizeof(unsigned));
+								offset += sizeof(float);
+							}
+
+							ENetPacket* packet = enet_packet_create(data, sizeof(PacketFlag) + sizeof(float)*clients[evnt.peer->incomingPeerID].path.size() * 3, 0);
+							enet_peer_send(evnt.peer, 0, packet);
+
+							delete[] data;
+
+							clients[evnt.peer->incomingPeerID].state = ServerState::WaitingInstruction;
+						}
+					}
+					else if (clients[evnt.peer->incomingPeerID].state == ServerState::WaitingInstruction)
+					{
+						if (pf == PacketFlag::CreateAvator)
+						{
+							hazards.clear();
+							for (size_t i = 0; i < numOfHazards; i++)
+							{
+								Hazard* hazard = new Hazard(mazeGen);
+								hazard->SetTarget(&clients[evnt.peer->incomingPeerID].currentPos);
+
+								hazards.push_back(hazard);
+							}
+
+							clients[evnt.peer->incomingPeerID].currentPos = clients[evnt.peer->incomingPeerID].startPos;
+							clients[evnt.peer->incomingPeerID].state = ServerState::SendingPosition;
+						}
+					}
+
+					//Sending Position
+					else if (clients[evnt.peer->incomingPeerID].state == ServerState::SendingPosition) {
+						//creating position packet
+						//packet:
+						//-------
+						//Flag
+						//-------
+						//Avator position
+						//-------
+						//Number of hazards
+						//-------
+						//Hazard positions
+						//-------
+						printf("client %d in position (%.2f,%.2f)\n", evnt.peer->incomingPeerID, clients[evnt.peer->incomingPeerID].currentPos.x, clients[evnt.peer->incomingPeerID].currentPos.y);
+
+						size_t numOfHazards = hazards.size();
+
+						char* data = new char[sizeof(PacketFlag) + sizeof(size_t) + sizeof(Vector2)*(numOfHazards + 1)];
+
+						PacketFlag pf = PacketFlag::AvatorPosition;
 						memcpy(data, &pf, sizeof(PacketFlag));
 						unsigned offset = sizeof(PacketFlag);
 
-						unsigned listSize = clients[evnt.peer->incomingPeerID].path.size();
-						memcpy(data + offset, &listSize, sizeof(unsigned));
-						offset += sizeof(unsigned);
+						memcpy(data + offset, &clients[evnt.peer->incomingPeerID].currentPos, sizeof(Vector2));
+						offset += sizeof(Vector2);
 
-						float temp;
-						for (auto j = clients[evnt.peer->incomingPeerID].path.begin(); j != clients[evnt.peer->incomingPeerID].path.end(); ++j)
-						{
-							temp = (*j)->_pos.x;
-							memcpy(data + offset, &temp, sizeof(unsigned));
-							offset += sizeof(float);
+						memcpy(data + offset, &numOfHazards, sizeof(size_t));
+						offset += sizeof(size_t);
 
-							temp = (*j)->_pos.y;
-							memcpy(data + offset, &temp, sizeof(unsigned));
-							offset += sizeof(float);
-
-							temp = (*j)->_pos.z;
-							memcpy(data + offset, &temp, sizeof(unsigned));
-							offset += sizeof(float);
+						for (auto i = hazards.begin(); i != hazards.end(); ++i) {
+							memcpy(data + offset, &(*i)->GetPosition(), sizeof(Vector2));
+							offset += sizeof(Vector2);
 						}
 
-						ENetPacket* packet = enet_packet_create(data, sizeof(PacketFlag) + sizeof(float)*clients[evnt.peer->incomingPeerID].path.size() * 3, 0);
+						ENetPacket* packet = enet_packet_create(data, offset, 0);
 						enet_peer_send(evnt.peer, 0, packet);
 
 						delete[] data;
 
-						clients[evnt.peer->incomingPeerID].state = ServerState::WaitingInstruction;
-					}
-				}
-				else if (clients[evnt.peer->incomingPeerID].state == ServerState::WaitingInstruction)
-				{
-<<<<<<< HEAD
-=======
-					for (size_t i = 0; i < numOfHazards; i++)
-					{
-						Hazard* hazard = new Hazard(mazeGen);
-						hazard->SetTarget(&clients[evnt.peer->incomingPeerID].currentPos);
-
-						hazards.push_back(hazard);
-					}
-
->>>>>>> CUDA_DEBUG
-					PacketFlag pf;
-					memcpy(&pf, evnt.packet->data, sizeof(PacketFlag));
-
-					if (pf == PacketFlag::CreateAvator)
-					{
-						clients[evnt.peer->incomingPeerID].currentPos = clients[evnt.peer->incomingPeerID].startPos;
-						clients[evnt.peer->incomingPeerID].state = ServerState::SendingPosition;
-					}
-				}
-<<<<<<< HEAD
-=======
-
->>>>>>> CUDA_DEBUG
-				//Sending Position
-				else if (clients[evnt.peer->incomingPeerID].state == ServerState::SendingPosition) {
-
-					//creating position packet
-<<<<<<< HEAD
-					printf("client %d in position (%.2f,%.2f)\n", evnt.peer->incomingPeerID, clients[evnt.peer->incomingPeerID].currentPos.x, clients[evnt.peer->incomingPeerID].currentPos.y);
-
-					char* data = new char[sizeof(PacketFlag) + sizeof(Vector2)];
-=======
-					//packet:
-					//-------
-					//Flag
-					//-------
-					//Avator position
-					//-------
-					//Number of hazards
-					//-------
-					//Hazard positions
-					//-------
-					printf("client %d in position (%.2f,%.2f)\n", evnt.peer->incomingPeerID, clients[evnt.peer->incomingPeerID].currentPos.x, clients[evnt.peer->incomingPeerID].currentPos.y);
-
-					size_t numOfHazards = hazards.size();
-
-					char* data = new char[sizeof(PacketFlag) +sizeof(size_t)+ sizeof(Vector2)*(numOfHazards+1)];
->>>>>>> CUDA_DEBUG
-
-					PacketFlag pf = PacketFlag::AvatorPosition;
-					memcpy(data, &pf, sizeof(PacketFlag));
-					unsigned offset = sizeof(PacketFlag);
-
-					memcpy(data + offset, &clients[evnt.peer->incomingPeerID].currentPos, sizeof(Vector2));
-					offset += sizeof(Vector2);
-<<<<<<< HEAD
-=======
-					
-					memcpy(data + offset, &numOfHazards, sizeof(size_t));
-					offset += sizeof(size_t);
-
-					for (auto i = hazards.begin(); i != hazards.end(); ++i) {
-						memcpy(data + offset, &(*i)->GetPosition(), sizeof(Vector2));
-						offset += sizeof(Vector2);
-					}
->>>>>>> CUDA_DEBUG
-
-					ENetPacket* packet = enet_packet_create(data, offset, 0);
-					enet_peer_send(evnt.peer, 0, packet);
-
-					delete[] data;
-
-					//update position
-					clients[evnt.peer->incomingPeerID].currentPos;
-					if (clients[evnt.peer->incomingPeerID].path.empty())
-					{
-<<<<<<< HEAD
-						clients[evnt.peer->incomingPeerID].state = ServerState::Idle;
-=======
-						//clients[evnt.peer->incomingPeerID].state = ServerState::Idle;
->>>>>>> CUDA_DEBUG
-					}
-					else
-					{
-						Vector2 nextCheckPoint = Vector2(clients[evnt.peer->incomingPeerID].path.front()->_pos.x, clients[evnt.peer->incomingPeerID].path.front()->_pos.y);
-						Vector2 direction = nextCheckPoint - clients[evnt.peer->incomingPeerID].currentPos;
-
-						if (direction.Length() > moving_speed*dtp) {
-							//haven't reached next check point 
-							direction.Normalise();
-
-							clients[evnt.peer->incomingPeerID].currentPos = clients[evnt.peer->incomingPeerID].currentPos + direction*moving_speed*dtp;
+						//update position
+						clients[evnt.peer->incomingPeerID].currentPos;
+						if (clients[evnt.peer->incomingPeerID].path.empty())
+						{
+							//clients[evnt.peer->incomingPeerID].state = ServerState::Idle;
 						}
 						else
 						{
-							clients[evnt.peer->incomingPeerID].currentPos = nextCheckPoint;
-							clients[evnt.peer->incomingPeerID].path.pop_front();
+							Vector2 nextCheckPoint = Vector2(clients[evnt.peer->incomingPeerID].path.front()->_pos.x, clients[evnt.peer->incomingPeerID].path.front()->_pos.y);
+							Vector2 direction = nextCheckPoint - clients[evnt.peer->incomingPeerID].currentPos;
+
+							if (direction.Length() > moving_speed*dtp) {
+								//haven't reached next check point 
+								direction.Normalise();
+
+								clients[evnt.peer->incomingPeerID].currentPos = clients[evnt.peer->incomingPeerID].currentPos + direction*moving_speed*dtp;
+							}
+							else
+							{
+								clients[evnt.peer->incomingPeerID].currentPos = nextCheckPoint;
+								clients[evnt.peer->incomingPeerID].path.pop_front();
+							}
 						}
 					}
+
+					//enet_peer_send
+					enet_packet_destroy(evnt.packet);
 				}
-
-				//enet_peer_send
-
-<<<<<<< HEAD
-=======
->>>>>>> Stashed changes
->>>>>>> CUDA_DEBUG
-				enet_packet_destroy(evnt.packet);
 			}
+
 				break;
 
 			case ENET_EVENT_TYPE_DISCONNECT:

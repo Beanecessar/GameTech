@@ -27,20 +27,22 @@ MazeRenderer::MazeRenderer(MazeGenerator* gen, Mesh* wallmesh)
 	}
 }
 
-MazeRenderer::MazeRenderer(uint flat_maze_size,uint num_walls,bool* flat_maze,Vector2 start,Vector2 goal, Mesh* wallmesh)
+MazeRenderer::MazeRenderer(uint flat_maze_size,uint num_walls,bool* flat_maze, Mesh* wallmesh)
 	: GameObject("")
 	, mesh(wallmesh)
 	, maze(NULL)
 	, flat_maze_size(flat_maze_size)
 	, flat_maze(flat_maze)
-	, start_pos(start)
-	, goal_pos(goal)
+	, start_pos(Vector2(-1, -1))
+	, goal_pos(Vector2(-1, -1))
 {
 	sphere = CommonMeshes::Sphere();
 
 	this->SetRender(new RenderNode());
 
 	wall_descriptors.reserve(num_walls);
+
+	Generate_ClickPoints();
 
 	Generate_ConstructWalls();
 
@@ -183,6 +185,32 @@ uint MazeRenderer::Generate_FlatMaze()
 	return num_walls;
 }
 
+void MazeRenderer::Generate_ClickPoints() {
+	RenderNode *clickPoint,*root = Render();
+	const float scalar = 1.f / (float)flat_maze_size;
+
+	for (size_t i = 0; i < (flat_maze_size + 1) / 3; i++)
+	{
+		for (size_t j = 0; j < (flat_maze_size + 1) / 3; j++)
+		{
+			Vector3 cellpos = Vector3(
+				i * 3,
+				0.0f,
+				j * 3
+			) * scalar;
+			Vector3 cellsize = Vector3(
+				scalar * 2,
+				1.0f,
+				scalar * 2
+			);
+
+			clickPoint = new RenderNode(sphere, Vector4(0.0f, 0.0f, 0.0f, 0.0f));
+			clickPoint->SetTransform(Matrix4::Translation(cellpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
+			root->AddChild(clickPoint);
+		}
+	}
+}
+
 void MazeRenderer::Generate_ConstructWalls()
 {
 	//First try and compact adjacent walls down, so we don't
@@ -295,32 +323,61 @@ void MazeRenderer::Generate_BuildRenderNodes()
 	cube->SetTransform(Matrix4::Translation(Vector3(0.5, 0.25f, 1.f + scalar*0.5f)) * Matrix4::Scale(Vector3(0.5f, 0.25f, scalar*0.5f)));
 	root->AddChild(cube);
 
-
-	//Finally - our start/end goals
-
-	Vector3 cellpos = Vector3(
-		start_pos.x*3,
-		0.0f,
-		start_pos.y*3
-	) * scalar;
-	Vector3 cellsize = Vector3(
-		scalar * 2,
-		1.0f,
-		scalar * 2
-	);
-
-	cube = new RenderNode(sphere, Vector4(0.0f, 1.0f, 0.0f, 1.0f));
-	cube->SetTransform(Matrix4::Translation(cellpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
-	root->AddChild(cube);
-
-	cellpos = Vector3(
-		goal_pos.x*3 ,
-		0.0f,
-		goal_pos.y*3
-	) * scalar;
-	cube = new RenderNode(sphere, Vector4(1.0f, 0.0f, 0.0f, 1.0f));
-	cube->SetTransform(Matrix4::Translation(cellpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
-	root->AddChild(cube);
-
 	this->SetRender(root);
+}
+
+void MazeRenderer::SetStartGoal(Vector2 start, Vector2 goal) {
+	start_pos = start;
+	goal_pos = goal;
+
+	if (startSphere && goalSphere) {
+		const float scalar = 1.f / (float)flat_maze_size;
+
+		Vector3 cellpos = Vector3(
+			start_pos.x * 3,
+			0.0f,
+			start_pos.y * 3
+		) * scalar;
+		Vector3 cellsize = Vector3(
+			scalar * 2,
+			1.0f,
+			scalar * 2
+		);
+		startSphere->SetTransform(Matrix4::Translation(cellpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
+
+		cellpos = Vector3(
+			goal_pos.x * 3,
+			0.0f,
+			goal_pos.y * 3
+		) * scalar;
+		goalSphere->SetTransform(Matrix4::Translation(cellpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
+	}
+	else {
+		RenderNode *root = Render();
+		const float scalar = 1.f / (float)flat_maze_size;
+
+		Vector3 cellpos = Vector3(
+			start_pos.x * 3,
+			0.0f,
+			start_pos.y * 3
+		) * scalar;
+		Vector3 cellsize = Vector3(
+			scalar * 2,
+			1.0f,
+			scalar * 2
+		);
+
+		startSphere = new RenderNode(sphere, Vector4(0.0f, 1.0f, 0.0f, 1.0f));
+		startSphere->SetTransform(Matrix4::Translation(cellpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
+		root->AddChild(startSphere);
+
+		cellpos = Vector3(
+			goal_pos.x * 3,
+			0.0f,
+			goal_pos.y * 3
+		) * scalar;
+		goalSphere = new RenderNode(sphere, Vector4(1.0f, 0.0f, 0.0f, 1.0f));
+		goalSphere->SetTransform(Matrix4::Translation(cellpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
+		root->AddChild(goalSphere);
+	}
 }

@@ -89,6 +89,7 @@ produce satisfactory results on the networked peers.
 #include <nclgl\OBJMesh.h>
 #include <nclgl\Vector2.h>
 #include "PacketFlag.h"
+#include "NetworkDataset.h"
 
 const Vector3 status_color3 = Vector3(1.0f, 0.6f, 0.6f);
 const Vector4 status_color = Vector4(status_color3.x, status_color3.y, status_color3.z, 1.0f);
@@ -101,7 +102,7 @@ Net1_Client::Net1_Client(const std::string& friendly_name)
 
 void Net1_Client::OnInitializeScene()
 {
-	state = WAITING_MAZE_DATA;
+	state = ClientState::WaitingMazeData;
 	wallMesh = new OBJMesh(MESHDIR"cube.obj");
 
 	srand(94165);
@@ -114,6 +115,19 @@ void Net1_Client::OnInitializeScene()
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	wallMesh->SetTexture(whitetex);
+
+	//Create Ground 
+	GameObject* ground = CommonUtils::BuildCuboidObject(
+		"Ground",
+		Vector3(0.0f, -1.0f, 0.0f),
+		Vector3(20.0f, 1.0f, 20.0f),
+		false,
+		0.0f,
+		false,
+		false,
+		Vector4(0.2f, 0.5f, 1.0f, 1.0f));
+
+	this->AddGameObject(ground);
 
 	//Initialize Client Network
 	if (network.Initialize(0))
@@ -133,6 +147,7 @@ void Net1_Client::OnCleanupScene()
 	SAFE_DELETE(wallMesh);
 
 	avator = nullptr;
+	hazards.clear();
 
 	//Send one final packet telling the server we are disconnecting
 	// - We are not waiting to resend this, so if it fails to arrive
@@ -143,7 +158,7 @@ void Net1_Client::OnCleanupScene()
 	network.Release();
 	serverConnection = NULL;
 
-	state = WAITING_MAZE_DATA;
+	state = ClientState::WaitingMazeData;
 }
 
 void Net1_Client::OnUpdateScene(float dt)
@@ -163,7 +178,7 @@ void Net1_Client::OnUpdateScene(float dt)
 
 	switch (state)
 	{
-	case WAITING_MAZE_DATA:
+	case ClientState::WaitingMazeData:
 	{
 		char* data = new char[sizeof(PacketFlag)+sizeof(MazeParameter)];
 
@@ -181,7 +196,7 @@ void Net1_Client::OnUpdateScene(float dt)
 	}
 		break;
 
-	case CREATING_START_GOAL:
+	case ClientState::CreatingStartGoal:
 	{
 		unsigned x = 0, y = 0;
 		do
@@ -198,9 +213,7 @@ void Net1_Client::OnUpdateScene(float dt)
 			y = rand() % mp.size;
 		} while (md.flat_maze[y * 3 * md.flat_maze_size + x * 3] || md.flat_maze[(y * 3 + 1)*md.flat_maze_size + x * 3] &&
 			md.flat_maze[y * 3 * md.flat_maze_size + x * 3 + 1] && md.flat_maze[(y * 3 + 1)*md.flat_maze_size + x * 3 + 1]);
-		Vector2 goal_position = Vector2(x, y);
-
-		mazeRenderer = new MazeRenderer(md.flat_maze_size, md.num_walls, md.flat_maze, start_position, goal_position, wallMesh);
+		Vector2 goal_position = Vector2(x, y);	
 
 		char* data = new char[sizeof(PacketFlag) + sizeof(Vector2) * 2];
 
@@ -211,11 +224,6 @@ void Net1_Client::OnUpdateScene(float dt)
 		memcpy(data + offset, &start_position, sizeof(Vector2));
 		offset += sizeof(Vector2);
 
-<<<<<<< HEAD
-=======
-<<<<<<< Updated upstream
-=======
->>>>>>> CUDA_DEBUG
 		memcpy(data + offset, &goal_position, sizeof(Vector2));
 		offset += sizeof(Vector2);
 
@@ -225,22 +233,18 @@ void Net1_Client::OnUpdateScene(float dt)
 
 		delete[] data;
 
-		mazeRenderer->Render()->SetTransform(Matrix4::Scale(Vector3(5.f, 5.0f / float(mp.size), 5.f)) * Matrix4::Translation(Vector3(-0.5f, 0.f, -0.5f)));
-
-		this->AddGameObject(mazeRenderer);
-
-		state = WAITING_PATH;
+		state = ClientState::WaitingPath;
 	}
 	break;
 
-	case WAITING_PATH:
+	case ClientState::WaitingPath:
 		if (packet)
 		{
 			enet_peer_send(serverConnection, 0, packet);
 		}
 		break;
 
-	case CREATING_AVATOR:
+	case ClientState::CreatingAvator:
 	{
 		float scalar = 1.f / (float)md.flat_maze_size;
 		Vector3 cellpos = Vector3(
@@ -258,17 +262,13 @@ void Net1_Client::OnUpdateScene(float dt)
 		avator->SetTransform(Matrix4::Translation(cellpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
 		mazeRenderer->Render()->AddChild(avator);
 
-		state = WAITING_POSITION;
+		state = ClientState::WaitingPosition;
 	}
 		break;
-	case WAITING_POSITION:
+	case ClientState::WaitingPosition:
 	{
 		float scalar = 1.f / (float)md.flat_maze_size;
-<<<<<<< HEAD
-		Vector3 cellpos = Vector3(
-=======
 		Vector3 curpos = Vector3(
->>>>>>> CUDA_DEBUG
 			currentPos.x * 3,
 			0.0f,
 			currentPos.y * 3
@@ -279,9 +279,6 @@ void Net1_Client::OnUpdateScene(float dt)
 			scalar * 2
 		);
 
-<<<<<<< HEAD
-		avator->SetTransform(Matrix4::Translation(cellpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
-=======
 		avator->SetTransform(Matrix4::Translation(curpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
 
 		if (!hazards.empty())
@@ -298,7 +295,6 @@ void Net1_Client::OnUpdateScene(float dt)
 				(*i).first->SetTransform(Matrix4::Translation(hazpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.4f));
 			}
 		}
->>>>>>> CUDA_DEBUG
 
 		mazeRenderer->DrawPath(path, mp.size, pathSize, 1.0f / mp.size);
 
@@ -312,10 +308,6 @@ void Net1_Client::OnUpdateScene(float dt)
 	default:
 		break;
 	}
-<<<<<<< HEAD
-=======
->>>>>>> Stashed changes
->>>>>>> CUDA_DEBUG
 
 	//Add Debug Information to screen
 	uint8_t ip1 = serverConnection->address.host & 0xFF;
@@ -355,90 +347,76 @@ void Net1_Client::ProcessNetworkEvent(const ENetEvent& evnt)
 
 	//Server has sent us a new packet
 	case ENET_EVENT_TYPE_RECEIVE:
+	{
+		//Loading packet flag
+		if (evnt.packet->dataLength >= sizeof(PacketFlag))
 		{
-			if (state==WAITING_MAZE_DATA) {
-				//loading packet flag
-				PacketFlag pf;
-				memcpy(&pf, evnt.packet->data, sizeof(PacketFlag));
-				unsigned offset = sizeof(PacketFlag);
+			PacketFlag pf;
+			memcpy(&pf, evnt.packet->data, sizeof(PacketFlag));
+			unsigned offset = sizeof(PacketFlag);
 
-				if (pf==PacketFlag::MazeArray)
-				{
-					md.flat_maze = new bool[(mp.size * 3 - 1) * (mp.size * 3 - 1)];
+			cout << "Self-> State: " << state << ", Packet flag: " << pf << endl;
 
-					memcpy(&md.flat_maze_size, evnt.packet->data + offset, sizeof(unsigned));
-					offset += sizeof(unsigned);
+			if (pf == PacketFlag::MazeArray)
+			{
+				md.flat_maze = new bool[(mp.size * 3 - 1) * (mp.size * 3 - 1)];
 
-					memcpy(&md.num_walls, evnt.packet->data + offset, sizeof(unsigned));
-					offset += sizeof(unsigned);
+				memcpy(&md.flat_maze_size, evnt.packet->data + offset, sizeof(unsigned));
+				offset += sizeof(unsigned);
 
-					memcpy(md.flat_maze, evnt.packet->data + offset, sizeof(bool)*(mp.size * 3 - 1)*(mp.size * 3 - 1));
-					offset += sizeof(bool)*(mp.size * 3 - 1)*(mp.size * 3 - 1);
+				memcpy(&md.num_walls, evnt.packet->data + offset, sizeof(unsigned));
+				offset += sizeof(unsigned);
 
-// 					for (unsigned i = 0; i < md.flat_maze_size; ++i)
-// 					{
-// 						for (unsigned j = 0; j < md.flat_maze_size; ++j)
-// 						{
-// 							cout << (md.flat_maze[md.flat_maze_size*i + j] ? "1" : ".");
-// 						}
-// 						cout << endl;
-// 					}
-					state = CREATING_START_GOAL;
-				}		
+				memcpy(md.flat_maze, evnt.packet->data + offset, sizeof(bool)*(mp.size * 3 - 1)*(mp.size * 3 - 1));
+				offset += sizeof(bool)*(mp.size * 3 - 1)*(mp.size * 3 - 1);
+
+				//Creating maze
+				this->RemoveGameObject(mazeRenderer);
+				mazeRenderer = new MazeRenderer(md.flat_maze_size, md.num_walls, md.flat_maze, wallMesh);
+
+				mazeRenderer->Render()->SetTransform(Matrix4::Scale(Vector3(5.f, 5.0f / float(mp.size), 5.f)) * Matrix4::Translation(Vector3(-0.5f, 0.f, -0.5f)));
+
+				this->AddGameObject(mazeRenderer);
+
+				state = ClientState::CreatingStartGoal;
 			}
-<<<<<<< HEAD
-=======
-<<<<<<< Updated upstream
-=======
->>>>>>> CUDA_DEBUG
- 			else if (state == WAITING_PATH)
- 			{
- 				//loading packet flag
- 				PacketFlag pf;
- 				memcpy(&pf, evnt.packet->data, sizeof(PacketFlag));
- 				unsigned offset = sizeof(PacketFlag);
- 
- 				if (pf==PacketFlag::MazePath)
- 				{
- 					//loading list size
- 					memcpy(&pathSize, evnt.packet->data+offset, sizeof(unsigned));
- 					offset += sizeof(unsigned);
- 
- 					//loading list data
- 					path.clear();
- 					Vector3 pathNode;
- 					float temp;
- 					for (unsigned i = 0; i < pathSize; ++i)
- 					{
- 						memcpy(&temp, evnt.packet->data + offset, sizeof(float));
- 						pathNode.x = temp;
- 						offset += sizeof(float);
- 
- 						memcpy(&temp, evnt.packet->data + offset, sizeof(float));
- 						pathNode.y = temp;
- 						offset += sizeof(float);
- 
- 						memcpy(&temp, evnt.packet->data + offset, sizeof(float));
- 						pathNode.z = temp;
- 						offset += sizeof(float);
- 
- 						path.push_back(pathNode);
- 					}
- 
- 					state = CREATING_AVATOR;
- 				}
- 			}
- 			else if (state == WAITING_POSITION) {
- 				PacketFlag pf;
- 				memcpy(&pf, evnt.packet->data, sizeof(PacketFlag));
- 				unsigned offset = sizeof(PacketFlag);
- 
- 				if (pf == PacketFlag::AvatorPosition) {
- 					memcpy(&currentPos, evnt.packet->data + offset, sizeof(Vector2));
-<<<<<<< HEAD
- 				}
- 			}
-=======
+
+			if (state == ClientState::WaitingPath)
+			{
+				if (pf == PacketFlag::MazePath)
+				{
+					//loading list size
+					memcpy(&pathSize, evnt.packet->data + offset, sizeof(unsigned));
+					offset += sizeof(unsigned);
+
+					//loading list data
+					path.clear();
+					Vector3 pathNode;
+					float temp;
+					for (unsigned i = 0; i < pathSize; ++i)
+					{
+						memcpy(&temp, evnt.packet->data + offset, sizeof(float));
+						pathNode.x = temp;
+						offset += sizeof(float);
+
+						memcpy(&temp, evnt.packet->data + offset, sizeof(float));
+						pathNode.y = temp;
+						offset += sizeof(float);
+
+						memcpy(&temp, evnt.packet->data + offset, sizeof(float));
+						pathNode.z = temp;
+						offset += sizeof(float);
+
+						path.push_back(pathNode);
+					}
+
+					state = ClientState::CreatingAvator;
+				}
+			}
+			else if (state == ClientState::WaitingPosition) {
+				if (pf == PacketFlag::AvatorPosition) {
+					memcpy(&currentPos, evnt.packet->data + offset, sizeof(Vector2));
+
 					offset += sizeof(Vector2);
 
 					size_t numOfHazards;
@@ -470,10 +448,10 @@ void Net1_Client::ProcessNetworkEvent(const ENetEvent& evnt)
 							memcpy(&pos, evnt.packet->data + offset, sizeof(Vector2));
 							offset += sizeof(Vector2);
 
-							hazards.push_back(make_pair(hazard, pos));							
+							hazards.push_back(make_pair(hazard, pos));
 						}
 					}
-					else 
+					else
 					{
 						for (size_t i = 0; i < numOfHazards; i++)
 						{
@@ -481,16 +459,16 @@ void Net1_Client::ProcessNetworkEvent(const ENetEvent& evnt)
 							offset += sizeof(Vector2);
 						}
 					}
- 				}
- 			}
->>>>>>> Stashed changes
->>>>>>> CUDA_DEBUG
+				}
+			}
 			else
 			{
 				//NCLERROR("Recieved Invalid Network Packet!");
 			}
 
 		}
+	}
+		
 		break;
 
 

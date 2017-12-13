@@ -3,6 +3,15 @@
 #include "SearchAlgorithm.h"
 #include <ncltech\NetworkBase.h>
 
+enum ClientState {
+	WaitingMazeData,
+	InputingStartGoal,
+	CreatingStartGoal,
+	WaitingPath,
+	CreatingAvator,
+	WaitingPosition
+};
+
 enum ServerState
 {
 	Idle,

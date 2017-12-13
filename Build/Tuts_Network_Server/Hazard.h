@@ -22,21 +22,14 @@ public:
 	Hazard(MazeGenerator* mg);
 	~Hazard();
 
-<<<<<<< HEAD
-	inline const Vector3* GetPosition() const {}
-
-	inline void SetPosition() const {}
-=======
 	inline const Vector2 GetPosition() const { return position; }
 
 	inline void SetPosition(Vector2 pos) { position = pos; }
 
 	inline void SetTarget(Vector2* tar) { avatorPos = tar; }
->>>>>>> CUDA_DEBUG
 
 	//Updata hazard's position
 	void Updata(float dt);
-
 
 protected:
 	HazardState state;
@@ -57,18 +50,11 @@ protected:
 Hazard::Hazard(MazeGenerator *mg) {
 	mazeGen = mg;
 	state = HazardState::Patrol;
-<<<<<<< HEAD
-	speed = 8.0f;
-	patrolRange = 20.f;
-
-	search_as.SetWeightings(1.0f, 1.0f);
-=======
 	speed = 2.0f;
 	patrolRange = 5.f;
 	EventCallback = nullptr;
 
 	as_searcher.SetWeightings(1.0f, 1.0f);
->>>>>>> CUDA_DEBUG
 }
 
 void Hazard::Updata(float dt) {
@@ -79,12 +65,8 @@ void Hazard::Updata(float dt) {
 	{
 		if ((*avatorPos - position).Length() < patrolRange)
 		{
-<<<<<<< HEAD
-			EventCallback(HazardEvent::Find);
-=======
 			if(EventCallback)
 				EventCallback(HazardEvent::Find);
->>>>>>> CUDA_DEBUG
 			path.clear();
 			state = HazardState::Pursue;
 			break;
@@ -96,19 +78,6 @@ void Hazard::Updata(float dt) {
 			GraphNode *start, *end;
 			do
 			{
-<<<<<<< HEAD
-				unsigned x = rand() % mazeGen->GetSize();
-				unsigned y = rand() % mazeGen->GetSize();
-
-				start = &mazeGen->allNodes[y*mazeGen->size + x];
-
-				unsigned x = rand() % mazeGen->GetSize();
-				unsigned y = rand() % mazeGen->GetSize();
-
-				end = &mazeGen->allNodes[y*mazeGen->size + x];
-
-			} while (as_searcher.FindBestPath(start, end));
-=======
 				unsigned x = (unsigned)(position.x + 0.5);
 				unsigned y = (unsigned)(position.y + 0.5);
 
@@ -118,9 +87,7 @@ void Hazard::Updata(float dt) {
 				y = rand() % mazeGen->GetSize();
 
 				end = &mazeGen->allNodes[y*mazeGen->size + x];
-
 			} while (!as_searcher.FindBestPath(start, end));
->>>>>>> CUDA_DEBUG
 
 			path = as_searcher.GetFinalPath();
 		}
@@ -133,7 +100,6 @@ void Hazard::Updata(float dt) {
 			if (direction.Length() > speed*dt) {
 				//Haven't reached next check point 
 				direction.Normalise();
-
 				position = position + direction*speed*dt;
 			}
 			else
@@ -147,31 +113,18 @@ void Hazard::Updata(float dt) {
 	case Pursue:
 		//Change to flee if catch the avator
 	{
-<<<<<<< HEAD
-		if ((*avatorPos - position).Length() < 1.0f)
-		{
-			EventCallback(HazardEvent::Catch);
-=======
 		if ((*avatorPos - position).Length() < speed*dt)
 		{
 			if (EventCallback)
 				EventCallback(HazardEvent::Catch);
->>>>>>> CUDA_DEBUG
 			path.clear();
 			state = HazardState::Flee;
 			break;
 		}
-		
-<<<<<<< HEAD
-		if (path.empty())
-		{
-			unsigned startPosX = (unsigned)(position->x + 0.5);
-			unsigned startPosX = (unsigned)(position->y + 0.5);
-=======
+
 		auto generateNewPath = [&]()->void {
 			unsigned startPosX = (unsigned)(position.x + 0.5);
 			unsigned startPosY = (unsigned)(position.y + 0.5);
->>>>>>> CUDA_DEBUG
 			GraphNode* start = mazeGen->GetGraphNode(startPosX, startPosY);
 
 			unsigned goalPosX = (unsigned)(avatorPos->x + 0.5);
@@ -182,9 +135,7 @@ void Hazard::Updata(float dt) {
 			{
 				as_searcher.FindBestPath(start, goal);
 				path = as_searcher.GetFinalPath();
-<<<<<<< HEAD
-			}
-=======
+
 				if (!path.empty())
 				{
 					path.pop_front();
@@ -195,7 +146,6 @@ void Hazard::Updata(float dt) {
 		if (path.empty())
 		{
 			generateNewPath();
->>>>>>> CUDA_DEBUG
 		}
 		else
 		{
@@ -212,11 +162,7 @@ void Hazard::Updata(float dt) {
 			else
 			{
 				position = nextCheckPoint;
-<<<<<<< HEAD
-				path.pop_front();
-=======
 				generateNewPath();
->>>>>>> CUDA_DEBUG
 			}
 		}
 	}
@@ -226,18 +172,12 @@ void Hazard::Updata(float dt) {
 	{
 		if ((*avatorPos - position).Length() > patrolRange)
 		{
-<<<<<<< HEAD
-			EventCallback(HazardEvent::Away);
-=======
 			if (EventCallback)
 				EventCallback(HazardEvent::Away);
->>>>>>> CUDA_DEBUG
 			path.clear();
 			state = HazardState::Patrol;
 			break;
 		}
-<<<<<<< HEAD
-=======
 
 		if (path.empty())
 		{
@@ -288,7 +228,6 @@ void Hazard::Updata(float dt) {
 				path.pop_front();
 			}
 		}
->>>>>>> CUDA_DEBUG
 	}
 		break;
 	default:

@@ -404,7 +404,8 @@ void GraphicsPipeline::RenderAllObjects(bool isShadowPass, std::function<void(Re
 		for (TransparentPair& node : renderlistTransparent)
 		{
 			perObjectFunc(node.first);
-			node.first->DrawOpenGL(isShadowPass);
+			if(node.second!=0)
+				node.first->DrawOpenGL(isShadowPass);
 		}
 	}
 	else

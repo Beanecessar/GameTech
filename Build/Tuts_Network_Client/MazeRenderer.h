@@ -22,7 +22,7 @@ class MazeRenderer : public GameObject
 {
 public:
 	MazeRenderer(MazeGenerator* gen, Mesh* wallmesh = CommonMeshes::Cube());
-	MazeRenderer(uint flat_maze_size,uint num_walls ,bool* flat_maze,Vector2 start,Vector2 goal , Mesh* wallmesh = CommonMeshes::Cube());
+	MazeRenderer(uint flat_maze_size,uint num_walls ,bool* flat_maze, Mesh* wallmesh = CommonMeshes::Cube());
 	virtual ~MazeRenderer();
 
 	//The search history draws from edges because they already store the 'to'
@@ -31,8 +31,8 @@ public:
 	void DrawPath(const list<Vector3>& path, unsigned mazeSize, unsigned pathSize, float line_width);
 
 	//bool* GetFlatMaze() const { return flat_maze; }
-	void SetStartGoal(Vector2 start, Vector2 goal)		{ start_pos = start; goal_pos = goal; }
-	RenderNode* GetStart()								{ return start; }
+	void SetStartGoal(Vector2 start, Vector2 goal);
+	//RenderNode* GetStart()								{ return start; }
 
 protected:
 	//Turn MazeGenerator data into flat 2D map (3 size x 3 size) of boolean's
@@ -40,6 +40,8 @@ protected:
 	// - False for empty
 	//Returns uint: Guess at the number of walls required
 	uint Generate_FlatMaze();
+
+	void Generate_ClickPoints();
 
 	//Construct a list of WallDescriptors from the flat 2D map generated above.
 	void Generate_ConstructWalls();
@@ -59,7 +61,8 @@ protected:
 	Vector2 start_pos;
 	Vector2 goal_pos;
 
-	RenderNode* start;
+	RenderNode* startSphere;
+	RenderNode* goalSphere;
 
 	WallDescriptorVec	wall_descriptors;
 };

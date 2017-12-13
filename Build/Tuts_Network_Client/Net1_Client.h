@@ -7,12 +7,6 @@
 
 class MazeRenderer;
 
-#define WAITING_MAZE_DATA	0
-#define CREATING_START_GOAL 1
-#define WAITING_PATH		2
-#define CREATING_AVATOR		3
-#define WAITING_POSITION	4
-
 //Basic Network Example
 
 class Net1_Client : public Scene
@@ -32,11 +26,6 @@ protected:
 
 	NetworkBase network;
 	ENetPeer*	serverConnection;
-<<<<<<< HEAD
-=======
-<<<<<<< Updated upstream
-=======
->>>>>>> CUDA_DEBUG
 
 	uint state;
 
@@ -48,17 +37,10 @@ protected:
 	list<Vector3> path;
 
 	RenderNode *avator;
-<<<<<<< HEAD
-=======
 	vector<pair<RenderNode*, Vector2>> hazards;
->>>>>>> CUDA_DEBUG
 	Vector2 currentPos;
 
 	MazeRenderer* mazeRenderer;
 
 	Mesh* wallMesh;
-<<<<<<< HEAD
-=======
->>>>>>> Stashed changes
->>>>>>> CUDA_DEBUG
 };
