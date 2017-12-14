@@ -166,7 +166,7 @@ void MazeRenderer::Generate_ConstructWalls()
 			}
 		}
 	}
-
+	
 	//Vertical wall pass
 	for (uint x = 0; x < flat_maze_size; ++x)
 	{

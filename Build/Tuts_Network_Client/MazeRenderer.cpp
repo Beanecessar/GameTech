@@ -27,7 +27,7 @@ MazeRenderer::MazeRenderer(MazeGenerator* gen, Mesh* wallmesh)
 	}
 }
 
-MazeRenderer::MazeRenderer(uint flat_maze_size,uint num_walls,bool* flat_maze, Mesh* wallmesh)
+MazeRenderer::MazeRenderer(uint flat_maze_size,uint num_walls, bool*& flat_maze, Mesh* wallmesh)
 	: GameObject("")
 	, mesh(wallmesh)
 	, maze(NULL)
@@ -35,6 +35,8 @@ MazeRenderer::MazeRenderer(uint flat_maze_size,uint num_walls,bool* flat_maze, M
 	, flat_maze(flat_maze)
 	, start_pos(Vector2(-1, -1))
 	, goal_pos(Vector2(-1, -1))
+	, stone_pos(Vector2(-1, -1))
+	, IsStoneRenewed(false)
 {
 	sphere = CommonMeshes::Sphere();
 
@@ -51,6 +53,11 @@ MazeRenderer::MazeRenderer(uint flat_maze_size,uint num_walls,bool* flat_maze, M
 
 MazeRenderer::~MazeRenderer()
 {
+	for (auto i = Render()->GetChildIteratorStart(); i != Render()->GetChildIteratorEnd(); ++i)
+	{
+		ScreenPicker::Instance()->UnregisterNodeForMouseCallback(*i);
+	}
+
 	//SAFE_DELETE(sphere);
 	sphere = nullptr;
 
@@ -117,6 +124,8 @@ void MazeRenderer::DrawPath(const list<Vector3>& path, unsigned mazeSize, unsign
 			NCLDebug::DrawThickLineNDT(start, end, line_width, CommonUtils::GenColor(0.8f + index * col_factor));
 		}
 		--i;
+
+		NCLDebug::DrawPointNDT(start, line_width*1.5, Vector4(1.f, 1.0f, 0.5f, 1.0f));
 
 		index += 1.0f;
 	}
@@ -186,6 +195,7 @@ uint MazeRenderer::Generate_FlatMaze()
 }
 
 void ClickPointCallback(RenderNode * clickPoint, MazeRenderer * mRender, const Vector2 mazePos, float dt, const Vector3 & newWsPos, const Vector3 & wsMovedAmount, bool stopDragging) {
+	static unsigned LastClickLeft = 0;
 	Vector3 clickedPos = newWsPos + wsMovedAmount;
 	
 	if (Window::GetMouse()->ButtonDown(MOUSE_LEFT))
@@ -195,8 +205,8 @@ void ClickPointCallback(RenderNode * clickPoint, MazeRenderer * mRender, const V
 			mRender->GetStartSphere()->SetColor(Vector4(0, 0, 0, 0));
 		}
 		clickPoint->SetColor(Vector4(1.f, 0, 0, 1.f));
-		mRender->SetStartSphere(clickPoint);
-		mRender->SetStartPosition(mazePos);
+
+		LastClickLeft = 0;
 	}
 	else if (Window::GetMouse()->ButtonDown(MOUSE_RIGHT))
 	{
@@ -205,8 +215,27 @@ void ClickPointCallback(RenderNode * clickPoint, MazeRenderer * mRender, const V
 			mRender->GetGoalSphere()->SetColor(Vector4(0, 0, 0, 0));
 		}
 		clickPoint->SetColor(Vector4(0, 1.f, 0, 1.f));
-		mRender->SetGoalSphere(clickPoint);
-		mRender->SetGoalPosition(mazePos);
+		
+		LastClickLeft = 1;
+	}
+	else if (Window::GetMouse()->ButtonDown(MOUSE_MIDDLE))
+	{
+		LastClickLeft = 2;
+	}
+
+	if (stopDragging) {
+		if (LastClickLeft == 0) {
+			mRender->SetStartSphere(clickPoint);
+			mRender->SetStartPosition(mazePos);
+		}
+		else if(LastClickLeft == 1) {
+			mRender->SetGoalSphere(clickPoint);
+			mRender->SetGoalPosition(mazePos);
+		}
+		else {
+			mRender->SetStoneSphere(clickPoint);
+			mRender->SetStonePosition(mazePos);
+		}
 	}
 }
 
@@ -296,9 +325,6 @@ void MazeRenderer::Generate_ConstructWalls()
 			}
 		}
 	}
-
-
-
 }
 
 void MazeRenderer::Generate_BuildRenderNodes()
@@ -332,7 +358,6 @@ void MazeRenderer::Generate_BuildRenderNodes()
 		cube = new RenderNode(mesh, wall_color);
 		cube->SetTransform(Matrix4::Translation(centre) * Matrix4::Scale(halfDims));
 		root->AddChild(cube);
-
 	}
 
 	//Add bounding edge walls to the maze

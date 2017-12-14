@@ -212,7 +212,7 @@ bool ScreenPicker::HandleMouseClicks(float dt)
 			0.0f);
 
 
-		bool mouseDown = Window::GetMouse()->ButtonDown(MOUSE_LEFT) || Window::GetMouse()->ButtonDown(MOUSE_RIGHT);
+		bool mouseDown = Window::GetMouse()->ButtonDown(MOUSE_LEFT) || Window::GetMouse()->ButtonDown(MOUSE_RIGHT) || Window::GetMouse()->ButtonDown(MOUSE_MIDDLE);
 		bool mouseHeld = Window::GetMouse()->ButtonHeld(MOUSE_LEFT) || Window::GetMouse()->ButtonHeld(MOUSE_RIGHT);
 
 		//Do we have an object already being dragged?

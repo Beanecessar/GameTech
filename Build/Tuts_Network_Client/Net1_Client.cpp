@@ -104,6 +104,8 @@ void Net1_Client::OnInitializeScene()
 	state = ClientState::WaitingMazeData;
 	wallMesh = new OBJMesh(MESHDIR"cube.obj");
 
+	mazeRenderer = nullptr;
+
 	mp.size = 16;
 	mp.density = 0.5;
 
@@ -142,6 +144,14 @@ void Net1_Client::OnInitializeScene()
 
 void Net1_Client::OnCleanupScene()
 {
+	if (mazeRenderer) {
+		this->RemoveGameObject(mazeRenderer);
+		if (mazeRenderer->GetScene())
+			SAFE_DELETE(mazeRenderer)
+		else
+			mazeRenderer = nullptr;
+	}
+
 	Scene::OnCleanupScene();
 
 	SAFE_DELETE(wallMesh);
@@ -171,18 +181,26 @@ void Net1_Client::OnUpdateScene(float dt)
 		mp.size--;
 		state = ClientState::WaitingMazeData;
 		CleanHazards();
-		this->RemoveGameObject(mazeRenderer);
-		SAFE_DELETE(mazeRenderer);
+		if (mazeRenderer) {
+			this->RemoveGameObject(mazeRenderer);
+			if (mazeRenderer->GetScene())
+				SAFE_DELETE(mazeRenderer)
+			else
+				mazeRenderer = nullptr;
+		}
 		avator = nullptr;
-	}
-
-	if (Window::GetKeyboard()->KeyTriggered(KEYBOARD_2))
+	}else if (Window::GetKeyboard()->KeyTriggered(KEYBOARD_2))
 	{
 		mp.size++;
 		state = ClientState::WaitingMazeData;
 		CleanHazards();
-		this->RemoveGameObject(mazeRenderer);
-		SAFE_DELETE(mazeRenderer);
+		if (mazeRenderer) {
+			this->RemoveGameObject(mazeRenderer);
+			if (mazeRenderer->GetScene())
+				SAFE_DELETE(mazeRenderer)
+			else
+				mazeRenderer = nullptr;
+		}
 		avator = nullptr;
 	}
 
@@ -192,6 +210,10 @@ void Net1_Client::OnUpdateScene(float dt)
 		this,								// Associated class instance
 		std::placeholders::_1);				// Where to place the first parameter
 	network.ServiceNetwork(dt, callback);
+
+	//Dead reckoning
+	DeadReckoning(dt*0.001f);
+	//cout << dt <<endl;
 
 	//Update state machine
 	UpdateClientStateMachine(dt);
@@ -249,19 +271,26 @@ void Net1_Client::ProcessNetworkEvent(const ENetEvent& evnt)
 
 			if (pf == PacketFlag::MazeArray)
 			{
-				md.flat_maze = new bool[(mp.size * 3 - 1) * (mp.size * 3 - 1)];
+				if (mazeRenderer) {
+					this->RemoveGameObject(mazeRenderer);
+					if (mazeRenderer->GetScene())
+						SAFE_DELETE(mazeRenderer)
+					else
+						mazeRenderer = nullptr;
+				}
 
 				memcpy(&md.flat_maze_size, evnt.packet->data + offset, sizeof(unsigned));
 				offset += sizeof(unsigned);
+				mp.size = (md.flat_maze_size + 1) / 3;
 
 				memcpy(&md.num_walls, evnt.packet->data + offset, sizeof(unsigned));
 				offset += sizeof(unsigned);
 
-				memcpy(md.flat_maze, evnt.packet->data + offset, sizeof(bool)*(mp.size * 3 - 1)*(mp.size * 3 - 1));
-				offset += sizeof(bool)*(mp.size * 3 - 1)*(mp.size * 3 - 1);
+				md.flat_maze = new bool[md.flat_maze_size * md.flat_maze_size];
+				memcpy(md.flat_maze, evnt.packet->data + offset, sizeof(bool)*md.flat_maze_size * md.flat_maze_size);
+				offset += sizeof(bool)*md.flat_maze_size * md.flat_maze_size;
 
 				//Creating maze
-				this->RemoveGameObject(mazeRenderer);
 				mazeRenderer = new MazeRenderer(md.flat_maze_size, md.num_walls, md.flat_maze, wallMesh);
 
 				mazeRenderer->Render()->SetTransform(Matrix4::Scale(Vector3(5.f, 5.0f / float(mp.size), 5.f)) * Matrix4::Translation(Vector3(-0.5f, 0.f, -0.5f)));
@@ -304,25 +333,37 @@ void Net1_Client::ProcessNetworkEvent(const ENetEvent& evnt)
 				}
 			}
 			else if (state == ClientState::WaitingPosition) {
-				if (pf == PacketFlag::AvatorPosition) {
+				if (pf == PacketFlag::PlayerHazardPositions) {
 					memcpy(&currentPos, evnt.packet->data + offset, sizeof(Vector2));
+					offset += sizeof(Vector2);
 
+					memcpy(&velocity, evnt.packet->data + offset, sizeof(Vector2));
 					offset += sizeof(Vector2);
 
 					size_t numOfHazards;
 					memcpy(&numOfHazards, evnt.packet->data + offset, sizeof(size_t));
 					offset += sizeof(size_t);
 
-					if (hazards.empty())
+					//Recive hazard positions & velocitys
+					if (hazards.size()!= numOfHazards || numOfHazards == 0)
 					{
 						//Initializing hazards
+						CleanHazards();
 						for (size_t i = 0; i < numOfHazards; i++)
 						{
+							Vector2 pos;
+							memcpy(&pos, evnt.packet->data + offset, sizeof(Vector2));
+							offset += sizeof(Vector2);
+
+							Vector2 vel;
+							memcpy(&vel, evnt.packet->data + offset, sizeof(Vector2));
+							offset += sizeof(Vector2);
+
 							float scalar = 1.f / (float)md.flat_maze_size;
 							Vector3 cellpos = Vector3(
-								currentPos.x * 3,
+								pos.x * 3,
 								0.0f,
-								currentPos.y * 3
+								pos.y * 3
 							) * scalar;
 							Vector3 cellsize = Vector3(
 								scalar * 2,
@@ -330,22 +371,129 @@ void Net1_Client::ProcessNetworkEvent(const ENetEvent& evnt)
 								scalar * 2
 							);
 
-							RenderNode* hazard = new RenderNode(CommonMeshes::Cube(), Vector4(1.0f, 0.0f, 0.0f, 1.0f));
-							hazard->SetTransform(Matrix4::Translation(cellpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
-							mazeRenderer->Render()->AddChild(hazard);
+							RenderNode* hazardRender = new RenderNode(CommonMeshes::Cube(), Vector4(1.0f, 0.0f, 0.0f, 1.0f));
+							hazardRender->SetTransform(Matrix4::Translation(cellpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.3f));
+							mazeRenderer->Render()->AddChild(hazardRender);
 
-							Vector2 pos;
-							memcpy(&pos, evnt.packet->data + offset, sizeof(Vector2));
-							offset += sizeof(Vector2);
-
-							hazards.push_back(make_pair(hazard, pos));
+							Character hazard = { hazardRender ,pos, vel };
+							hazards.push_back(hazard);
 						}
 					}
 					else
 					{
 						for (size_t i = 0; i < numOfHazards; i++)
 						{
-							memcpy(&hazards[i].second, evnt.packet->data + offset, sizeof(Vector2));
+							memcpy(&hazards[i].position, evnt.packet->data + offset, sizeof(Vector2));
+							offset += sizeof(Vector2);
+
+							memcpy(&hazards[i].velocity, evnt.packet->data + offset, sizeof(Vector2));
+							offset += sizeof(Vector2);
+						}
+					}
+
+					size_t numOfOtherPlayers;
+					memcpy(&numOfOtherPlayers, evnt.packet->data + offset, sizeof(size_t));
+					offset += sizeof(size_t);
+
+					//Recive other player positions & velocity
+					if (otherPlayers.size() != numOfOtherPlayers || numOfOtherPlayers == 0)
+					{
+						//Initializing other players
+						CleanOtherPlayers();
+						for (size_t i = 0; i < numOfOtherPlayers; i++)
+						{
+							Vector2 pos;
+							memcpy(&pos, evnt.packet->data + offset, sizeof(Vector2));
+							offset += sizeof(Vector2);
+
+							Vector2 vel;
+							memcpy(&vel, evnt.packet->data + offset, sizeof(Vector2));
+							offset += sizeof(Vector2);
+
+							for (size_t i = 0; i < numOfOtherPlayers; i++)
+							{
+								float scalar = 1.f / (float)md.flat_maze_size;
+								Vector3 cellpos = Vector3(
+									pos.x * 3,
+									0.0f,
+									pos.y * 3
+								) * scalar;
+								Vector3 cellsize = Vector3(
+									scalar * 2,
+									1.0f,
+									scalar * 2
+								);
+
+								RenderNode* playerRender = new RenderNode(CommonMeshes::Cube(), Vector4(1.0f, 1.0f, 0.0f, 1.0f));
+								playerRender->SetTransform(Matrix4::Translation(cellpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.4f));
+								mazeRenderer->Render()->AddChild(playerRender);
+
+								Character player = { playerRender,pos,vel };
+
+								otherPlayers.push_back(player);
+							}
+						}
+					}
+					else
+					{
+						for (size_t i = 0; i < numOfOtherPlayers; i++)
+						{
+							memcpy(&otherPlayers[i].position, evnt.packet->data + offset, sizeof(Vector2));
+							offset += sizeof(Vector2);
+
+							memcpy(&otherPlayers[i].velocity, evnt.packet->data + offset, sizeof(Vector2));
+							offset += sizeof(Vector2);
+						}
+					}
+
+					size_t numOfStones;
+					memcpy(&numOfStones, evnt.packet->data + offset, sizeof(size_t));
+					offset += sizeof(size_t);
+
+					//Recive stones
+					if (stones.size() != numOfStones || numOfStones == 0)
+					{
+						//Initializing stones
+						CleanStones();
+						for (size_t i = 0; i < numOfStones; i++)
+						{
+							Vector2 pos;
+							memcpy(&pos, evnt.packet->data + offset, sizeof(Vector2));
+							offset += sizeof(Vector2);
+
+							Vector2 vel;
+							memcpy(&vel, evnt.packet->data + offset, sizeof(Vector2));
+							offset += sizeof(Vector2);
+
+							for (size_t i = 0; i < numOfStones; i++)
+							{
+								float scalar = 1.f / (float)md.flat_maze_size;
+								Vector3 cellpos = Vector3(
+									pos.x * 3,
+									0.0f,
+									pos.y * 3
+								) * scalar;
+								Vector3 cellsize = Vector3(
+									scalar * 2,
+									1.0f,
+									scalar * 2
+								);
+
+								RenderNode* stoneRender = new RenderNode(CommonMeshes::Cube(), Vector4(1.0f, 0.6f, 0.4f, 1.0f));
+								stoneRender->SetTransform(Matrix4::Translation(cellpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.4f));
+								mazeRenderer->Render()->AddChild(stoneRender);
+
+								Character stone = { stoneRender,pos,vel };
+
+								stones.push_back(stone);
+							}
+						}
+					}
+					else
+					{
+						for (size_t i = 0; i < numOfStones; i++)
+						{
+							memcpy(&stones[i].position, evnt.packet->data + offset, sizeof(Vector2));
 							offset += sizeof(Vector2);
 						}
 					}
@@ -372,10 +520,34 @@ void Net1_Client::ProcessNetworkEvent(const ENetEvent& evnt)
 }
 
 void Net1_Client::UpdateClientStateMachine(float dt) {
-	if (mazeRenderer&&mazeRenderer->IsStartGoalRenewed&&mazeRenderer->GetStartPosition().x > 0 && mazeRenderer->GetGoalPosition().x > 0)
+	if (mazeRenderer&&mazeRenderer->IsStoneRenewed)
 	{
+		mazeRenderer->IsStoneRenewed = false;
+
+		char* data = new char[sizeof(PacketFlag)+sizeof(Vector2)];
+		unsigned offset = 0;
+		PacketFlag pf = PacketFlag::StonePosition;
+		memcpy(data, &pf, sizeof(PacketFlag));
+		offset += sizeof(PacketFlag);
+
+		Vector2 pos = mazeRenderer->GetStonePosition();
+		memcpy(data + offset, &pos, sizeof(Vector2));
+		offset += sizeof(Vector2);
+
+		packet = enet_packet_create(data, offset, 0);
+		enet_peer_send(serverConnection, 0, packet);
+	}
+
+	if (mazeRenderer&&mazeRenderer->IsGoalRenewed && state!= ClientState::CreatingStartGoal)
+	{
+		Vector2 startPos;
+		startPos.x = (unsigned)(currentPos.x + 0.5);
+		startPos.y = (unsigned)(currentPos.y + 0.5);
+
+		mazeRenderer->SetStartPosition(startPos);
+
 		CleanHazards();
-		mazeRenderer->IsStartGoalRenewed = false;
+		mazeRenderer->IsGoalRenewed = false;
 		state = ClientState::CreatingStartGoal;
 	}
 
@@ -404,9 +576,9 @@ void Net1_Client::UpdateClientStateMachine(float dt) {
 		Vector2 start_position = mazeRenderer->GetStartPosition();
 		Vector2 goal_position = mazeRenderer->GetGoalPosition();
 
-		if (start_position.x > 0 && goal_position.x > 0)
+		if (start_position.x >= 0 && goal_position.x >= 0)
 		{
-			mazeRenderer->IsStartGoalRenewed = false;
+			mazeRenderer->IsGoalRenewed = false;
 
 			char* data = new char[sizeof(PacketFlag) + sizeof(Vector2) * 2];
 
@@ -482,12 +654,42 @@ void Net1_Client::UpdateClientStateMachine(float dt) {
 			for (auto i = hazards.begin(); i != hazards.end(); i++)
 			{
 				Vector3 hazpos = Vector3(
-					(*i).second.x * 3,
+					(*i).position.x * 3,
 					0.0f,
-					(*i).second.y * 3
+					(*i).position.y * 3
 				) * scalar;
 
-				(*i).first->SetTransform(Matrix4::Translation(hazpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.4f));
+				(*i).render->SetTransform(Matrix4::Translation(hazpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.3f));
+			}
+		}
+
+		if (!otherPlayers.empty())
+		{
+			//Update other player positions
+			for (auto i = otherPlayers.begin(); i != otherPlayers.end(); i++)
+			{
+				Vector3 oppos = Vector3(
+					(*i).position.x * 3,
+					0.0f,
+					(*i).position.y * 3
+				) * scalar;
+
+				(*i).render->SetTransform(Matrix4::Translation(oppos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.4f));
+			}
+		}
+
+		if (!stones.empty())
+		{
+			//Update other player positions
+			for (auto i = stones.begin(); i != stones.end(); i++)
+			{
+				Vector3 stnpos = Vector3(
+					(*i).position.x * 3,
+					0.0f,
+					(*i).position.y * 3
+				) * scalar;
+
+				(*i).render->SetTransform(Matrix4::Translation(stnpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.4f));
 			}
 		}
 
@@ -510,10 +712,51 @@ void Net1_Client::CleanHazards() {
 	{
 		for (auto i = hazards.begin(); i != hazards.end(); ++i)
 		{
-			mazeRenderer->Render()->RemoveChild((*i).first);
-			delete (*i).first;
+			mazeRenderer->Render()->RemoveChild((*i).render);
+			delete (*i).render;
 		}
 	}
 	
 	hazards.clear();
+}
+
+void Net1_Client::CleanOtherPlayers() {
+	if (mazeRenderer)
+	{
+		for (auto i = otherPlayers.begin(); i != otherPlayers.end(); ++i)
+		{
+			mazeRenderer->Render()->RemoveChild((*i).render);
+			delete (*i).render;
+		}
+	}
+
+	otherPlayers.clear();
+}
+
+void Net1_Client::CleanStones() {
+	if (mazeRenderer)
+	{
+		for (auto i = stones.begin(); i != stones.end(); ++i)
+		{
+			mazeRenderer->Render()->RemoveChild((*i).render);
+			delete (*i).render;
+		}
+	}
+
+	stones.clear();
+}
+
+void Net1_Client::DeadReckoning(float dt) {
+	//player
+	currentPos += velocity*dt;
+
+	//hazards
+	if (!hazards.empty())
+		for (auto i = hazards.begin(); i != hazards.end(); ++i)
+			(*i).position += (*i).velocity*dt;
+
+	//other players
+	if (!otherPlayers.empty())
+		for (auto i = otherPlayers.begin(); i != otherPlayers.end(); ++i)
+			(*i).position += (*i).velocity*dt;
 }

@@ -23,7 +23,7 @@ class MazeRenderer : public GameObject
 {
 public:
 	MazeRenderer(MazeGenerator* gen, Mesh* wallmesh = CommonMeshes::Cube());
-	MazeRenderer(uint flat_maze_size,uint num_walls ,bool* flat_maze, Mesh* wallmesh = CommonMeshes::Cube());
+	MazeRenderer(uint flat_maze_size,uint num_walls , bool*& flat_maze,Mesh* wallmesh = CommonMeshes::Cube());
 	virtual ~MazeRenderer();
 
 	//The search history draws from edges because they already store the 'to'
@@ -32,17 +32,22 @@ public:
 	void DrawPath(const list<Vector3>& path, unsigned mazeSize, unsigned pathSize, float line_width);
 
 	//bool* GetFlatMaze() const { return flat_maze; }
-	inline void SetStartPosition(Vector2 const start)	{	start_pos = start; IsStartGoalRenewed = true;}
+	inline void SetStartPosition(Vector2 const start)	{	start_pos = start; }
 	inline const Vector2 GetStartPosition() const { return start_pos; }
-	inline void SetGoalPosition(Vector2 const goal)	{	goal_pos = goal; IsStartGoalRenewed = true;}
+	inline void SetGoalPosition(Vector2 const goal)	{	goal_pos = goal; IsGoalRenewed = true;}
 	inline const Vector2 GetGoalPosition() const { return goal_pos; }
+	inline void SetStonePosition(Vector2 const stone) { stone_pos = stone; IsStoneRenewed = true; }
+	inline const Vector2 GetStonePosition() const { return stone_pos; }
 
 	inline RenderNode* GetStartSphere() const { return startSphere; }
 	inline void SetStartSphere(RenderNode* node) { startSphere = node; }
 	inline RenderNode* GetGoalSphere() const { return goalSphere; }
 	inline void SetGoalSphere(RenderNode* node) { goalSphere = node; }
+	inline RenderNode* GetStoneSphere() const { return stoneSphere; }
+	inline void SetStoneSphere(RenderNode* node) { stoneSphere = node; }
 
-	bool IsStartGoalRenewed;
+	bool IsGoalRenewed;
+	bool IsStoneRenewed;
 
 protected:
 	//Turn MazeGenerator data into flat 2D map (3 size x 3 size) of boolean's
@@ -70,9 +75,11 @@ protected:
 
 	Vector2 start_pos;
 	Vector2 goal_pos;
+	Vector2 stone_pos;
 
 	RenderNode* startSphere;
 	RenderNode* goalSphere;
+	RenderNode* stoneSphere;
 
 	WallDescriptorVec	wall_descriptors;
 };

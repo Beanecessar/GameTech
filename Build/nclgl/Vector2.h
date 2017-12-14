@@ -54,6 +54,10 @@ public:
 		return x * x + y * y;
 	}
 
+	static float	Dot(const Vector2 &a, const Vector2 &b) {
+		return (a.x*b.x) + (a.y*b.y);
+	}
+
 	inline friend std::ostream& operator<<(std::ostream& o, const Vector2& v){
 		o << "Vector2(" << v.x << "," << v.y << ")" << std::endl;
 		return o;
@@ -71,5 +75,14 @@ public:
 		return Vector2(x * a, y * a);
 	}
 
+	inline void operator+=(const Vector2  &a) {
+		x += a.x;
+		y += a.y;
+	}
+
+	inline void operator-=(const Vector2  &a) {
+		x -= a.x;
+		y -= a.y;
+	}
 };
 

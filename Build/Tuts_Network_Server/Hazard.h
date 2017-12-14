@@ -24,6 +24,8 @@ public:
 
 	inline const Vector2 GetPosition() const { return position; }
 
+	inline const Vector2 GetVelocity() const { return velocityNormal*speed; }
+
 	inline void SetPosition(Vector2 pos) { position = pos; }
 
 	inline void SetTarget(Vector2* tar) { avatorPos = tar; }
@@ -42,6 +44,7 @@ protected:
 	std::list<const GraphNode*> path;
 
 	Vector2 position;
+	Vector2 velocityNormal;
 	Vector2* avatorPos;
 
 	void(*EventCallback)(HazardEvent evt);
@@ -50,7 +53,7 @@ protected:
 Hazard::Hazard(MazeGenerator *mg) {
 	mazeGen = mg;
 	state = HazardState::Patrol;
-	speed = 2.0f;
+	speed = 1.0f;
 	patrolRange = 5.f;
 	EventCallback = nullptr;
 
@@ -65,6 +68,7 @@ void Hazard::Updata(float dt) {
 	{
 		if ((*avatorPos - position).Length() < patrolRange)
 		{
+			speed *= 4;
 			if(EventCallback)
 				EventCallback(HazardEvent::Find);
 			path.clear();
@@ -100,6 +104,7 @@ void Hazard::Updata(float dt) {
 			if (direction.Length() > speed*dt) {
 				//Haven't reached next check point 
 				direction.Normalise();
+
 				position = position + direction*speed*dt;
 			}
 			else
@@ -107,6 +112,8 @@ void Hazard::Updata(float dt) {
 				position = nextCheckPoint;
 				path.pop_front();
 			}
+			direction.Normalise();
+			velocityNormal = direction;
 		}
 	}
 	break;
@@ -164,6 +171,8 @@ void Hazard::Updata(float dt) {
 				position = nextCheckPoint;
 				generateNewPath();
 			}
+			direction.Normalise();
+			velocityNormal = direction;
 		}
 	}
 	break;
@@ -172,6 +181,7 @@ void Hazard::Updata(float dt) {
 	{
 		if ((*avatorPos - position).Length() > patrolRange)
 		{
+			speed /= 4;
 			if (EventCallback)
 				EventCallback(HazardEvent::Away);
 			path.clear();
@@ -204,7 +214,7 @@ void Hazard::Updata(float dt) {
 					}
 				}
 
-				end = &mazeGen->allNodes[y*mazeGen->size + x];
+				end = mazeGen->GetGraphNode(x, y);
 
 			} while (!as_searcher.FindBestPath(start, end));
 
@@ -227,6 +237,8 @@ void Hazard::Updata(float dt) {
 				position = nextCheckPoint;
 				path.pop_front();
 			}
+			direction.Normalise();
+			velocityNormal = direction;
 		}
 	}
 		break;

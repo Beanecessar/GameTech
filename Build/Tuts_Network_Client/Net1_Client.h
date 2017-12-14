@@ -23,12 +23,23 @@ public:
 
 	void UpdateClientStateMachine(float dt);
 
+	void DeadReckoning(float dt);
+
 	void CleanHazards();
+	void CleanOtherPlayers();
+	void CleanStones();
 
 	void SetMazeParameter(MazeParameter p) { mp = p; }
 	const MazeParameter GetMazeParameter() const { return mp; }
 
 protected:
+	struct Character
+	{
+		RenderNode* render;
+		Vector2 position;
+		Vector2 velocity;
+	};
+
 	ENetPacket* packet = nullptr;
 
 	NetworkBase network;
@@ -44,8 +55,11 @@ protected:
 	list<Vector3> path;
 
 	RenderNode *avator;
-	vector<pair<RenderNode*, Vector2>> hazards;
+	vector<Character> hazards;
+	vector<Character> otherPlayers;
+	vector<Character> stones;
 	Vector2 currentPos;
+	Vector2 velocity;
 
 	MazeRenderer* mazeRenderer;
 

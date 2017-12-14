@@ -94,8 +94,115 @@ void UpdateServer(float dt) {
 	}
 }
 
-void  SendPacket() {
-	
+
+void RandomizeHazardsTarget() {
+	//count active player
+	vector<unsigned> activePlayerID;
+	for (auto i = clients.begin(); i != clients.end(); ++i)
+	{
+		if ((*i).state == ServerState::SendingPosition)
+		{
+			activePlayerID.push_back((*i).ID);
+		}
+	}
+
+	//randomize target
+	for (auto i = hazards.begin(); i != hazards.end(); ++i)
+	{
+		unsigned targetID;
+		if (activePlayerID.empty())
+			targetID = 0;
+		else
+			targetID = rand() % (activePlayerID.size());
+		(*i)->SetTarget(&clients[targetID].currentPos);
+	}
+}
+
+void UpdatePlayerPosition(float dt) 
+{
+	//count active player
+	vector<unsigned> activePlayerID;
+	for (auto i = clients.begin(); i != clients.end(); ++i)
+	{
+		if ((*i).state == ServerState::SendingPosition)
+		{
+			activePlayerID.push_back((*i).ID);
+		}
+	}
+
+	//updating position
+	for (auto i = activePlayerID.begin(); i != activePlayerID.end(); ++i)
+	{
+		if (clients[(*i)].path.empty())
+		{
+			clients[*i].velocityNormal = Vector2(0, 0);
+			//clients[(*i)].state = ServerState::Idle;
+		}
+		else
+		{
+			Vector2 nextCheckPoint = Vector2(clients[(*i)].path.front()->_pos.x, clients[(*i)].path.front()->_pos.y);
+			Vector2 direction = nextCheckPoint - clients[(*i)].currentPos;
+
+			if (direction.Length() > moving_speed*dt) {
+				//haven't reached next check point 
+				direction.Normalise();
+				clients[(*i)].velocityNormal = direction;
+				clients[(*i)].currentPos = clients[(*i)].currentPos + direction*moving_speed*dt;
+			}
+			else
+			{
+				direction.Normalise();
+				clients[(*i)].velocityNormal = direction;
+				clients[(*i)].currentPos = nextCheckPoint;
+				clients[(*i)].path.pop_front();
+			}
+		}
+	}
+
+	//collision detection
+
+	//player-player
+	if(activePlayerID.size() > 1)
+		for (auto i = activePlayerID.begin(); i != activePlayerID.end()-1; ++i)
+		{
+			for (auto j = i+1; j != activePlayerID.end(); ++j)
+			{
+				Vector2 normal = clients[*i].currentPos - clients[*j].currentPos;
+				float distance = normal.Length();
+
+				if (distance<0.8f)
+				{
+					normal.Normalise();
+					float penetration = (0.8f - distance) / 2;
+					
+					clients[*i].currentPos = clients[*i].currentPos - clients[*i].velocityNormal *penetration *std::abs(Vector2::Dot(clients[*i].velocityNormal,normal));
+					clients[*j].currentPos = clients[*j].currentPos - clients[*j].velocityNormal *penetration*std::abs(Vector2::Dot(clients[*j].velocityNormal, normal));
+				}
+			}
+		}
+
+
+	//player-stone
+	for (auto i = activePlayerID.begin(); i != activePlayerID.end(); ++i)
+	{
+		for (auto j = clients.begin(); j != clients.end(); ++j)
+		{
+			if ((*j).stonePos.x >= 0)
+			{
+				Vector2 normal = clients[*i].currentPos - (*j).stonePos;
+				float distance = normal.Length();
+
+				if (distance < 0.8f)
+				{
+					normal.Normalise();
+					float penetration = 0.8f - distance;
+
+					clients[*i].currentPos = clients[*i].currentPos - clients[*i].velocityNormal *penetration *std::abs(Vector2::Dot(clients[*i].velocityNormal, normal));
+
+				}
+			}
+		}
+	}
 }
 
 
@@ -182,6 +289,7 @@ int main(int arcg, char** argv)
 		accum_time += dt;
 
 		UpdateServer(dt);
+		//cout << dt << endl;
 
 		//Handle All Incoming Packets and Send any enqued packets
 		server.ServiceNetwork(dt, [&](const ENetEvent& evnt)
@@ -194,7 +302,7 @@ int main(int arcg, char** argv)
 					clients.resize(evnt.peer->incomingPeerID + 1);
 				}
 				clients[evnt.peer->incomingPeerID] = (ClientData());
-				clients[evnt.peer->incomingPeerID].timer.GetTimedMS();
+				clients[evnt.peer->incomingPeerID].ID = evnt.peer->incomingPeerID;
 
 				printf("- New Client Connected\n");
 				break;
@@ -205,7 +313,6 @@ int main(int arcg, char** argv)
 
 			{
 				//printf("\t Client %d says: %s\n", evnt.peer->incomingPeerID, evnt.packet->data);
-				float dtp = clients[evnt.peer->incomingPeerID].timer.GetTimedMS() / 1000.f;
 
 				if (evnt.packet->dataLength >= sizeof(PacketFlag)) {
 					//Loading packet flag
@@ -257,6 +364,11 @@ int main(int arcg, char** argv)
 						delete[] data;
 					}
 
+					if (pf == PacketFlag::StonePosition) {
+						memcpy(&clients[evnt.peer->incomingPeerID].stonePos, evnt.packet->data + offset, sizeof(Vector2));
+						offset += sizeof(Vector2);
+					}
+
 					//Waiting client send start and goal position
 					if (pf == PacketFlag::MazeStartGoal)
 						{
@@ -279,7 +391,27 @@ int main(int arcg, char** argv)
 
 							as_searcher.FindBestPath(startNode, goalNode);
 
-							clients[evnt.peer->incomingPeerID].path = as_searcher.GetFinalPath();
+							list<const GraphNode*> rowPath = as_searcher.GetFinalPath();
+							clients[evnt.peer->incomingPeerID].path.clear();
+
+							//String-pulling
+							if (!rowPath.empty())
+							{
+								Vector3 pos = (*rowPath.begin())->_pos;
+								clients[evnt.peer->incomingPeerID].path.push_back(*rowPath.begin());
+								for (auto i = ++(rowPath.begin()); i != rowPath.end(); ++i)
+								{
+									if (i != rowPath.end())
+									{
+										if ((*i)->_pos.x != pos.x && (*i)->_pos.y != pos.y)
+										{
+											clients[evnt.peer->incomingPeerID].path.push_back(*(--i));
+											pos = (*i)->_pos;
+										}
+									}
+								}
+								clients[evnt.peer->incomingPeerID].path.push_back(*(--rowPath.end()));
+							}
 
 							char* data = new char[sizeof(PacketFlag) + sizeof(unsigned) + sizeof(float)*clients[evnt.peer->incomingPeerID].path.size() * 3];
 
@@ -291,20 +423,23 @@ int main(int arcg, char** argv)
 							memcpy(data + offset, &listSize, sizeof(unsigned));
 							offset += sizeof(unsigned);
 
-							float temp;
-							for (auto j = clients[evnt.peer->incomingPeerID].path.begin(); j != clients[evnt.peer->incomingPeerID].path.end(); ++j)
+							if (!clients[evnt.peer->incomingPeerID].path.empty()) 
 							{
-								temp = (*j)->_pos.x;
-								memcpy(data + offset, &temp, sizeof(unsigned));
-								offset += sizeof(float);
+								float temp;
+								for (auto j = clients[evnt.peer->incomingPeerID].path.begin(); j != clients[evnt.peer->incomingPeerID].path.end(); ++j)
+								{
+									temp = (*j)->_pos.x;
+									memcpy(data + offset, &temp, sizeof(unsigned));
+									offset += sizeof(float);
 
-								temp = (*j)->_pos.y;
-								memcpy(data + offset, &temp, sizeof(unsigned));
-								offset += sizeof(float);
+									temp = (*j)->_pos.y;
+									memcpy(data + offset, &temp, sizeof(unsigned));
+									offset += sizeof(float);
 
-								temp = (*j)->_pos.z;
-								memcpy(data + offset, &temp, sizeof(unsigned));
-								offset += sizeof(float);
+									temp = (*j)->_pos.z;
+									memcpy(data + offset, &temp, sizeof(unsigned));
+									offset += sizeof(float);
+								}
 							}
 
 							ENetPacket* packet = enet_packet_create(data, sizeof(PacketFlag) + sizeof(float)*clients[evnt.peer->incomingPeerID].path.size() * 3, 0);
@@ -323,11 +458,12 @@ int main(int arcg, char** argv)
 								for (size_t i = 0; i < numOfHazards; i++)
 								{
 									Hazard* hazard = new Hazard(mazeGen);
-									hazard->SetTarget(&clients[evnt.peer->incomingPeerID].currentPos);
 
 									hazards.push_back(hazard);
 								}
 							}
+
+							RandomizeHazardsTarget();
 
 							clients[evnt.peer->incomingPeerID].currentPos = clients[evnt.peer->incomingPeerID].startPos;
 							clients[evnt.peer->incomingPeerID].state = ServerState::SendingPosition;
@@ -341,30 +477,96 @@ int main(int arcg, char** argv)
 						//-------
 						//Flag
 						//-------
-						//Avator position
+						//Avator position & velocity
 						//-------
 						//Number of hazards
 						//-------
-						//Hazard positions
+						//Hazard positions & velocity
 						//-------
-						printf("client %d in position (%.2f,%.2f)\n", evnt.peer->incomingPeerID, clients[evnt.peer->incomingPeerID].currentPos.x, clients[evnt.peer->incomingPeerID].currentPos.y);
+						//Number of other players
+						//-------
+						//other player positions & velocity
+						//-------
+						//Number of stones
+						//-------
+						//stone positions
+
+						//printf("client %d in position (%.2f,%.2f)\n", evnt.peer->incomingPeerID, clients[evnt.peer->incomingPeerID].currentPos.x, clients[evnt.peer->incomingPeerID].currentPos.y);
 
 						size_t numOfHazards = hazards.size();
 
-						char* data = new char[sizeof(PacketFlag) + sizeof(size_t) + sizeof(Vector2)*(numOfHazards + 1)];
+						//Counting active plays
+						size_t numOfPlays = 0;
+						vector<unsigned> otherPlayerID;
+						for (auto i = clients.begin(); i != clients.end(); ++i)
+						{
+							if ((*i).state == ServerState::SendingPosition)
+							{
+								numOfPlays += 1;
+								if ((*i).ID != evnt.peer->incomingPeerID)
+									otherPlayerID.push_back((*i).ID);
+							}
+						}
 
-						PacketFlag pf = PacketFlag::AvatorPosition;
+						//Counting stones
+						size_t numOfStones = 0;
+						vector<Vector2> stones;
+						for (auto i = clients.begin(); i != clients.end(); ++i)
+						{
+							if ((*i).stonePos.x>=0)
+							{
+								numOfStones += 1;
+								stones.push_back((*i).stonePos);
+							}
+						}
+
+						char* data = new char[sizeof(PacketFlag) + sizeof(size_t)*3 + sizeof(Vector2)*(numOfHazards + numOfPlays)*2 + sizeof(Vector2)*numOfStones];
+
+						PacketFlag pf = PacketFlag::PlayerHazardPositions;
 						memcpy(data, &pf, sizeof(PacketFlag));
 						unsigned offset = sizeof(PacketFlag);
 
 						memcpy(data + offset, &clients[evnt.peer->incomingPeerID].currentPos, sizeof(Vector2));
 						offset += sizeof(Vector2);
 
+						Vector2 velocity = clients[evnt.peer->incomingPeerID].velocityNormal*moving_speed;
+						memcpy(data + offset, &velocity, sizeof(Vector2));
+						offset += sizeof(Vector2);
+
 						memcpy(data + offset, &numOfHazards, sizeof(size_t));
 						offset += sizeof(size_t);
 
 						for (auto i = hazards.begin(); i != hazards.end(); ++i) {
+							//position
 							memcpy(data + offset, &(*i)->GetPosition(), sizeof(Vector2));
+							offset += sizeof(Vector2);
+
+							//volecity
+							memcpy(data + offset, &(*i)->GetVelocity(), sizeof(Vector2));
+							offset += sizeof(Vector2);
+						}
+
+						numOfPlays -= 1;
+						memcpy(data + offset, &numOfPlays, sizeof(size_t));
+						offset += sizeof(size_t);
+
+						for (auto i = otherPlayerID.begin(); i!= otherPlayerID.end(); ++i) {
+							//position
+							memcpy(data + offset, &clients[(*i)].currentPos, sizeof(Vector2));
+							offset += sizeof(Vector2);
+
+							//velocity
+							velocity= clients[(*i)].velocityNormal*moving_speed;
+							memcpy(data + offset, &velocity, sizeof(Vector2));
+							offset += sizeof(Vector2);
+						}
+
+						memcpy(data + offset, &numOfStones, sizeof(size_t));
+						offset += sizeof(size_t);
+
+						for (auto i = stones.begin(); i != stones.end(); ++i) {
+							//position
+							memcpy(data + offset, &(*i), sizeof(Vector2));
 							offset += sizeof(Vector2);
 						}
 
@@ -372,30 +574,6 @@ int main(int arcg, char** argv)
 						enet_peer_send(evnt.peer, 0, packet);
 
 						delete[] data;
-
-						//update position
-						clients[evnt.peer->incomingPeerID].currentPos;
-						if (clients[evnt.peer->incomingPeerID].path.empty())
-						{
-							//clients[evnt.peer->incomingPeerID].state = ServerState::Idle;
-						}
-						else
-						{
-							Vector2 nextCheckPoint = Vector2(clients[evnt.peer->incomingPeerID].path.front()->_pos.x, clients[evnt.peer->incomingPeerID].path.front()->_pos.y);
-							Vector2 direction = nextCheckPoint - clients[evnt.peer->incomingPeerID].currentPos;
-
-							if (direction.Length() > moving_speed*dtp) {
-								//haven't reached next check point 
-								direction.Normalise();
-
-								clients[evnt.peer->incomingPeerID].currentPos = clients[evnt.peer->incomingPeerID].currentPos + direction*moving_speed*dtp;
-							}
-							else
-							{
-								clients[evnt.peer->incomingPeerID].currentPos = nextCheckPoint;
-								clients[evnt.peer->incomingPeerID].path.pop_front();
-							}
-						}
 					}
 
 					//enet_peer_send
@@ -408,9 +586,12 @@ int main(int arcg, char** argv)
 			case ENET_EVENT_TYPE_DISCONNECT:
 				printf("- Client %d has disconnected.\n", evnt.peer->incomingPeerID);
 				clients[evnt.peer->incomingPeerID].state = ServerState::Idle;
+				RandomizeHazardsTarget();
 				break;
 			}
 		});
+
+		UpdatePlayerPosition(dt);
 
 		//Broadcast update packet to all connected clients at a rate of UPDATE_TIMESTEP updates per second
 		if (accum_time >= UPDATE_TIMESTEP)
@@ -439,4 +620,3 @@ int main(int arcg, char** argv)
 	system("pause");
 	server.Release();
 }
-
