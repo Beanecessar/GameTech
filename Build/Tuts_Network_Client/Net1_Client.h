@@ -4,6 +4,7 @@
 #include <ncltech\NetworkBase.h>
 #include "MazeData.h"
 #include "MazeRenderer.h"
+#include "NetworkDataset.h"
 
 class MazeRenderer;
 
@@ -18,8 +19,14 @@ public:
 	virtual void OnCleanupScene() override;
 	virtual void OnUpdateScene(float dt) override;
 
-
 	void ProcessNetworkEvent(const ENetEvent& evnt);
+
+	void UpdateClientStateMachine(float dt);
+
+	void CleanHazards();
+
+	void SetMazeParameter(MazeParameter p) { mp = p; }
+	const MazeParameter GetMazeParameter() const { return mp; }
 
 protected:
 	ENetPacket* packet = nullptr;
@@ -27,7 +34,7 @@ protected:
 	NetworkBase network;
 	ENetPeer*	serverConnection;
 
-	uint state;
+	ClientState state;
 
 	MazeParameter mp;
 	MazeData md;

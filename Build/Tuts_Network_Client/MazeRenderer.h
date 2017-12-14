@@ -2,6 +2,7 @@
 
 #include <ncltech\GameObject.h>
 #include <ncltech\CommonMeshes.h>
+#include <ncltech\ScreenPicker.h>
 #include "MazeGenerator.h"
 #include "SearchAlgorithm.h"
 #include <nclgl/Vector2.h>
@@ -31,8 +32,17 @@ public:
 	void DrawPath(const list<Vector3>& path, unsigned mazeSize, unsigned pathSize, float line_width);
 
 	//bool* GetFlatMaze() const { return flat_maze; }
-	void SetStartGoal(Vector2 start, Vector2 goal);
-	//RenderNode* GetStart()								{ return start; }
+	inline void SetStartPosition(Vector2 const start)	{	start_pos = start; IsStartGoalRenewed = true;}
+	inline const Vector2 GetStartPosition() const { return start_pos; }
+	inline void SetGoalPosition(Vector2 const goal)	{	goal_pos = goal; IsStartGoalRenewed = true;}
+	inline const Vector2 GetGoalPosition() const { return goal_pos; }
+
+	inline RenderNode* GetStartSphere() const { return startSphere; }
+	inline void SetStartSphere(RenderNode* node) { startSphere = node; }
+	inline RenderNode* GetGoalSphere() const { return goalSphere; }
+	inline void SetGoalSphere(RenderNode* node) { goalSphere = node; }
+
+	bool IsStartGoalRenewed;
 
 protected:
 	//Turn MazeGenerator data into flat 2D map (3 size x 3 size) of boolean's

@@ -102,19 +102,19 @@ void MazeRenderer::DrawPath(const list<Vector3>& path, unsigned mazeSize, unsign
 	for (auto i=path.begin();i!=path.end();++i)
 	{
 		Vector3 start = transform * Vector3(
-			((*i).x + 0.4f) * grid_scalar,
+			((*i).x + 0.5f) * grid_scalar,
 			0.1f,
-			((*i).y + 0.6f) * grid_scalar);
+			((*i).y + 0.5f) * grid_scalar);
 
 		++i;
 		if (i!=path.end())
 		{
 			Vector3 end = transform * Vector3(
-				((*i).x + 0.4f) * grid_scalar,
+				((*i).x + 0.5f) * grid_scalar,
 				0.1f,
-				((*i).y + 0.6f) * grid_scalar);
+				((*i).y + 0.5f) * grid_scalar);
 
-			NCLDebug::DrawThickLine(start, end, line_width, CommonUtils::GenColor(0.8f + index * col_factor));
+			NCLDebug::DrawThickLineNDT(start, end, line_width, CommonUtils::GenColor(0.8f + index * col_factor));
 		}
 		--i;
 
@@ -185,6 +185,31 @@ uint MazeRenderer::Generate_FlatMaze()
 	return num_walls;
 }
 
+void ClickPointCallback(RenderNode * clickPoint, MazeRenderer * mRender, const Vector2 mazePos, float dt, const Vector3 & newWsPos, const Vector3 & wsMovedAmount, bool stopDragging) {
+	Vector3 clickedPos = newWsPos + wsMovedAmount;
+	
+	if (Window::GetMouse()->ButtonDown(MOUSE_LEFT))
+	{
+		if (mRender->GetStartSphere())
+		{
+			mRender->GetStartSphere()->SetColor(Vector4(0, 0, 0, 0));
+		}
+		clickPoint->SetColor(Vector4(1.f, 0, 0, 1.f));
+		mRender->SetStartSphere(clickPoint);
+		mRender->SetStartPosition(mazePos);
+	}
+	else if (Window::GetMouse()->ButtonDown(MOUSE_RIGHT))
+	{
+		if (mRender->GetGoalSphere())
+		{
+			mRender->GetGoalSphere()->SetColor(Vector4(0, 0, 0, 0));
+		}
+		clickPoint->SetColor(Vector4(0, 1.f, 0, 1.f));
+		mRender->SetGoalSphere(clickPoint);
+		mRender->SetGoalPosition(mazePos);
+	}
+}
+
 void MazeRenderer::Generate_ClickPoints() {
 	RenderNode *clickPoint,*root = Render();
 	const float scalar = 1.f / (float)flat_maze_size;
@@ -206,6 +231,10 @@ void MazeRenderer::Generate_ClickPoints() {
 
 			clickPoint = new RenderNode(sphere, Vector4(0.0f, 0.0f, 0.0f, 0.0f));
 			clickPoint->SetTransform(Matrix4::Translation(cellpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
+			ScreenPicker::Instance()->RegisterNodeForMouseCallback(
+				clickPoint,
+				std::bind(&ClickPointCallback, clickPoint,this, Vector2(i, j), std::placeholders::_1,std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)
+			);
 			root->AddChild(clickPoint);
 		}
 	}
@@ -326,58 +355,58 @@ void MazeRenderer::Generate_BuildRenderNodes()
 	this->SetRender(root);
 }
 
-void MazeRenderer::SetStartGoal(Vector2 start, Vector2 goal) {
-	start_pos = start;
-	goal_pos = goal;
-
-	if (startSphere && goalSphere) {
-		const float scalar = 1.f / (float)flat_maze_size;
-
-		Vector3 cellpos = Vector3(
-			start_pos.x * 3,
-			0.0f,
-			start_pos.y * 3
-		) * scalar;
-		Vector3 cellsize = Vector3(
-			scalar * 2,
-			1.0f,
-			scalar * 2
-		);
-		startSphere->SetTransform(Matrix4::Translation(cellpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
-
-		cellpos = Vector3(
-			goal_pos.x * 3,
-			0.0f,
-			goal_pos.y * 3
-		) * scalar;
-		goalSphere->SetTransform(Matrix4::Translation(cellpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
-	}
-	else {
-		RenderNode *root = Render();
-		const float scalar = 1.f / (float)flat_maze_size;
-
-		Vector3 cellpos = Vector3(
-			start_pos.x * 3,
-			0.0f,
-			start_pos.y * 3
-		) * scalar;
-		Vector3 cellsize = Vector3(
-			scalar * 2,
-			1.0f,
-			scalar * 2
-		);
-
-		startSphere = new RenderNode(sphere, Vector4(0.0f, 1.0f, 0.0f, 1.0f));
-		startSphere->SetTransform(Matrix4::Translation(cellpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
-		root->AddChild(startSphere);
-
-		cellpos = Vector3(
-			goal_pos.x * 3,
-			0.0f,
-			goal_pos.y * 3
-		) * scalar;
-		goalSphere = new RenderNode(sphere, Vector4(1.0f, 0.0f, 0.0f, 1.0f));
-		goalSphere->SetTransform(Matrix4::Translation(cellpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
-		root->AddChild(goalSphere);
-	}
-}
+// void MazeRenderer::SetStartGoal(Vector2 start, Vector2 goal) {
+// 	start_pos = start;
+// 	goal_pos = goal;
+// 
+// 	if (startSphere && goalSphere) {
+// 		const float scalar = 1.f / (float)flat_maze_size;
+// 
+// 		Vector3 cellpos = Vector3(
+// 			start_pos.x * 3,
+// 			0.0f,
+// 			start_pos.y * 3
+// 		) * scalar;
+// 		Vector3 cellsize = Vector3(
+// 			scalar * 2,
+// 			1.0f,
+// 			scalar * 2
+// 		);
+// 		startSphere->SetTransform(Matrix4::Translation(cellpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
+// 
+// 		cellpos = Vector3(
+// 			goal_pos.x * 3,
+// 			0.0f,
+// 			goal_pos.y * 3
+// 		) * scalar;
+// 		goalSphere->SetTransform(Matrix4::Translation(cellpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
+// 	}
+// 	else {
+// 		RenderNode *root = Render();
+// 		const float scalar = 1.f / (float)flat_maze_size;
+// 
+// 		Vector3 cellpos = Vector3(
+// 			start_pos.x * 3,
+// 			0.0f,
+// 			start_pos.y * 3
+// 		) * scalar;
+// 		Vector3 cellsize = Vector3(
+// 			scalar * 2,
+// 			1.0f,
+// 			scalar * 2
+// 		);
+// 
+// 		startSphere = new RenderNode(sphere, Vector4(0.0f, 1.0f, 0.0f, 1.0f));
+// 		startSphere->SetTransform(Matrix4::Translation(cellpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
+// 		root->AddChild(startSphere);
+// 
+// 		cellpos = Vector3(
+// 			goal_pos.x * 3,
+// 			0.0f,
+// 			goal_pos.y * 3
+// 		) * scalar;
+// 		goalSphere = new RenderNode(sphere, Vector4(1.0f, 0.0f, 0.0f, 1.0f));
+// 		goalSphere->SetTransform(Matrix4::Translation(cellpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
+// 		root->AddChild(goalSphere);
+// 	}
+// }

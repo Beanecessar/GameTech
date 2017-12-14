@@ -89,7 +89,6 @@ produce satisfactory results on the networked peers.
 #include <nclgl\OBJMesh.h>
 #include <nclgl\Vector2.h>
 #include "PacketFlag.h"
-#include "NetworkDataset.h"
 
 const Vector3 status_color3 = Vector3(1.0f, 0.6f, 0.6f);
 const Vector4 status_color = Vector4(status_color3.x, status_color3.y, status_color3.z, 1.0f);
@@ -105,7 +104,8 @@ void Net1_Client::OnInitializeScene()
 	state = ClientState::WaitingMazeData;
 	wallMesh = new OBJMesh(MESHDIR"cube.obj");
 
-	srand(94165);
+	mp.size = 16;
+	mp.density = 0.5;
 
 	GLuint whitetex;
 	glGenTextures(1, &whitetex);
@@ -147,7 +147,7 @@ void Net1_Client::OnCleanupScene()
 	SAFE_DELETE(wallMesh);
 
 	avator = nullptr;
-	hazards.clear();
+	CleanHazards();
 
 	//Send one final packet telling the server we are disconnecting
 	// - We are not waiting to resend this, so if it fails to arrive
@@ -165,6 +165,26 @@ void Net1_Client::OnUpdateScene(float dt)
 {
 	Scene::OnUpdateScene(dt);
 
+	//Handle Input
+	if (Window::GetKeyboard()->KeyTriggered(KEYBOARD_1))
+	{
+		mp.size--;
+		state = ClientState::WaitingMazeData;
+		CleanHazards();
+		this->RemoveGameObject(mazeRenderer);
+		SAFE_DELETE(mazeRenderer);
+		avator = nullptr;
+	}
+
+	if (Window::GetKeyboard()->KeyTriggered(KEYBOARD_2))
+	{
+		mp.size++;
+		state = ClientState::WaitingMazeData;
+		CleanHazards();
+		this->RemoveGameObject(mazeRenderer);
+		SAFE_DELETE(mazeRenderer);
+		avator = nullptr;
+	}
 
 	//Update Network
 	auto callback = std::bind(
@@ -173,141 +193,8 @@ void Net1_Client::OnUpdateScene(float dt)
 		std::placeholders::_1);				// Where to place the first parameter
 	network.ServiceNetwork(dt, callback);
 
-	mp.size = 16;
-	mp.density = 0.5;
-
-	switch (state)
-	{
-	case ClientState::WaitingMazeData:
-	{
-		char* data = new char[sizeof(PacketFlag)+sizeof(MazeParameter)];
-
-		PacketFlag pf = PacketFlag::MazeParam;
-		memcpy(data, &pf, sizeof(PacketFlag));
-		unsigned offset = sizeof(PacketFlag);
-
-		memcpy(data+offset, &mp, sizeof(MazeParameter));
-		offset += sizeof(MazeParameter);
-
-		packet = enet_packet_create(data, sizeof(PacketFlag)+sizeof(MazeParameter), 0);
-		enet_peer_send(serverConnection, 0, packet);
-
-		delete[] data;
-	}
-		break;
-
-	case ClientState::CreatingStartGoal:
-	{
-		unsigned x = 0, y = 0;
-		do
-		{
-			x = rand() % mp.size;
-			y = rand() % mp.size;
-		} while (md.flat_maze[y * 3 * md.flat_maze_size + x * 3] || md.flat_maze[(y * 3 + 1)*md.flat_maze_size + x * 3] &&
-			md.flat_maze[y * 3 * md.flat_maze_size + x * 3 + 1] && md.flat_maze[(y * 3 + 1)*md.flat_maze_size + x * 3 + 1]);
-		Vector2 start_position = Vector2(x, y);
-
-		do
-		{
-			x = rand() % mp.size;
-			y = rand() % mp.size;
-		} while (md.flat_maze[y * 3 * md.flat_maze_size + x * 3] || md.flat_maze[(y * 3 + 1)*md.flat_maze_size + x * 3] &&
-			md.flat_maze[y * 3 * md.flat_maze_size + x * 3 + 1] && md.flat_maze[(y * 3 + 1)*md.flat_maze_size + x * 3 + 1]);
-		Vector2 goal_position = Vector2(x, y);	
-
-		char* data = new char[sizeof(PacketFlag) + sizeof(Vector2) * 2];
-
-		PacketFlag pf = PacketFlag::MazeStartGoal;
-		memcpy(data, &pf, sizeof(PacketFlag));
-		unsigned offset = sizeof(PacketFlag);
-
-		memcpy(data + offset, &start_position, sizeof(Vector2));
-		offset += sizeof(Vector2);
-
-		memcpy(data + offset, &goal_position, sizeof(Vector2));
-		offset += sizeof(Vector2);
-
-		packet = enet_packet_create(data, sizeof(PacketFlag)+sizeof(Vector2) * 2, 0);
-
-		enet_peer_send(serverConnection, 0, packet);
-
-		delete[] data;
-
-		state = ClientState::WaitingPath;
-	}
-	break;
-
-	case ClientState::WaitingPath:
-		if (packet)
-		{
-			enet_peer_send(serverConnection, 0, packet);
-		}
-		break;
-
-	case ClientState::CreatingAvator:
-	{
-		float scalar = 1.f / (float)md.flat_maze_size;
-		Vector3 cellpos = Vector3(
-			currentPos.x * 3,
-			0.0f,
-			currentPos.y * 3
-		) * scalar;
-		Vector3 cellsize = Vector3(
-			scalar * 2,
-			1.0f,
-			scalar * 2
-		);
-
-		avator = new RenderNode(CommonMeshes::Cube(), Vector4(0.0f, 1.0f, 0.0f, 1.0f));
-		avator->SetTransform(Matrix4::Translation(cellpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
-		mazeRenderer->Render()->AddChild(avator);
-
-		state = ClientState::WaitingPosition;
-	}
-		break;
-	case ClientState::WaitingPosition:
-	{
-		float scalar = 1.f / (float)md.flat_maze_size;
-		Vector3 curpos = Vector3(
-			currentPos.x * 3,
-			0.0f,
-			currentPos.y * 3
-		) * scalar;
-		Vector3 cellsize = Vector3(
-			scalar * 2,
-			1.0f,
-			scalar * 2
-		);
-
-		avator->SetTransform(Matrix4::Translation(curpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
-
-		if (!hazards.empty())
-		{
-			//Update hazard positions
-			for (auto i = hazards.begin(); i != hazards.end(); i++)
-			{
-				Vector3 hazpos = Vector3(
-					(*i).second.x * 3,
-					0.0f,
-					(*i).second.y * 3
-				) * scalar;
-
-				(*i).first->SetTransform(Matrix4::Translation(hazpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.4f));
-			}
-		}
-
-		mazeRenderer->DrawPath(path, mp.size, pathSize, 1.0f / mp.size);
-
-		PacketFlag pf = PacketFlag::CreateAvator;
-
-		packet = enet_packet_create(&pf, sizeof(PacketFlag), 0);
-
-		enet_peer_send(serverConnection, 0, packet);
-	}
-	break;
-	default:
-		break;
-	}
+	//Update state machine
+	UpdateClientStateMachine(dt);
 
 	//Add Debug Information to screen
 	uint8_t ip1 = serverConnection->address.host & 0xFF;
@@ -318,6 +205,9 @@ void Net1_Client::OnUpdateScene(float dt)
 // 	NCLDebug::DrawTextWs(box->Physics()->GetPosition() + Vector3(0.f, 0.6f, 0.f), STATUS_TEXT_SIZE, TEXTALIGN_CENTRE, Vector4(0.f, 0.f, 0.f, 1.f),
 // 		"Peer: %u.%u.%u.%u:%u", ip1, ip2, ip3, ip4, serverConnection->address.port);
 
+	NCLDebug::AddStatusEntry(status_color, "Controls");
+	NCLDebug::AddStatusEntry(status_color, "	Press 1 to decrease maze size");
+	NCLDebug::AddStatusEntry(status_color, "	Press 2 to increase maze size");
 	
 	NCLDebug::AddStatusEntry(status_color, "Network Traffic");
 	NCLDebug::AddStatusEntry(status_color, "    Incoming: %5.2fKbps", network.m_IncomingKb);
@@ -479,4 +369,151 @@ void Net1_Client::ProcessNetworkEvent(const ENetEvent& evnt)
 		}
 		break;
 	}
+}
+
+void Net1_Client::UpdateClientStateMachine(float dt) {
+	if (mazeRenderer&&mazeRenderer->IsStartGoalRenewed&&mazeRenderer->GetStartPosition().x > 0 && mazeRenderer->GetGoalPosition().x > 0)
+	{
+		CleanHazards();
+		mazeRenderer->IsStartGoalRenewed = false;
+		state = ClientState::CreatingStartGoal;
+	}
+
+	switch (state)
+	{
+	case ClientState::WaitingMazeData:
+	{
+		char* data = new char[sizeof(PacketFlag) + sizeof(MazeParameter)];
+
+		PacketFlag pf = PacketFlag::MazeParam;
+		memcpy(data, &pf, sizeof(PacketFlag));
+		unsigned offset = sizeof(PacketFlag);
+
+		memcpy(data + offset, &mp, sizeof(MazeParameter));
+		offset += sizeof(MazeParameter);
+
+		packet = enet_packet_create(data, sizeof(PacketFlag) + sizeof(MazeParameter), 0);
+		enet_peer_send(serverConnection, 0, packet);
+
+		delete[] data;
+	}
+	break;
+
+	case ClientState::CreatingStartGoal:
+	{
+		Vector2 start_position = mazeRenderer->GetStartPosition();
+		Vector2 goal_position = mazeRenderer->GetGoalPosition();
+
+		if (start_position.x > 0 && goal_position.x > 0)
+		{
+			mazeRenderer->IsStartGoalRenewed = false;
+
+			char* data = new char[sizeof(PacketFlag) + sizeof(Vector2) * 2];
+
+			PacketFlag pf = PacketFlag::MazeStartGoal;
+			memcpy(data, &pf, sizeof(PacketFlag));
+			unsigned offset = sizeof(PacketFlag);
+
+			memcpy(data + offset, &start_position, sizeof(Vector2));
+			offset += sizeof(Vector2);
+
+			memcpy(data + offset, &goal_position, sizeof(Vector2));
+			offset += sizeof(Vector2);
+
+			packet = enet_packet_create(data, sizeof(PacketFlag) + sizeof(Vector2) * 2, 0);
+
+			enet_peer_send(serverConnection, 0, packet);
+
+			delete[] data;
+
+			state = ClientState::WaitingPath;
+		}
+	}
+	break;
+
+	case ClientState::WaitingPath:
+		if (packet)
+		{
+			enet_peer_send(serverConnection, 0, packet);
+		}
+		break;
+
+	case ClientState::CreatingAvator:
+	{
+		float scalar = 1.f / (float)md.flat_maze_size;
+		Vector3 cellpos = Vector3(
+			currentPos.x * 3,
+			0.0f,
+			currentPos.y * 3
+		) * scalar;
+		Vector3 cellsize = Vector3(
+			scalar * 2,
+			1.0f,
+			scalar * 2
+		);
+
+		if(!avator)
+			avator = new RenderNode(CommonMeshes::Cube(), Vector4(0.0f, 1.0f, 0.0f, 1.0f));
+		avator->SetTransform(Matrix4::Translation(cellpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
+		mazeRenderer->Render()->AddChild(avator);
+
+		state = ClientState::WaitingPosition;
+	}
+	break;
+	case ClientState::WaitingPosition:
+	{
+		float scalar = 1.f / (float)md.flat_maze_size;
+		Vector3 curpos = Vector3(
+			currentPos.x * 3,
+			0.0f,
+			currentPos.y * 3
+		) * scalar;
+		Vector3 cellsize = Vector3(
+			scalar * 2,
+			1.0f,
+			scalar * 2
+		);
+
+		avator->SetTransform(Matrix4::Translation(curpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.5f));
+
+		if (!hazards.empty())
+		{
+			//Update hazard positions
+			for (auto i = hazards.begin(); i != hazards.end(); i++)
+			{
+				Vector3 hazpos = Vector3(
+					(*i).second.x * 3,
+					0.0f,
+					(*i).second.y * 3
+				) * scalar;
+
+				(*i).first->SetTransform(Matrix4::Translation(hazpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.4f));
+			}
+		}
+
+		mazeRenderer->DrawPath(path, mp.size, pathSize, 1.0f / mp.size);
+
+		PacketFlag pf = PacketFlag::CreateAvator;
+
+		packet = enet_packet_create(&pf, sizeof(PacketFlag), 0);
+
+		enet_peer_send(serverConnection, 0, packet);
+	}
+	break;
+	default:
+		break;
+	}
+}
+
+void Net1_Client::CleanHazards() {
+	if (mazeRenderer)
+	{
+		for (auto i = hazards.begin(); i != hazards.end(); ++i)
+		{
+			mazeRenderer->Render()->RemoveChild((*i).first);
+			delete (*i).first;
+		}
+	}
+	
+	hazards.clear();
 }

@@ -34,6 +34,7 @@ FOR MORE NETWORKING INFORMATION SEE "Tuts_Network_Client -> Net1_Client.h"
 
 #pragma once
 
+#include <iomanip>
 #include <enet\enet.h>
 #include <nclgl\GameTimer.h>
 #include <nclgl\Vector3.h>
@@ -55,7 +56,7 @@ class SearchAStar;
 
 
 #define SERVER_PORT 1234
-#define UPDATE_TIMESTEP (1.0f / 30.0f) //send 30 position updates per second
+#define UPDATE_TIMESTEP 1.0f //Output network traffic per second
 
 NetworkBase server;
 GameTimer timer;
@@ -215,6 +216,9 @@ int main(int arcg, char** argv)
 					cout << evnt.peer->incomingPeerID << "-> State: " << clients[evnt.peer->incomingPeerID].state << ", Packet flag: " << pf << endl;
 
 					if (pf == PacketFlag::MazeParam) {
+						//Reinitializing
+						hazards.clear();
+
 						MazeParameter mp;
 						memcpy(&mp, evnt.packet->data + offset, sizeof(MazeParameter));
 
@@ -242,15 +246,6 @@ int main(int arcg, char** argv)
 
 						bool* maze = mazeRen->GetFlatMaze();
 
-						// 					for (unsigned i = 0; i < flatSize; ++i)
-						// 					{
-						// 						for (unsigned j = 0; j < flatSize; ++j)
-						// 						{
-						// 							cout << (maze[flatSize*i + j] ? "1" : ".");
-						// 						}
-						// 						cout << endl;
-						// 					}
-
 						ENetPacket* packet = enet_packet_create(data, offset, 0);
 						enet_host_broadcast(server.m_pNetwork, 0, packet);
 
@@ -263,9 +258,7 @@ int main(int arcg, char** argv)
 					}
 
 					//Waiting client send start and goal position
-					if (clients[evnt.peer->incomingPeerID].state == ServerState::WaitingStartGoal)
-					{
-						if (pf == PacketFlag::MazeStartGoal)
+					if (pf == PacketFlag::MazeStartGoal)
 						{
 							Vector2 start_pos, goal_pos;
 							memcpy(&start_pos, evnt.packet->data + offset, sizeof(Vector2));
@@ -321,18 +314,19 @@ int main(int arcg, char** argv)
 
 							clients[evnt.peer->incomingPeerID].state = ServerState::WaitingInstruction;
 						}
-					}
-					else if (clients[evnt.peer->incomingPeerID].state == ServerState::WaitingInstruction)
+					if (clients[evnt.peer->incomingPeerID].state == ServerState::WaitingInstruction)
 					{
 						if (pf == PacketFlag::CreateAvator)
 						{
-							hazards.clear();
-							for (size_t i = 0; i < numOfHazards; i++)
+							if (hazards.empty())
 							{
-								Hazard* hazard = new Hazard(mazeGen);
-								hazard->SetTarget(&clients[evnt.peer->incomingPeerID].currentPos);
+								for (size_t i = 0; i < numOfHazards; i++)
+								{
+									Hazard* hazard = new Hazard(mazeGen);
+									hazard->SetTarget(&clients[evnt.peer->incomingPeerID].currentPos);
 
-								hazards.push_back(hazard);
+									hazards.push_back(hazard);
+								}
 							}
 
 							clients[evnt.peer->incomingPeerID].currentPos = clients[evnt.peer->incomingPeerID].startPos;
@@ -427,6 +421,10 @@ int main(int arcg, char** argv)
 			//   though this can be any variable, structure or class you wish. Just remember that everything 
 			//   you send takes up valuable network bandwidth so no sending every PhysicsObject struct each frame ;)
 			accum_time = 0.0f;
+
+			cout << "Network traffic:" << endl;
+			cout << "Incoming: " << setprecision(2) << server.m_IncomingKb << "Kbps" << endl;
+			cout << "Outgoing: " << setprecision(2) << server.m_OutgoingKb << "Kbps" << endl;
 
 			//Create the packet and broadcast it (unreliable transport) to all clients
 

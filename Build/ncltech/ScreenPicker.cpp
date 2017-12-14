@@ -292,7 +292,7 @@ void ScreenPicker::HandleObjectMouseHover(PickerNode* target)
 		m_CurrentObjectBaseColor = target->_renderNode->GetColor();
 
 		//Set color to highlight color
-		target->_renderNode->SetColor(m_CurrentObjectBaseColor + Vector4(0.1f, 0.1f, 0.1f, 0.0f));
+		//target->_renderNode->SetColor(m_CurrentObjectBaseColor + Vector4(0.1f, 0.1f, 0.1f, 0.0f));
 
 		Window::GetWindow().SetCursorStyle(CURSOR_STYLE_GRAB);
 	}
@@ -303,7 +303,7 @@ void ScreenPicker::HandleObjectMouseLeave()
 	if (m_pCurrentlyHoverObject)
 	{
 		//Set color back to original object color
-		m_pCurrentlyHoverObject->_renderNode->SetColor(m_CurrentObjectBaseColor);
+		//m_pCurrentlyHoverObject->_renderNode->SetColor(m_CurrentObjectBaseColor);
 		m_pCurrentlyHoverObject = NULL;
 
 		Window::GetWindow().SetCursorStyle(CURSOR_STYLE_DEFAULT);
@@ -321,7 +321,7 @@ void ScreenPicker::HandleObjectMouseDown(PickerNode* target)
 		m_ObjOffset = target->_renderNode->GetWorldTransform().GetPositionVector() - m_OldWorldSpacePos;
 
 		//Set color to clicked color
-		target->_renderNode->SetColor(m_CurrentObjectBaseColor + Vector4(0.2f, 0.2f, 0.2f, 0.0f));
+		//target->_renderNode->SetColor(m_CurrentObjectBaseColor + Vector4(0.2f, 0.2f, 0.2f, 0.0f));
 	}
 }
 
@@ -342,7 +342,7 @@ void ScreenPicker::HandleObjectMouseUp(float dt, Vector3& clip_space)
 		}
 
 		//Set color back to 'hover' color
-		m_pCurrentlyHeldObject->_renderNode->SetColor(m_CurrentObjectBaseColor + Vector4(0.1f, 0.1f, 0.1f, 0.0f));
+		//m_pCurrentlyHeldObject->_renderNode->SetColor(m_CurrentObjectBaseColor + Vector4(0.1f, 0.1f, 0.1f, 0.0f));
 
 		m_pCurrentlyHeldObject = NULL;
 	}
