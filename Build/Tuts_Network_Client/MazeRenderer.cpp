@@ -195,7 +195,7 @@ uint MazeRenderer::Generate_FlatMaze()
 }
 
 void ClickPointCallback(RenderNode * clickPoint, MazeRenderer * mRender, const Vector2 mazePos, float dt, const Vector3 & newWsPos, const Vector3 & wsMovedAmount, bool stopDragging) {
-	static unsigned LastClickLeft = 0;
+	static unsigned LastClick = 0;
 	Vector3 clickedPos = newWsPos + wsMovedAmount;
 	
 	if (Window::GetMouse()->ButtonDown(MOUSE_LEFT))
@@ -206,7 +206,7 @@ void ClickPointCallback(RenderNode * clickPoint, MazeRenderer * mRender, const V
 		}
 		clickPoint->SetColor(Vector4(1.f, 0, 0, 1.f));
 
-		LastClickLeft = 0;
+		LastClick = 1;
 	}
 	else if (Window::GetMouse()->ButtonDown(MOUSE_RIGHT))
 	{
@@ -216,25 +216,28 @@ void ClickPointCallback(RenderNode * clickPoint, MazeRenderer * mRender, const V
 		}
 		clickPoint->SetColor(Vector4(0, 1.f, 0, 1.f));
 		
-		LastClickLeft = 1;
+		LastClick = 2;
 	}
 	else if (Window::GetMouse()->ButtonDown(MOUSE_MIDDLE))
 	{
-		LastClickLeft = 2;
+		LastClick = 3;
 	}
 
 	if (stopDragging) {
-		if (LastClickLeft == 0) {
+		if (LastClick == 1) {
 			mRender->SetStartSphere(clickPoint);
 			mRender->SetStartPosition(mazePos);
+			LastClick = 0;
 		}
-		else if(LastClickLeft == 1) {
+		else if(LastClick == 2) {
 			mRender->SetGoalSphere(clickPoint);
 			mRender->SetGoalPosition(mazePos);
+			LastClick = 0;
 		}
-		else {
+		else if(LastClick == 3){
 			mRender->SetStoneSphere(clickPoint);
 			mRender->SetStonePosition(mazePos);
+			LastClick = 0;
 		}
 	}
 }

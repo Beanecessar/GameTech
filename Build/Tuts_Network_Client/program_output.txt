@@ -1,87 +1,512 @@
-[22:45:23] Loading Shader:
-[22:45:23]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechVertexBasic.glsl
-[22:45:23]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechFragSuperSample.glsl
-[22:45:23]     -> Linking Shader: Success!
-[22:45:23] 
-[22:45:23] Loading Shader:
-[22:45:23]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechVertexShadow.glsl
-[22:45:23]     -> Compiling Shader: ../../Data/Shaders/Common/EmptyFragment.glsl
-[22:45:23]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechGeomShadow.glsl
-[22:45:23]     -> Linking Shader: Success!
-[22:45:23] 
-[22:45:23] Loading Shader:
-[22:45:23]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechVertexFull.glsl
-[22:45:23]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechFragForwardRender.glsl
-[22:45:23]     -> Linking Shader: Success!
-[22:45:23] 
-[22:45:23] Loading Shader:
-[22:45:23]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/PointVertex.glsl
-[22:45:23]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/PointFragment.glsl
-[22:45:23]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/PointGeometry.glsl
-[22:45:23]     -> Linking Shader: Success!
-[22:45:23] 
-[22:45:23] Loading Shader:
-[22:45:23]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/Vertex.glsl
-[22:45:23]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/Fragment.glsl
-[22:45:23]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/LineGeometry.glsl
-[22:45:23]     -> Linking Shader: Success!
-[22:45:23] 
-[22:45:23] Loading Shader:
-[22:45:23]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/VertexColOnly.glsl
-[22:45:23]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/Fragment.glsl
-[22:45:23]     -> Linking Shader: Success!
-[22:45:23] 
-[22:45:23] Loading Shader:
-[22:45:23]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/TextVertex.glsl
-[22:45:23]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/TextFragment.glsl
-[22:45:23]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/TextGeometry.glsl
-[22:45:23]     -> Linking Shader: Success!
-[22:45:23] 
-[22:45:23] Loading Shader:
-[22:45:23]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechVertexPicker.glsl
-[22:45:23]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechFragScreenPicker_nsightfix.glsl
-[22:45:23]     -> Linking Shader: Success!
-[22:45:23] 
-[22:45:23] Loading Mesh: ../../Data/Meshes/cube.obj
-[22:45:23] 
-[22:45:23] Loading Mesh: ../../Data/Meshes/sphere.obj
-[22:45:23] 
-[22:45:23] [SceneManager] - Enqueued scene: "Network #1 - Example Client"
-[22:45:23] 
-[22:45:23] Loading Mesh: ../../Data/Meshes/cube.obj
-[22:45:23] 
-[22:45:23] Network: Initialized!
-[22:45:23] Network: Attempting to connect to server.
-[22:45:23] [SceneManager] - Scene switched to: "Network #1 - Example Client"
-[22:45:23] Network: Successfully connected to server!
-[22:45:30] Physics too slow to run in real time!
-[22:46:12] Physics too slow to run in real time!
-[22:46:15] Physics too slow to run in real time!
-[22:46:16] Physics too slow to run in real time!
-[22:46:16] Physics too slow to run in real time!
-[22:46:17] Physics too slow to run in real time!
-[22:46:17] Physics too slow to run in real time!
-[22:46:18] Physics too slow to run in real time!
-[22:46:18] Physics too slow to run in real time!
-[22:46:20] Network: Server has disconnected!
-[22:46:20] Physics too slow to run in real time!
-[22:46:20] Physics too slow to run in real time!
-[22:46:20] Physics too slow to run in real time!
-[22:46:21] Physics too slow to run in real time!
-[22:46:21] Physics too slow to run in real time!
-[22:46:21] Physics too slow to run in real time!
-[22:46:21] Physics too slow to run in real time!
-[22:46:22] Physics too slow to run in real time!
-[22:46:22] Physics too slow to run in real time!
-[22:46:23] Physics too slow to run in real time!
-[22:46:23] Physics too slow to run in real time!
-[22:46:25] Physics too slow to run in real time!
-[22:46:26] Physics too slow to run in real time!
-[22:46:26] Physics too slow to run in real time!
-[22:46:27] Physics too slow to run in real time!
-[22:46:27] Physics too slow to run in real time!
-[22:46:28] Physics too slow to run in real time!
-[22:46:29] Physics too slow to run in real time!
-[22:46:29] Physics too slow to run in real time!
-[22:46:42] Physics too slow to run in real time!
-[22:46:51] Physics too slow to run in real time!
+[08:35:28] Loading Shader:
+[08:35:28]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechVertexBasic.glsl
+[08:35:28]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechFragSuperSample.glsl
+[08:35:28]     -> Linking Shader: Success!
+[08:35:28] 
+[08:35:28] Loading Shader:
+[08:35:28]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechVertexShadow.glsl
+[08:35:28]     -> Compiling Shader: ../../Data/Shaders/Common/EmptyFragment.glsl
+[08:35:28]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechGeomShadow.glsl
+[08:35:28]     -> Linking Shader: Success!
+[08:35:28] 
+[08:35:28] Loading Shader:
+[08:35:28]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechVertexFull.glsl
+[08:35:28]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechFragForwardRender.glsl
+[08:35:28]     -> Linking Shader: Success!
+[08:35:28] 
+[08:35:28] Loading Shader:
+[08:35:28]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/PointVertex.glsl
+[08:35:28]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/PointFragment.glsl
+[08:35:28]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/PointGeometry.glsl
+[08:35:28]     -> Linking Shader: Success!
+[08:35:28] 
+[08:35:28] Loading Shader:
+[08:35:28]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/Vertex.glsl
+[08:35:28]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/Fragment.glsl
+[08:35:28]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/LineGeometry.glsl
+[08:35:28]     -> Linking Shader: Success!
+[08:35:28] 
+[08:35:28] Loading Shader:
+[08:35:28]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/VertexColOnly.glsl
+[08:35:28]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/Fragment.glsl
+[08:35:28]     -> Linking Shader: Success!
+[08:35:28] 
+[08:35:28] Loading Shader:
+[08:35:28]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/TextVertex.glsl
+[08:35:28]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/TextFragment.glsl
+[08:35:28]     -> Compiling Shader: ../../Data/Shaders/DebugShaders/TextGeometry.glsl
+[08:35:28]     -> Linking Shader: Success!
+[08:35:28] 
+[08:35:28] Loading Shader:
+[08:35:28]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechVertexPicker.glsl
+[08:35:28]     -> Compiling Shader: ../../Data/Shaders/SceneRenderer/TechFragScreenPicker_nsightfix.glsl
+[08:35:28]     -> Linking Shader: Success!
+[08:35:28] 
+[08:35:28] Loading Mesh: ../../Data/Meshes/cube.obj
+[08:35:28] 
+[08:35:28] Loading Mesh: ../../Data/Meshes/sphere.obj
+[08:35:28] 
+[08:35:28] [SceneManager] - Enqueued scene: "Network #1 - Example Client"
+[08:35:28] 
+[08:35:28] Loading Mesh: ../../Data/Meshes/cube.obj
+[08:35:28] 
+[08:35:28] Network: Initialized!
+[08:35:28] Network: Attempting to connect to server.
+[08:35:28] [SceneManager] - Scene switched to: "Network #1 - Example Client"
+[08:35:28] Network: Successfully connected to server!
+[08:35:28] Physics too slow to run in real time!
+[08:35:29] Physics too slow to run in real time!
+[08:35:30] Physics too slow to run in real time!
+[08:35:30] Physics too slow to run in real time!
+[08:35:30] Physics too slow to run in real time!
+[08:35:31] Physics too slow to run in real time!
+[08:35:31] Physics too slow to run in real time!
+[08:35:31] Physics too slow to run in real time!
+[08:35:32] Physics too slow to run in real time!
+[08:35:32] Physics too slow to run in real time!
+[08:35:32] Physics too slow to run in real time!
+[08:35:32] Physics too slow to run in real time!
+[08:35:33] Physics too slow to run in real time!
+[08:35:33] Physics too slow to run in real time!
+[08:35:33] Physics too slow to run in real time!
+[08:35:34] Physics too slow to run in real time!
+[08:35:34] Physics too slow to run in real time!
+[08:35:34] Physics too slow to run in real time!
+[08:35:34] Physics too slow to run in real time!
+[08:35:35] Physics too slow to run in real time!
+[08:35:35] Physics too slow to run in real time!
+[08:35:35] Physics too slow to run in real time!
+[08:35:35] Physics too slow to run in real time!
+[08:35:35] Physics too slow to run in real time!
+[08:35:36] Physics too slow to run in real time!
+[08:35:36] Physics too slow to run in real time!
+[08:35:36] Physics too slow to run in real time!
+[08:35:36] Physics too slow to run in real time!
+[08:35:36] Physics too slow to run in real time!
+[08:35:37] Physics too slow to run in real time!
+[08:35:37] Physics too slow to run in real time!
+[08:35:37] Physics too slow to run in real time!
+[08:35:37] Physics too slow to run in real time!
+[08:35:37] Physics too slow to run in real time!
+[08:35:38] Physics too slow to run in real time!
+[08:35:38] Physics too slow to run in real time!
+[08:35:38] Physics too slow to run in real time!
+[08:35:38] Physics too slow to run in real time!
+[08:35:38] Physics too slow to run in real time!
+[08:35:39] Physics too slow to run in real time!
+[08:35:39] Physics too slow to run in real time!
+[08:35:39] Physics too slow to run in real time!
+[08:35:40] Physics too slow to run in real time!
+[08:35:40] Physics too slow to run in real time!
+[08:35:40] Physics too slow to run in real time!
+[08:35:40] Physics too slow to run in real time!
+[08:35:40] Physics too slow to run in real time!
+[08:35:41] Physics too slow to run in real time!
+[08:35:41] Physics too slow to run in real time!
+[08:35:41] Physics too slow to run in real time!
+[08:35:41] Physics too slow to run in real time!
+[08:35:41] Physics too slow to run in real time!
+[08:35:42] Physics too slow to run in real time!
+[08:35:42] Physics too slow to run in real time!
+[08:35:42] Physics too slow to run in real time!
+[08:35:42] Physics too slow to run in real time!
+[08:35:42] Physics too slow to run in real time!
+[08:35:43] Physics too slow to run in real time!
+[08:35:43] Physics too slow to run in real time!
+[08:35:43] Physics too slow to run in real time!
+[08:35:43] Physics too slow to run in real time!
+[08:35:43] Physics too slow to run in real time!
+[08:35:44] Physics too slow to run in real time!
+[08:35:44] Physics too slow to run in real time!
+[08:35:44] Physics too slow to run in real time!
+[08:35:44] Physics too slow to run in real time!
+[08:35:44] Physics too slow to run in real time!
+[08:35:45] Physics too slow to run in real time!
+[08:35:45] Physics too slow to run in real time!
+[08:35:45] Physics too slow to run in real time!
+[08:35:45] Physics too slow to run in real time!
+[08:35:45] Physics too slow to run in real time!
+[08:35:46] Physics too slow to run in real time!
+[08:35:46] Physics too slow to run in real time!
+[08:35:46] Physics too slow to run in real time!
+[08:35:47] Physics too slow to run in real time!
+[08:35:47] Physics too slow to run in real time!
+[08:35:47] Physics too slow to run in real time!
+[08:35:47] Physics too slow to run in real time!
+[08:35:47] Physics too slow to run in real time!
+[08:35:48] Physics too slow to run in real time!
+[08:35:48] Physics too slow to run in real time!
+[08:35:48] Physics too slow to run in real time!
+[08:35:48] Physics too slow to run in real time!
+[08:35:48] Physics too slow to run in real time!
+[08:35:49] Physics too slow to run in real time!
+[08:35:49] Physics too slow to run in real time!
+[08:35:49] Physics too slow to run in real time!
+[08:35:50] Physics too slow to run in real time!
+[08:35:50] Physics too slow to run in real time!
+[08:35:50] Physics too slow to run in real time!
+[08:35:50] Physics too slow to run in real time!
+[08:35:50] Physics too slow to run in real time!
+[08:35:51] Physics too slow to run in real time!
+[08:35:51] Physics too slow to run in real time!
+[08:35:51] Physics too slow to run in real time!
+[08:35:51] Physics too slow to run in real time!
+[08:35:52] Physics too slow to run in real time!
+[08:35:52] Physics too slow to run in real time!
+[08:35:52] Physics too slow to run in real time!
+[08:35:52] Physics too slow to run in real time!
+[08:35:53] Physics too slow to run in real time!
+[08:35:53] Physics too slow to run in real time!
+[08:35:53] Physics too slow to run in real time!
+[08:35:53] Physics too slow to run in real time!
+[08:35:53] Physics too slow to run in real time!
+[08:35:53] Physics too slow to run in real time!
+[08:35:53] Physics too slow to run in real time!
+[08:35:54] Physics too slow to run in real time!
+[08:35:54] Physics too slow to run in real time!
+[08:35:54] Physics too slow to run in real time!
+[08:35:54] Physics too slow to run in real time!
+[08:35:55] Physics too slow to run in real time!
+[08:35:55] Physics too slow to run in real time!
+[08:35:55] Physics too slow to run in real time!
+[08:35:55] Physics too slow to run in real time!
+[08:35:55] Physics too slow to run in real time!
+[08:35:55] Physics too slow to run in real time!
+[08:35:56] Physics too slow to run in real time!
+[08:35:56] Physics too slow to run in real time!
+[08:35:56] Physics too slow to run in real time!
+[08:35:56] Physics too slow to run in real time!
+[08:35:57] Physics too slow to run in real time!
+[08:35:57] Physics too slow to run in real time!
+[08:35:58] Physics too slow to run in real time!
+[08:35:58] Physics too slow to run in real time!
+[08:35:58] Physics too slow to run in real time!
+[08:35:58] Physics too slow to run in real time!
+[08:35:58] Physics too slow to run in real time!
+[08:35:58] Physics too slow to run in real time!
+[08:35:59] Physics too slow to run in real time!
+[08:35:59] Physics too slow to run in real time!
+[08:35:59] Physics too slow to run in real time!
+[08:35:59] Physics too slow to run in real time!
+[08:35:59] Physics too slow to run in real time!
+[08:35:59] Physics too slow to run in real time!
+[08:36:00] Physics too slow to run in real time!
+[08:36:00] Physics too slow to run in real time!
+[08:36:00] Physics too slow to run in real time!
+[08:36:00] Physics too slow to run in real time!
+[08:36:00] Physics too slow to run in real time!
+[08:36:00] Physics too slow to run in real time!
+[08:36:01] Physics too slow to run in real time!
+[08:36:01] Physics too slow to run in real time!
+[08:36:01] Physics too slow to run in real time!
+[08:36:01] Physics too slow to run in real time!
+[08:36:02] Physics too slow to run in real time!
+[08:36:02] Physics too slow to run in real time!
+[08:36:02] Physics too slow to run in real time!
+[08:36:02] Physics too slow to run in real time!
+[08:36:03] Physics too slow to run in real time!
+[08:36:03] Physics too slow to run in real time!
+[08:36:03] Physics too slow to run in real time!
+[08:36:03] Physics too slow to run in real time!
+[08:36:03] Physics too slow to run in real time!
+[08:36:04] Physics too slow to run in real time!
+[08:36:04] Physics too slow to run in real time!
+[08:36:05] Physics too slow to run in real time!
+[08:36:05] Physics too slow to run in real time!
+[08:36:05] Physics too slow to run in real time!
+[08:36:05] Physics too slow to run in real time!
+[08:36:05] Physics too slow to run in real time!
+[08:36:05] Physics too slow to run in real time!
+[08:36:06] Physics too slow to run in real time!
+[08:36:06] Physics too slow to run in real time!
+[08:36:06] Physics too slow to run in real time!
+[08:36:06] Physics too slow to run in real time!
+[08:36:06] Physics too slow to run in real time!
+[08:36:07] Physics too slow to run in real time!
+[08:36:07] Physics too slow to run in real time!
+[08:36:07] Physics too slow to run in real time!
+[08:36:07] Physics too slow to run in real time!
+[08:36:08] Physics too slow to run in real time!
+[08:36:08] Physics too slow to run in real time!
+[08:36:08] Physics too slow to run in real time!
+[08:36:08] Physics too slow to run in real time!
+[08:36:08] Physics too slow to run in real time!
+[08:36:08] Physics too slow to run in real time!
+[08:36:09] Physics too slow to run in real time!
+[08:36:09] Physics too slow to run in real time!
+[08:36:09] Physics too slow to run in real time!
+[08:36:10] Physics too slow to run in real time!
+[08:36:10] Physics too slow to run in real time!
+[08:36:10] Physics too slow to run in real time!
+[08:36:10] Physics too slow to run in real time!
+[08:36:10] Physics too slow to run in real time!
+[08:36:11] Physics too slow to run in real time!
+[08:36:11] Physics too slow to run in real time!
+[08:36:11] Physics too slow to run in real time!
+[08:36:11] Physics too slow to run in real time!
+[08:36:11] Physics too slow to run in real time!
+[08:36:11] Physics too slow to run in real time!
+[08:36:12] Physics too slow to run in real time!
+[08:36:12] Physics too slow to run in real time!
+[08:36:12] Physics too slow to run in real time!
+[08:36:12] Physics too slow to run in real time!
+[08:36:12] Physics too slow to run in real time!
+[08:36:13] Physics too slow to run in real time!
+[08:36:13] Physics too slow to run in real time!
+[08:36:13] Physics too slow to run in real time!
+[08:36:13] Physics too slow to run in real time!
+[08:36:13] Physics too slow to run in real time!
+[08:36:14] Physics too slow to run in real time!
+[08:36:14] Physics too slow to run in real time!
+[08:36:14] Physics too slow to run in real time!
+[08:36:14] Physics too slow to run in real time!
+[08:36:14] Physics too slow to run in real time!
+[08:36:15] Physics too slow to run in real time!
+[08:36:15] Physics too slow to run in real time!
+[08:36:15] Physics too slow to run in real time!
+[08:36:15] Physics too slow to run in real time!
+[08:36:16] Physics too slow to run in real time!
+[08:36:16] Physics too slow to run in real time!
+[08:36:16] Physics too slow to run in real time!
+[08:36:16] Physics too slow to run in real time!
+[08:36:17] Physics too slow to run in real time!
+[08:36:17] Physics too slow to run in real time!
+[08:36:17] Physics too slow to run in real time!
+[08:36:17] Physics too slow to run in real time!
+[08:36:18] Physics too slow to run in real time!
+[08:36:18] Physics too slow to run in real time!
+[08:36:18] Physics too slow to run in real time!
+[08:36:18] Physics too slow to run in real time!
+[08:36:18] Physics too slow to run in real time!
+[08:36:19] Physics too slow to run in real time!
+[08:36:19] Physics too slow to run in real time!
+[08:36:20] Physics too slow to run in real time!
+[08:36:20] Physics too slow to run in real time!
+[08:36:20] Physics too slow to run in real time!
+[08:36:20] Physics too slow to run in real time!
+[08:36:20] Physics too slow to run in real time!
+[08:36:21] Physics too slow to run in real time!
+[08:36:21] Physics too slow to run in real time!
+[08:36:21] Physics too slow to run in real time!
+[08:36:21] Physics too slow to run in real time!
+[08:36:22] Physics too slow to run in real time!
+[08:36:22] Physics too slow to run in real time!
+[08:36:22] Physics too slow to run in real time!
+[08:36:22] Physics too slow to run in real time!
+[08:36:22] Physics too slow to run in real time!
+[08:36:23] Physics too slow to run in real time!
+[08:36:23] Physics too slow to run in real time!
+[08:36:23] Physics too slow to run in real time!
+[08:36:24] Physics too slow to run in real time!
+[08:36:24] Physics too slow to run in real time!
+[08:36:24] Physics too slow to run in real time!
+[08:36:24] Physics too slow to run in real time!
+[08:36:24] Physics too slow to run in real time!
+[08:36:25] Physics too slow to run in real time!
+[08:36:25] Physics too slow to run in real time!
+[08:36:25] Physics too slow to run in real time!
+[08:36:25] Physics too slow to run in real time!
+[08:36:26] Physics too slow to run in real time!
+[08:36:26] Physics too slow to run in real time!
+[08:36:26] Physics too slow to run in real time!
+[08:36:26] Physics too slow to run in real time!
+[08:36:27] Physics too slow to run in real time!
+[08:36:27] Physics too slow to run in real time!
+[08:36:27] Physics too slow to run in real time!
+[08:36:27] Physics too slow to run in real time!
+[08:36:27] Physics too slow to run in real time!
+[08:36:28] Physics too slow to run in real time!
+[08:36:28] Physics too slow to run in real time!
+[08:36:28] Physics too slow to run in real time!
+[08:36:28] Physics too slow to run in real time!
+[08:36:29] Physics too slow to run in real time!
+[08:36:29] Physics too slow to run in real time!
+[08:36:29] Physics too slow to run in real time!
+[08:36:30] Physics too slow to run in real time!
+[08:36:30] Physics too slow to run in real time!
+[08:36:30] Physics too slow to run in real time!
+[08:36:30] Physics too slow to run in real time!
+[08:36:31] Physics too slow to run in real time!
+[08:36:31] Physics too slow to run in real time!
+[08:36:31] Physics too slow to run in real time!
+[08:36:31] Physics too slow to run in real time!
+[08:36:31] Physics too slow to run in real time!
+[08:36:32] Physics too slow to run in real time!
+[08:36:32] Physics too slow to run in real time!
+[08:36:32] Physics too slow to run in real time!
+[08:36:32] Physics too slow to run in real time!
+[08:36:33] Physics too slow to run in real time!
+[08:36:33] Physics too slow to run in real time!
+[08:36:33] Physics too slow to run in real time!
+[08:36:33] Physics too slow to run in real time!
+[08:36:33] Physics too slow to run in real time!
+[08:36:34] Physics too slow to run in real time!
+[08:36:34] Physics too slow to run in real time!
+[08:36:34] Physics too slow to run in real time!
+[08:36:34] Physics too slow to run in real time!
+[08:36:34] Physics too slow to run in real time!
+[08:36:35] Physics too slow to run in real time!
+[08:36:35] Physics too slow to run in real time!
+[08:36:35] Physics too slow to run in real time!
+[08:36:35] Physics too slow to run in real time!
+[08:36:35] Physics too slow to run in real time!
+[08:36:36] Physics too slow to run in real time!
+[08:36:36] Physics too slow to run in real time!
+[08:36:36] Physics too slow to run in real time!
+[08:36:36] Physics too slow to run in real time!
+[08:36:37] Physics too slow to run in real time!
+[08:36:37] Physics too slow to run in real time!
+[08:36:37] Physics too slow to run in real time!
+[08:36:37] Physics too slow to run in real time!
+[08:36:37] Physics too slow to run in real time!
+[08:36:37] Physics too slow to run in real time!
+[08:36:38] Physics too slow to run in real time!
+[08:36:38] Physics too slow to run in real time!
+[08:36:38] Physics too slow to run in real time!
+[08:36:38] Physics too slow to run in real time!
+[08:36:38] Physics too slow to run in real time!
+[08:36:38] Physics too slow to run in real time!
+[08:36:39] Physics too slow to run in real time!
+[08:36:39] Physics too slow to run in real time!
+[08:36:39] Physics too slow to run in real time!
+[08:36:39] Physics too slow to run in real time!
+[08:36:39] Physics too slow to run in real time!
+[08:36:40] Physics too slow to run in real time!
+[08:36:40] Physics too slow to run in real time!
+[08:36:40] Physics too slow to run in real time!
+[08:36:41] Physics too slow to run in real time!
+[08:36:41] Physics too slow to run in real time!
+[08:36:41] Physics too slow to run in real time!
+[08:36:41] Physics too slow to run in real time!
+[08:36:41] Physics too slow to run in real time!
+[08:36:41] Physics too slow to run in real time!
+[08:36:42] Physics too slow to run in real time!
+[08:36:42] Physics too slow to run in real time!
+[08:36:42] Physics too slow to run in real time!
+[08:36:43] Physics too slow to run in real time!
+[08:36:43] Physics too slow to run in real time!
+[08:36:43] Physics too slow to run in real time!
+[08:36:43] Physics too slow to run in real time!
+[08:36:43] Physics too slow to run in real time!
+[08:36:44] Physics too slow to run in real time!
+[08:36:44] Physics too slow to run in real time!
+[08:36:44] Physics too slow to run in real time!
+[08:36:45] Physics too slow to run in real time!
+[08:36:45] Physics too slow to run in real time!
+[08:36:45] Physics too slow to run in real time!
+[08:36:45] Physics too slow to run in real time!
+[08:36:45] Physics too slow to run in real time!
+[08:36:46] Physics too slow to run in real time!
+[08:36:46] Physics too slow to run in real time!
+[08:36:46] Physics too slow to run in real time!
+[08:36:46] Physics too slow to run in real time!
+[08:36:47] Physics too slow to run in real time!
+[08:36:47] Physics too slow to run in real time!
+[08:36:47] Physics too slow to run in real time!
+[08:36:47] Physics too slow to run in real time!
+[08:36:47] Physics too slow to run in real time!
+[08:36:48] Physics too slow to run in real time!
+[08:36:48] Physics too slow to run in real time!
+[08:36:48] Physics too slow to run in real time!
+[08:36:48] Physics too slow to run in real time!
+[08:36:48] Physics too slow to run in real time!
+[08:36:49] Physics too slow to run in real time!
+[08:36:49] Physics too slow to run in real time!
+[08:36:49] Physics too slow to run in real time!
+[08:36:49] Physics too slow to run in real time!
+[08:36:49] Physics too slow to run in real time!
+[08:36:50] Physics too slow to run in real time!
+[08:36:50] Physics too slow to run in real time!
+[08:36:50] Physics too slow to run in real time!
+[08:36:50] Physics too slow to run in real time!
+[08:36:51] Physics too slow to run in real time!
+[08:36:51] Physics too slow to run in real time!
+[08:36:51] Physics too slow to run in real time!
+[08:36:51] Physics too slow to run in real time!
+[08:36:52] Physics too slow to run in real time!
+[08:36:52] Physics too slow to run in real time!
+[08:36:52] Physics too slow to run in real time!
+[08:36:53] Physics too slow to run in real time!
+[08:36:53] Physics too slow to run in real time!
+[08:36:53] Physics too slow to run in real time!
+[08:36:53] Physics too slow to run in real time!
+[08:36:53] Physics too slow to run in real time!
+[08:36:53] Physics too slow to run in real time!
+[08:36:54] Physics too slow to run in real time!
+[08:36:54] Physics too slow to run in real time!
+[08:36:54] Physics too slow to run in real time!
+[08:36:54] Physics too slow to run in real time!
+[08:36:55] Physics too slow to run in real time!
+[08:36:55] Physics too slow to run in real time!
+[08:36:55] Physics too slow to run in real time!
+[08:36:55] Physics too slow to run in real time!
+[08:36:55] Physics too slow to run in real time!
+[08:36:55] Physics too slow to run in real time!
+[08:36:56] Physics too slow to run in real time!
+[08:36:56] Physics too slow to run in real time!
+[08:36:56] Physics too slow to run in real time!
+[08:36:56] Physics too slow to run in real time!
+[08:36:57] Physics too slow to run in real time!
+[08:36:57] Physics too slow to run in real time!
+[08:36:57] Physics too slow to run in real time!
+[08:36:57] Physics too slow to run in real time!
+[08:36:57] Physics too slow to run in real time!
+[08:36:58] Physics too slow to run in real time!
+[08:36:58] Physics too slow to run in real time!
+[08:36:58] Physics too slow to run in real time!
+[08:36:58] Physics too slow to run in real time!
+[08:36:59] Physics too slow to run in real time!
+[08:36:59] Physics too slow to run in real time!
+[08:36:59] Physics too slow to run in real time!
+[08:36:59] Physics too slow to run in real time!
+[08:37:00] Physics too slow to run in real time!
+[08:37:00] Physics too slow to run in real time!
+[08:37:00] Physics too slow to run in real time!
+[08:37:00] Physics too slow to run in real time!
+[08:37:01] Physics too slow to run in real time!
+[08:37:01] Physics too slow to run in real time!
+[08:37:01] Physics too slow to run in real time!
+[08:37:01] Physics too slow to run in real time!
+[08:37:02] Physics too slow to run in real time!
+[08:37:02] Physics too slow to run in real time!
+[08:37:02] Physics too slow to run in real time!
+[08:37:02] Physics too slow to run in real time!
+[08:37:02] Physics too slow to run in real time!
+[08:37:03] Physics too slow to run in real time!
+[08:37:03] Physics too slow to run in real time!
+[08:37:03] Physics too slow to run in real time!
+[08:37:03] Physics too slow to run in real time!
+[08:37:04] Physics too slow to run in real time!
+[08:37:04] Physics too slow to run in real time!
+[08:37:04] Physics too slow to run in real time!
+[08:37:04] Physics too slow to run in real time!
+[08:37:04] Physics too slow to run in real time!
+[08:37:05] Physics too slow to run in real time!
+[08:37:05] Physics too slow to run in real time!
+[08:37:05] Physics too slow to run in real time!
+[08:37:05] Physics too slow to run in real time!
+[08:37:06] Physics too slow to run in real time!
+[08:37:06] Physics too slow to run in real time!
+[08:37:06] Physics too slow to run in real time!
+[08:37:06] Physics too slow to run in real time!
+[08:37:07] Physics too slow to run in real time!
+[08:37:07] Physics too slow to run in real time!
+[08:37:07] Physics too slow to run in real time!
+[08:37:07] Physics too slow to run in real time!
+[08:37:07] Physics too slow to run in real time!
+[08:37:07] Physics too slow to run in real time!
+[08:37:08] Physics too slow to run in real time!
+[08:37:08] Physics too slow to run in real time!
+[08:37:08] Physics too slow to run in real time!
+[08:37:08] Physics too slow to run in real time!
+[08:37:09] Physics too slow to run in real time!
+[08:37:09] Physics too slow to run in real time!
+[08:37:09] Physics too slow to run in real time!
+[08:37:09] Physics too slow to run in real time!
+[08:37:09] Physics too slow to run in real time!
+[08:37:10] Physics too slow to run in real time!
+[08:37:10] Physics too slow to run in real time!
+[08:37:10] Physics too slow to run in real time!
+[08:37:10] Physics too slow to run in real time!
+[08:37:10] Physics too slow to run in real time!
+[08:37:10] Physics too slow to run in real time!

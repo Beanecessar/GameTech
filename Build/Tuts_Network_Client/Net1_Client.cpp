@@ -212,7 +212,7 @@ void Net1_Client::OnUpdateScene(float dt)
 	network.ServiceNetwork(dt, callback);
 
 	//Dead reckoning
-	DeadReckoning(dt*0.001f);
+	DeadReckoning(dt);
 	//cout << dt <<endl;
 
 	//Update state machine
@@ -461,10 +461,6 @@ void Net1_Client::ProcessNetworkEvent(const ENetEvent& evnt)
 							memcpy(&pos, evnt.packet->data + offset, sizeof(Vector2));
 							offset += sizeof(Vector2);
 
-							Vector2 vel;
-							memcpy(&vel, evnt.packet->data + offset, sizeof(Vector2));
-							offset += sizeof(Vector2);
-
 							for (size_t i = 0; i < numOfStones; i++)
 							{
 								float scalar = 1.f / (float)md.flat_maze_size;
@@ -483,7 +479,7 @@ void Net1_Client::ProcessNetworkEvent(const ENetEvent& evnt)
 								stoneRender->SetTransform(Matrix4::Translation(cellpos + cellsize * 0.5f) * Matrix4::Scale(cellsize * 0.4f));
 								mazeRenderer->Render()->AddChild(stoneRender);
 
-								Character stone = { stoneRender,pos,vel };
+								Character stone = { stoneRender,pos,Vector2(0,0) };
 
 								stones.push_back(stone);
 							}
@@ -579,6 +575,8 @@ void Net1_Client::UpdateClientStateMachine(float dt) {
 		if (start_position.x >= 0 && goal_position.x >= 0)
 		{
 			mazeRenderer->IsGoalRenewed = false;
+
+			currentPos = start_position;
 
 			char* data = new char[sizeof(PacketFlag) + sizeof(Vector2) * 2];
 
